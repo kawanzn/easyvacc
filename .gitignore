@@ -1,0 +1,33 @@
+# ==========================================
+# EasyVacc - arquivos que NÃO vão para o Git
+# ==========================================
+
+# Variáveis de ambiente / senhas
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Dependências do Frontend
+**/node_modules/
+
+# Dependências do Laravel
+**/vendor/
+
+# Builds
+**/dist/
+**/build/
+
+# Logs
+*.log
+
+# Sistema operacional / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Configurações locais de assistentes/editores
+**/.agents/
+**/.claude/
+**/.cursor/
+**/.devin/

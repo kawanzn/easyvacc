@@ -1,4 +1,8 @@
-export const API_URL = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '')).replace(/\/$/, '');
+// Em produção, frontend e API pertencem ao mesmo projeto Vercel.
+// VITE_API_URL é considerado apenas no desenvolvimento local.
+export const API_URL = (import.meta.env.DEV
+  ? import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  : '').replace(/\/$/, '');
 
 export async function api<T = any>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {

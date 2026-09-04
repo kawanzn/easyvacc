@@ -3,7 +3,7 @@ export default function Campanhas() {
   const [campanhas, setCampanhas] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/campanhas')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/campanhas`)
       .then(res => res.json())
       .then(data => {
         if (data.sucesso) setCampanhas(data.dados);

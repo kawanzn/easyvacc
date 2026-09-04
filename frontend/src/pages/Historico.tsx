@@ -35,7 +35,7 @@ export default function Historico() {
 
   const [vacinas, setVacinas] = useState<Vacina[]>([]);
   const [busca, setBusca] = useState('');
-  const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] = useState(() => Boolean(localStorage.getItem('usuarioId')));
 
 
   // ==========================================================
@@ -43,9 +43,9 @@ export default function Historico() {
   // ==========================================================
 
   // Em produção utilizará VITE_API_URL.
-  // Localmente continuará funcionando na porta 5000.
+  // Localmente continuará funcionando na porta 8000.
   const API_URL =
-    import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 
   // ==========================================================
@@ -57,7 +57,6 @@ export default function Historico() {
     const usuarioId = localStorage.getItem('usuarioId');
 
     if (!usuarioId) {
-      setCarregando(false);
       return;
     }
 

@@ -30,7 +30,7 @@ export default function Notificacoes() {
   const [notificacoes, setNotificacoes] = useState<any[]>([]);
 
   // Controla a mensagem "Carregando notificações..."
-  const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] = useState(() => Boolean(localStorage.getItem('usuarioId')));
 
 
   // ======================================================
@@ -51,7 +51,7 @@ export default function Notificacoes() {
       // ATENÇÃO:
       // localhost funciona apenas no desenvolvimento local.
       // Depois vamos configurar a URL do backend online.
-      fetch(`http://localhost:5000/api/notificacoes/${usuarioId}`)
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/notificacoes/${usuarioId}`)
 
         // Converte a resposta do servidor para JSON.
         .then((res) => res.json())
@@ -80,11 +80,6 @@ export default function Notificacoes() {
           setCarregando(false);
         });
 
-    } else {
-
-      // Se não existe usuário logado,
-      // não precisamos tentar acessar o backend.
-      setCarregando(false);
     }
 
   }, []);

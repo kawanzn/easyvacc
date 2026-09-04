@@ -6,17 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Cria a tabela de usuários do EasyVacc.
-     */
     public function up(): void
     {
+        if (Schema::hasTable('users')) {
+            return;
+        }
         Schema::create('users', function (Blueprint $table) {
-
-            // Identificador único do usuário.
             $table->id();
-
-            // Dados informados na tela de cadastro.
             $table->string('nome');
             $table->string('cpf', 11)->unique();
             $table->string('cns', 15)->unique();
@@ -30,17 +26,12 @@ return new class extends Migration
             $table->text('alergias')->nullable();
             $table->string('contato_emergencia')->nullable();
             $table->string('telefone_emergencia')->nullable();
-
-            // Data de criação e atualização do cadastro.
             $table->timestamps();
         });
     }
 
-    /**
-     * Remove a tabela caso a migration seja desfeita.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        // Não remove dados existentes durante um rollback.
     }
 };

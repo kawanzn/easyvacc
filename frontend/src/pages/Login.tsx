@@ -12,7 +12,7 @@ import { ArrowLeft, Lock } from 'lucide-react';
 // ======================================================
 //
 // Em desenvolvimento:
-// usa http://localhost:5000
+// usa http://localhost:8000
 //
 // Quando o projeto estiver publicado na Vercel:
 // vamos criar a variável VITE_API_URL com a URL
@@ -22,7 +22,7 @@ import { ArrowLeft, Lock } from 'lucide-react';
 // VITE_API_URL=https://meu-backend.com
 //
 const API_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 
 export default function Login() {

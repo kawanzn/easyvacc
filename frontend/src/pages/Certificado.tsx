@@ -52,7 +52,7 @@ export default function Certificado() {
 
   const [vacinas, setVacinas] = useState<Vacina[]>([]);
 
-  const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] = useState(() => Boolean(localStorage.getItem('usuarioId')));
 
 
   // ==========================================================
@@ -60,7 +60,7 @@ export default function Certificado() {
   // ==========================================================
 
   const API_URL =
-    import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 
   // ==========================================================
@@ -79,7 +79,6 @@ export default function Certificado() {
     const usuarioId = localStorage.getItem('usuarioId');
 
     if (!usuarioId) {
-      setCarregando(false);
       return;
     }
 

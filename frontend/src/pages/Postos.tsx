@@ -6,7 +6,7 @@ export default function Postos() {
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/postos')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/postos`)
       .then(res => res.json())
       .then(data => {
         if (data.sucesso) setPostos(data.dados);

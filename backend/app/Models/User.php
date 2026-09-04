@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,37 +12,61 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    // =====================================================
+    // CAMPOS QUE PODEM SER PREENCHIDOS PELO SISTEMA
+    // =====================================================
+    //
+    // Esses campos correspondem aos dados enviados
+    // pela tela de cadastro do EasyVacc.
     protected $fillable = [
-        'name',
+        'nome',
+        'cpf',
+        'cns',
         'email',
-        'password',
+        'cidade',
+        'senha',
+        'telefone',
+        'data_nascimento',
+        'endereco',
+        'tipo_sanguineo',
+        'alergias',
+        'contato_emergencia',
+        'telefone_emergencia',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    // =====================================================
+    // CAMPOS OCULTOS
+    // =====================================================
+    //
+    // Impede que a senha seja exibida quando os dados
+    // do usuário forem transformados em JSON.
     protected $hidden = [
-        'password',
-        'remember_token',
+        'senha',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    // =====================================================
+    // TRATAMENTO AUTOMÁTICO DOS CAMPOS
+    // =====================================================
+
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            // Sempre que atribuirmos uma senha ao usuário,
+            // o Laravel armazenará seu hash em vez do texto puro.
+            'senha' => 'hashed',
+            'data_nascimento' => 'date:Y-m-d',
         ];
+    }
+
+    // =====================================================
+    // SENHA UTILIZADA PELA AUTENTICAÇÃO
+    // =====================================================
+    //
+    // O Laravel normalmente procura uma coluna chamada
+    // "password". Como o EasyVacc utiliza "senha",
+    // informamos aqui qual campo contém a senha do usuário.
+    public function getAuthPassword(): string
+    {
+        return $this->senha;
     }
 }

@@ -8,6 +8,7 @@ import { useState } from 'react';
 // useNavigate permite redirecionar o usuário.
 // Link permite navegar entre páginas sem recarregar o site.
 import { useNavigate, Link } from 'react-router-dom';
+import { api } from '../lib/api';
 
 // Ícones utilizados nos campos do formulário.
 // ArrowLeft foi removido porque não estava sendo utilizado
@@ -71,31 +72,10 @@ export default function Cadastro() {
       //
       // Depois vamos trocar isso para funcionar
       // com o backend hospedado online.
-      const response = await fetch(
-        'http://localhost:5000/api/usuarios/cadastro',
-        {
-          method: 'POST',
-
-          // Informa ao backend que estamos enviando JSON.
-          headers: {
-            'Content-Type': 'application/json'
-          },
-
-          // Transforma os dados do formulário em JSON.
-          body: JSON.stringify({
-            nome,
-            cpf,
-            cns,
-            email,
-            cidade,
-            senha
-          })
-        }
-      );
-
-
-      // Converte a resposta do servidor para JavaScript.
-      const data = await response.json();
+      const data = await api<{ sucesso: boolean; mensagem?: string }>('/api/usuarios/cadastro', {
+        method: 'POST',
+        body: JSON.stringify({ nome, cpf, cns, email, cidade, senha })
+      });
 
 
       // ==================================================
@@ -113,7 +93,7 @@ export default function Cadastro() {
       } else {
 
         // O servidor respondeu, mas informou algum erro.
-        setErro(data.mensagem);
+        setErro(data.mensagem || 'Não foi possível concluir o cadastro.');
       }
 
     } catch (error) {
@@ -122,7 +102,7 @@ export default function Cadastro() {
       // o frontend não consegue alcançar o backend.
       console.error('Erro ao realizar cadastro:', error);
 
-      setErro('Erro ao conectar com o servidor.');
+      setErro(error instanceof Error ? error.message : 'Erro ao conectar com o servidor.');
     }
   };
 

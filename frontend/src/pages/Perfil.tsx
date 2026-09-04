@@ -25,7 +25,7 @@ export default function Perfil() {
   useEffect(() => {
     const usuarioId = localStorage.getItem('usuarioId');
     if (usuarioId) {
-      fetch(`http://localhost:5000/api/usuarios/${usuarioId}`)
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/usuarios/${usuarioId}`)
         .then(res => res.json())
         .then(data => {
           if (data.sucesso) {

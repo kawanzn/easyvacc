@@ -18,5 +18,9 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // As respostas da API ainda são consumidas por telas legadas sem DTO compartilhado.
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
 ])

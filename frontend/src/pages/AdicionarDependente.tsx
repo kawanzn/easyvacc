@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Users, Calendar, User, ArrowLeft } from 'lucide-react';
+import { API_URL } from '../lib/api';
 
 export default function AdicionarDependente() {
   const [nome, setNome] = useState('');
@@ -31,7 +32,7 @@ export default function AdicionarDependente() {
     console.log("Enviando payload para a API:", payload);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/dependentes`, {
+      const response = await fetch(`${API_URL}/api/dependentes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

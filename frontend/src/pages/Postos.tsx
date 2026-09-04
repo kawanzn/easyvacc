@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { MapPin, Phone, Clock } from 'lucide-react';
+import { API_URL } from '../lib/api';
 
 export default function Postos() {
   const [postos, setPostos] = useState<any[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/postos`)
+    fetch(`${API_URL}/api/postos`)
       .then(res => res.json())
       .then(data => {
         if (data.sucesso) setPostos(data.dados);

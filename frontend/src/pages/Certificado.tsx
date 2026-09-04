@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Syringe,
 } from 'lucide-react';
+import { API_URL } from '../lib/api';
 
 
 /*
@@ -58,10 +59,6 @@ export default function Certificado() {
   // ==========================================================
   // API
   // ==========================================================
-
-  const API_URL =
-    import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
 
   // ==========================================================
   // DATA DE EMISSÃO
@@ -123,7 +120,7 @@ export default function Certificado() {
         setCarregando(false);
       });
 
-  }, [API_URL]);
+  }, []);
 
 
   // ==========================================================

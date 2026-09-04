@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import { API_URL } from '../lib/api';
 export default function Campanhas() {
   const [campanhas, setCampanhas] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/campanhas`)
+    fetch(`${API_URL}/api/campanhas`)
       .then(res => res.json())
       .then(data => {
         if (data.sucesso) setCampanhas(data.dados);

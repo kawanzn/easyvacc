@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Lock } from 'lucide-react';
+import { API_URL } from '../lib/api';
 
 
 // ======================================================
@@ -21,10 +22,6 @@ import { ArrowLeft, Lock } from 'lucide-react';
 // Exemplo futuro:
 // VITE_API_URL=https://meu-backend.com
 //
-const API_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-
 export default function Login() {
 
   // ======================================================

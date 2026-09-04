@@ -20,6 +20,7 @@ import {
   PanelLeftOpen,
   ChevronRight,
 } from 'lucide-react';
+import { API_URL } from '../lib/api';
 
 
 /*
@@ -68,10 +69,6 @@ export default function Layout() {
   // ==========================================================
   // API
   // ==========================================================
-
-  const API_URL =
-    import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
 
   // ==========================================================
   // CARREGAMENTO DOS DADOS
@@ -143,7 +140,7 @@ export default function Layout() {
         );
       });
 
-  }, [API_URL]);
+  }, []);
 
 
   // ==========================================================

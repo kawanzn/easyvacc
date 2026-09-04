@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, CreditCard, Shield, Calendar, Activity, Heart, Home, Camera } from 'lucide-react';
+import { API_URL } from '../lib/api';
 
 export default function Perfil() {
   // Estado para armazenar a foto de perfil
@@ -25,7 +26,7 @@ export default function Perfil() {
   useEffect(() => {
     const usuarioId = localStorage.getItem('usuarioId');
     if (usuarioId) {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/usuarios/${usuarioId}`)
+      fetch(`${API_URL}/api/usuarios/${usuarioId}`)
         .then(res => res.json())
         .then(data => {
           if (data.sucesso) {

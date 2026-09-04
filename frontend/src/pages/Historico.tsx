@@ -9,6 +9,7 @@ import {
   Database,
   ChevronRight,
 } from 'lucide-react';
+import { API_URL } from '../lib/api';
 
 
 /*
@@ -44,10 +45,6 @@ export default function Historico() {
 
   // Em produção utilizará VITE_API_URL.
   // Localmente continuará funcionando na porta 8000.
-  const API_URL =
-    import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-
   // ==========================================================
   // BUSCAR VACINAS
   // ==========================================================
@@ -82,7 +79,7 @@ export default function Historico() {
 
       });
 
-  }, [API_URL]);
+  }, []);
 
 
   // ==========================================================

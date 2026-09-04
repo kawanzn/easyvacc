@@ -18,6 +18,7 @@ import {
   Bell,
   CheckCircle2
 } from 'lucide-react';
+import { API_URL } from '../lib/api';
 
 
 export default function Notificacoes() {
@@ -51,7 +52,7 @@ export default function Notificacoes() {
       // ATENÇÃO:
       // localhost funciona apenas no desenvolvimento local.
       // Depois vamos configurar a URL do backend online.
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/notificacoes/${usuarioId}`)
+      fetch(`${API_URL}/api/notificacoes/${usuarioId}`)
 
         // Converte a resposta do servidor para JSON.
         .then((res) => res.json())

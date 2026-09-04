@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Syringe, Calendar, Hash, Factory, Clock, ShieldAlert, CheckCircle, UserCheck, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../lib/api';
 
 export default function PainelPosto() {
   const [cpfCidadao, setCpfCidadao] = useState(''); // <--- Novo estado para o CPF
@@ -19,7 +20,7 @@ export default function PainelPosto() {
 
     try {
       // 1. Primeiro, buscamos o usuário no banco pelo CPF digitado
-      const resBusca = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/usuarios/cpf/${cpfCidadao}`);
+      const resBusca = await fetch(`${API_URL}/api/usuarios/cpf/${cpfCidadao}`);
       const dadosUsuario = await resBusca.json();
 
       if (!dadosUsuario.sucesso || !dadosUsuario.dados) {
@@ -30,7 +31,7 @@ export default function PainelPosto() {
       const usuarioId = dadosUsuario.dados.id;
 
       // 2. Com o ID em mãos, registramos a vacina vinculada a ele
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/vacinas`, {
+      const response = await fetch(`${API_URL}/api/vacinas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 
-type Request = { method?: string; query: Record<string, string | string[]>; body?: Record<string, unknown> };
+type Request = { method?: string; url?: string; query: Record<string, string | string[]>; body?: Record<string, unknown> };
 type Response = { status: (code: number) => Response; json: (body: unknown) => void; setHeader: (name: string, value: string) => void };
 
 const ok = (res: Response, dados: unknown, status = 200) => res.status(status).json(dados);
@@ -14,7 +14,8 @@ export default async function handler(req: Request, res: Response) {
   if (!databaseUrl) return ok(res, { sucesso: false, mensagem: 'DATABASE_URL não configurada na Vercel.' }, 500);
 
   const sql = neon(databaseUrl);
-  const rawPath = Array.isArray(req.query.path) ? req.query.path.join('/') : String(req.query.path || '');
+  const requestPath = req.url ? new URL(req.url, 'http://localhost').pathname : '';
+  const rawPath = Array.isArray(req.query.path) ? req.query.path.join('/') : String(req.query.path || requestPath);
   const path = rawPath.replace(/^api\//, '').replace(/^\/+|\/+$/g, '');
   const body = req.body || {};
 

@@ -1,6 +1,4 @@
 // Importa somente o que realmente usamos do React Router.
-// "useLocation" foi removido porque não estava sendo utilizado
-// e estava causando erro TS6133 no build da Vercel.
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Páginas públicas
@@ -13,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Historico from './pages/Historico';
 import Perfil from './pages/Perfil';
 import Certificado from './pages/Certificado';
+import Dependentes from './pages/Dependentes';
 import AdicionarDependente from './pages/AdicionarDependente';
 import Notificacoes from './pages/Notificacoes';
 import Campanhas from './pages/Campanhas';
@@ -67,6 +66,11 @@ function App() {
           <Route
             path="/certificado"
             element={<Certificado />}
+          />
+
+          <Route
+            path="/dependentes"
+            element={<Dependentes />}
           />
 
           <Route

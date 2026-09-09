@@ -1,5 +1,5 @@
 // ======================================================
-// CADASTRO DE USUÁRIO
+// CADASTRO DE USUÁRIO - DARK HEALTH TECH DESIGN SYSTEM
 // ======================================================
 
 // useState permite guardar os valores digitados nos campos.
@@ -11,8 +11,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../lib/api';
 
 // Ícones utilizados nos campos do formulário.
-// ArrowLeft foi removido porque não estava sendo utilizado
-// e isso estava causando erro TS6133 no build da Vercel.
 import {
   User,
   Lock,
@@ -65,13 +63,6 @@ export default function Cadastro() {
     try {
 
       // Envia os dados digitados para o backend.
-      //
-      // IMPORTANTE:
-      // localhost funciona enquanto estamos desenvolvendo
-      // no computador.
-      //
-      // Depois vamos trocar isso para funcionar
-      // com o backend hospedado online.
       const data = await api<{ sucesso: boolean; mensagem?: string }>('/api/usuarios/cadastro', {
         method: 'POST',
         body: JSON.stringify({ nome, cpf, cns, email, cidade, senha })
@@ -113,39 +104,39 @@ export default function Cadastro() {
 
   return (
 
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100 relative overflow-hidden">
 
       {/* ==================================================
-          DECORAÇÃO DO FUNDO
+          DECORAÇÃO DO FUNDO (DARK HEALTH TECH)
           ================================================== */}
 
-      <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-teal-100/60 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -z-10"></div>
 
-      <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-emerald-100/60 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-teal-500/5 rounded-full blur-3xl -z-10"></div>
 
 
       {/* ==================================================
           CARD PRINCIPAL
           ================================================== */}
 
-      <div className="bg-white/80 backdrop-blur-xl max-w-xl w-full rounded-[2.5rem] shadow-xl shadow-teal-900/5 p-8 md:p-10 border border-white my-8">
+      <div className="bg-slate-900/90 backdrop-blur-xl max-w-xl w-full rounded-[2.5rem] shadow-2xl shadow-black/50 p-8 md:p-10 border border-slate-800 my-8">
 
 
         {/* TÍTULO */}
 
         <div className="text-center mb-8">
 
-          <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+          <h2 className="text-3xl font-black text-white tracking-tight">
             Criar nova conta
           </h2>
 
-          <p className="text-slate-500 mt-2 text-sm font-medium">
+          <p className="text-slate-400 mt-2 text-sm font-medium">
 
             Ou{' '}
 
             <Link
               to="/login"
-              className="text-teal-600 hover:text-teal-700 font-bold transition-colors"
+              className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors"
             >
               já tenho uma conta (Fazer Login)
             </Link>
@@ -169,7 +160,7 @@ export default function Cadastro() {
 
           <div>
 
-            <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
               Nome Completo
             </label>
 
@@ -177,7 +168,7 @@ export default function Cadastro() {
 
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 
-                <User className="h-5 w-5 text-gray-400" />
+                <User className="h-5 w-5 text-slate-500" />
 
               </div>
 
@@ -186,7 +177,7 @@ export default function Cadastro() {
                 required
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
                 placeholder="Seu nome completo"
               />
 
@@ -204,7 +195,7 @@ export default function Cadastro() {
 
             <div>
 
-              <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+              <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
                 CPF
               </label>
 
@@ -212,7 +203,7 @@ export default function Cadastro() {
 
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 
-                  <FileText className="h-5 w-5 text-gray-400" />
+                  <FileText className="h-5 w-5 text-slate-500" />
 
                 </div>
 
@@ -221,7 +212,7 @@ export default function Cadastro() {
                   required
                   value={cpf}
                   onChange={(e) => setCpf(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
                   placeholder="Somente números"
                 />
 
@@ -234,7 +225,7 @@ export default function Cadastro() {
 
             <div>
 
-              <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+              <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
                 Cartão SUS
               </label>
 
@@ -242,7 +233,7 @@ export default function Cadastro() {
 
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 
-                  <FileText className="h-5 w-5 text-gray-400" />
+                  <FileText className="h-5 w-5 text-slate-500" />
 
                 </div>
 
@@ -251,7 +242,7 @@ export default function Cadastro() {
                   required
                   value={cns}
                   onChange={(e) => setCns(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
                   placeholder="Número do CNS"
                 />
 
@@ -266,7 +257,7 @@ export default function Cadastro() {
 
           <div>
 
-            <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
               E-mail
             </label>
 
@@ -274,7 +265,7 @@ export default function Cadastro() {
 
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-slate-500" />
 
               </div>
 
@@ -283,7 +274,7 @@ export default function Cadastro() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
                 placeholder="seu@email.com"
               />
 
@@ -301,7 +292,7 @@ export default function Cadastro() {
 
             <div>
 
-              <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+              <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
                 Cidade
               </label>
 
@@ -309,7 +300,7 @@ export default function Cadastro() {
 
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 
-                  <MapPin className="h-5 w-5 text-gray-400" />
+                  <MapPin className="h-5 w-5 text-slate-500" />
 
                 </div>
 
@@ -318,7 +309,7 @@ export default function Cadastro() {
                   required
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
                   placeholder="Sua cidade"
                 />
 
@@ -331,7 +322,7 @@ export default function Cadastro() {
 
             <div>
 
-              <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+              <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
                 Senha
               </label>
 
@@ -339,7 +330,7 @@ export default function Cadastro() {
 
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-slate-500" />
 
                 </div>
 
@@ -348,7 +339,7 @@ export default function Cadastro() {
                   required
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
                   placeholder="Crie uma senha"
                 />
 
@@ -366,7 +357,7 @@ export default function Cadastro() {
 
           {erro && (
 
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center font-semibold mt-4 border border-red-100">
+            <div className="bg-red-950/50 text-red-400 p-3 rounded-lg text-sm text-center font-semibold mt-4 border border-red-900/50">
 
               {erro}
 
@@ -382,7 +373,7 @@ export default function Cadastro() {
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl py-4 font-black text-lg hover:from-emerald-700 hover:to-teal-700 active:scale-[0.98] transition-all mt-6 shadow-lg shadow-teal-600/20"
+            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl py-4 font-bold text-base hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] transition-all mt-6 shadow-lg shadow-emerald-950/50"
           >
             Finalizar Cadastro
           </button>

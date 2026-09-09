@@ -146,7 +146,7 @@ export default function Certificado() {
           min-h-[70vh]
           items-center
           justify-center
-          bg-slate-50
+          bg-[#090d16]
         "
       >
 
@@ -157,7 +157,7 @@ export default function Certificado() {
             className="
               mx-auto
               animate-spin
-              text-emerald-600
+              text-emerald-400
             "
           />
 
@@ -166,7 +166,7 @@ export default function Certificado() {
               mt-3
               text-sm
               font-medium
-              text-slate-500
+              text-slate-400
             "
           >
             Preparando documento...
@@ -190,10 +190,11 @@ export default function Certificado() {
     <div
       className="
         min-h-full
-        bg-slate-50
-        text-slate-900
+        bg-[#090d16]
+        text-slate-100
 
         print:bg-white
+        print:text-slate-900
       "
     >
 
@@ -215,7 +216,7 @@ export default function Certificado() {
 
         {/* ====================================================
             CABEÇALHO DA PÁGINA
-           ==================================================== */}
+            ==================================================== */}
 
         <header
           className="
@@ -227,7 +228,7 @@ export default function Certificado() {
             gap-5
 
             border-b
-            border-slate-200
+            border-slate-800
 
             pb-7
 
@@ -254,7 +255,7 @@ export default function Certificado() {
                 uppercase
                 tracking-[0.12em]
 
-                text-slate-500
+                text-slate-400
               "
             >
 
@@ -264,7 +265,7 @@ export default function Certificado() {
 
               <ChevronRight size={13} />
 
-              <span className="text-slate-700">
+              <span className="text-emerald-400">
                 Certificado
               </span>
 
@@ -276,7 +277,7 @@ export default function Certificado() {
                 text-3xl
                 font-bold
                 tracking-tight
-                text-slate-950
+                text-white
 
                 md:text-[34px]
               "
@@ -292,7 +293,7 @@ export default function Certificado() {
 
                 text-sm
                 leading-6
-                text-slate-500
+                text-slate-400
               "
             >
               Visualize seus registros de imunização
@@ -315,20 +316,20 @@ export default function Certificado() {
 
               rounded-lg
 
-              bg-slate-900
+              bg-emerald-500
 
               px-4
               py-2.5
 
               text-sm
               font-semibold
-              text-white
+              text-slate-950
 
               shadow-sm
 
               transition-colors
 
-              hover:bg-slate-800
+              hover:bg-emerald-400
             "
           >
 
@@ -343,7 +344,7 @@ export default function Certificado() {
 
         {/* ====================================================
             INFORMAÇÕES SOBRE O DOCUMENTO
-           ==================================================== */}
+            ==================================================== */}
 
         <section
           className="
@@ -367,9 +368,9 @@ export default function Certificado() {
               rounded-xl
 
               border
-              border-slate-200
+              border-slate-800
 
-              bg-white
+              bg-[#111827]
 
               p-5
 
@@ -389,8 +390,8 @@ export default function Certificado() {
 
                   rounded-lg
 
-                  bg-slate-100
-                  text-slate-700
+                  bg-slate-800
+                  text-slate-300
                 "
               >
                 <FileText size={18} />
@@ -403,7 +404,7 @@ export default function Certificado() {
                   className="
                     text-[11px]
                     font-medium
-                    text-slate-500
+                    text-slate-400
                   "
                 >
                   Tipo de documento
@@ -414,7 +415,7 @@ export default function Certificado() {
                     mt-0.5
                     text-sm
                     font-semibold
-                    text-slate-900
+                    text-white
                   "
                 >
                   Comprovante de vacinação
@@ -434,9 +435,9 @@ export default function Certificado() {
               rounded-xl
 
               border
-              border-slate-200
+              border-slate-800
 
-              bg-white
+              bg-[#111827]
 
               p-5
 
@@ -456,8 +457,8 @@ export default function Certificado() {
 
                   rounded-lg
 
-                  bg-emerald-50
-                  text-emerald-700
+                  bg-emerald-950/60
+                  text-emerald-400
                 "
               >
                 <Syringe size={18} />
@@ -470,7 +471,7 @@ export default function Certificado() {
                   className="
                     text-[11px]
                     font-medium
-                    text-slate-500
+                    text-slate-400
                   "
                 >
                   Registros incluídos
@@ -481,7 +482,7 @@ export default function Certificado() {
                     mt-0.5
                     text-sm
                     font-semibold
-                    text-slate-900
+                    text-white
                   "
                 >
                   {vacinas.length}{' '}
@@ -504,9 +505,9 @@ export default function Certificado() {
               rounded-xl
 
               border
-              border-slate-200
+              border-slate-800
 
-              bg-white
+              bg-[#111827]
 
               p-5
 
@@ -526,8 +527,8 @@ export default function Certificado() {
 
                   rounded-lg
 
-                  bg-blue-50
-                  text-blue-700
+                  bg-cyan-950/60
+                  text-cyan-400
                 "
               >
                 <CheckCircle2 size={18} />
@@ -540,7 +541,7 @@ export default function Certificado() {
                   className="
                     text-[11px]
                     font-medium
-                    text-slate-500
+                    text-slate-400
                   "
                 >
                   Fonte dos dados
@@ -551,7 +552,7 @@ export default function Certificado() {
                     mt-0.5
                     text-sm
                     font-semibold
-                    text-slate-900
+                    text-white
                   "
                 >
                   Caderneta EasyVacc
@@ -568,7 +569,7 @@ export default function Certificado() {
 
         {/* ====================================================
             DOCUMENTO
-           ==================================================== */}
+            ==================================================== */}
 
         <section
           className="
@@ -578,27 +579,28 @@ export default function Certificado() {
             overflow-hidden
 
             border
-            border-slate-200
+            border-slate-800
 
-            bg-white
+            bg-[#111827]
 
-            shadow-sm
+            shadow-2xl
 
             print:max-w-none
             print:border-0
+            print:bg-white
             print:shadow-none
           "
         >
 
 
-          {/* ==================================================
+          {/* =================================================-
               CABEÇALHO DO DOCUMENTO
-             ================================================== */}
+              ================================================== */}
 
           <div
             className="
               border-b
-              border-slate-200
+              border-slate-800
 
               px-8
               py-7
@@ -607,6 +609,7 @@ export default function Certificado() {
 
               print:px-0
               print:pt-0
+              print:border-slate-200
             "
           >
 
@@ -638,9 +641,11 @@ export default function Certificado() {
                     rounded-lg
 
                     border
-                    border-slate-200
+                    border-slate-800
 
-                    bg-white
+                    bg-[#090d16]
+                    print:bg-white
+                    print:border-slate-200
                   "
                 >
 
@@ -648,8 +653,14 @@ export default function Certificado() {
                     src="/logo.png"
                     alt="EasyVacc"
                     className="
-                      h-10
-                      w-10
+                   mx-auto flex 
+                   items-center 
+                   justify-center
+                    rounded-lg
+                     bg-white p-1.5
+                      shadow-sm
+                      h-12
+                      w-12
                       object-contain
                     "
                   />
@@ -664,11 +675,12 @@ export default function Certificado() {
                       text-xl
                       font-bold
                       tracking-tight
-                      text-[#0b2239]
+                      text-white
+                      print:text-[#0b2239]
                     "
                   >
                     Easy
-                    <span className="text-emerald-600">
+                    <span className="text-emerald-400 print:text-emerald-600">
                       Vacc
                     </span>
                   </h2>
@@ -717,7 +729,8 @@ export default function Certificado() {
                     mt-1
                     text-sm
                     font-bold
-                    text-slate-900
+                    text-white
+                    print:text-slate-900
                   "
                 >
                   Comprovante de vacinação
@@ -730,9 +743,9 @@ export default function Certificado() {
           </div>
 
 
-          {/* ==================================================
+          {/* =================================================-
               CORPO
-             ================================================== */}
+              ================================================== */}
 
           <div
             className="
@@ -746,9 +759,9 @@ export default function Certificado() {
           >
 
 
-            {/* ==================================================
+            {/* =================================================-
                 IDENTIFICAÇÃO
-               ================================================== */}
+                ================================================== */}
 
             <section className="mb-9">
 
@@ -766,7 +779,7 @@ export default function Certificado() {
                     h-4
                     w-1
                     rounded-full
-                    bg-emerald-600
+                    bg-emerald-500
                   "
                 />
 
@@ -776,7 +789,8 @@ export default function Certificado() {
                     font-bold
                     uppercase
                     tracking-[0.12em]
-                    text-slate-700
+                    text-slate-300
+                    print:text-slate-700
                   "
                 >
                   Identificação do titular
@@ -791,7 +805,8 @@ export default function Certificado() {
                   grid-cols-1
 
                   border
-                  border-slate-200
+                  border-slate-800
+                  print:border-slate-200
 
                   md:grid-cols-[2fr_1fr]
                 "
@@ -803,7 +818,8 @@ export default function Certificado() {
                 <div
                   className="
                     border-b
-                    border-slate-200
+                    border-slate-800
+                    print:border-slate-200
 
                     p-4
 
@@ -829,7 +845,8 @@ export default function Certificado() {
                       mt-1.5
                       text-sm
                       font-semibold
-                      text-slate-900
+                      text-white
+                      print:text-slate-900
                     "
                   >
                     {usuario.nome ||
@@ -860,7 +877,8 @@ export default function Certificado() {
                       mt-1.5
                       text-sm
                       font-semibold
-                      text-slate-900
+                      text-white
+                      print:text-slate-900
                     "
                   >
                     {usuario.cpf ||
@@ -874,9 +892,9 @@ export default function Certificado() {
             </section>
 
 
-            {/* ==================================================
+            {/* =================================================-
                 REGISTROS DE VACINAÇÃO
-               ================================================== */}
+                ================================================== */}
 
             <section>
 
@@ -903,7 +921,7 @@ export default function Certificado() {
                       h-4
                       w-1
                       rounded-full
-                      bg-emerald-600
+                      bg-emerald-500
                     "
                   />
 
@@ -913,7 +931,8 @@ export default function Certificado() {
                       font-bold
                       uppercase
                       tracking-[0.12em]
-                      text-slate-700
+                      text-slate-300
+                      print:text-slate-700
                     "
                   >
                     Registros de imunização
@@ -937,7 +956,7 @@ export default function Certificado() {
 
               {/* ================================================
                   TABELA
-                 ================================================ */}
+                  ================================================ */}
 
               {vacinas.length > 0 ? (
 
@@ -945,7 +964,8 @@ export default function Certificado() {
                   className="
                     overflow-x-auto
                     border
-                    border-slate-200
+                    border-slate-800
+                    print:border-slate-200
                   "
                 >
 
@@ -962,16 +982,16 @@ export default function Certificado() {
                       <tr
                         className="
                           border-b
-                          border-slate-200
-                          bg-slate-50
+                          border-slate-800
+                          print:border-slate-200
+                          bg-[#090d16]
+                          print:bg-white
 
                           text-[10px]
                           font-semibold
                           uppercase
                           tracking-wider
-                          text-slate-500
-
-                          print:bg-white
+                          text-slate-400
                         "
                       >
 
@@ -999,7 +1019,8 @@ export default function Certificado() {
                     <tbody
                       className="
                         divide-y
-                        divide-slate-200
+                        divide-slate-800
+                        print:divide-slate-200
                       "
                     >
 
@@ -1014,7 +1035,8 @@ export default function Certificado() {
 
                               text-xs
                               font-semibold
-                              text-slate-900
+                              text-white
+                              print:text-slate-900
                             "
                           >
                             {vacina.nome}
@@ -1027,7 +1049,8 @@ export default function Certificado() {
                               py-4
 
                               text-xs
-                              text-slate-600
+                              text-slate-300
+                              print:text-slate-600
                             "
                           >
                             {vacina.fabricante ||
@@ -1043,7 +1066,8 @@ export default function Certificado() {
                               py-4
 
                               text-xs
-                              text-slate-600
+                              text-slate-300
+                              print:text-slate-600
                             "
                           >
                             {vacina.dataAplicacao}
@@ -1057,7 +1081,7 @@ export default function Certificado() {
 
                               font-mono
                               text-[11px]
-                              text-slate-500
+                              text-slate-400
                             "
                           >
                             {vacina.lote || '—'}
@@ -1079,7 +1103,8 @@ export default function Certificado() {
                   className="
                     border
                     border-dashed
-                    border-slate-300
+                    border-slate-800
+                    print:border-slate-300
 
                     px-6
                     py-10
@@ -1092,7 +1117,7 @@ export default function Certificado() {
                     size={22}
                     className="
                       mx-auto
-                      text-slate-300
+                      text-slate-600
                     "
                   />
 
@@ -1101,7 +1126,8 @@ export default function Certificado() {
                       mt-3
                       text-sm
                       font-medium
-                      text-slate-600
+                      text-slate-300
+                      print:text-slate-600
                     "
                   >
                     Nenhum registro de vacinação
@@ -1125,9 +1151,9 @@ export default function Certificado() {
             </section>
 
 
-            {/* ==================================================
+            {/* =================================================-
                 RODAPÉ
-               ================================================== */}
+                ================================================== */}
 
             <footer
               className="
@@ -1139,7 +1165,8 @@ export default function Certificado() {
                 gap-6
 
                 border-t
-                border-slate-200
+                border-slate-800
+                print:border-slate-200
 
                 pt-6
 
@@ -1164,14 +1191,15 @@ export default function Certificado() {
 
                   <ShieldCheck
                     size={16}
-                    className="text-emerald-600"
+                    className="text-emerald-400 print:text-emerald-600"
                   />
 
                   <span
                     className="
                       text-xs
                       font-semibold
-                      text-slate-700
+                      text-slate-200
+                      print:text-slate-700
                     "
                   >
                     Documento gerado pelo EasyVacc
@@ -1194,7 +1222,8 @@ export default function Certificado() {
                   className="
                     text-xs
                     font-medium
-                    text-slate-600
+                    text-slate-300
+                    print:text-slate-600
                   "
                 >
                   {dataEmissao}
@@ -1233,7 +1262,7 @@ export default function Certificado() {
                       max-w-[150px]
                       text-[10px]
                       leading-4
-                      text-slate-500
+                      text-slate-400
                     "
                   >
                     Área reservada para código
@@ -1252,9 +1281,11 @@ export default function Certificado() {
                     justify-center
 
                     border
-                    border-slate-300
+                    border-slate-700
+                    print:border-slate-300
 
-                    bg-white
+                    bg-[#090d16]
+                    print:bg-white
 
                     text-slate-400
                   "
@@ -1273,7 +1304,7 @@ export default function Certificado() {
 
         {/* ====================================================
             AVISO
-           ==================================================== */}
+            ==================================================== */}
 
         <p
           className="

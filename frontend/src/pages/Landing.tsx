@@ -1,551 +1,260 @@
-// ============================================================
-// LANDING PAGE - EASYVACC
-// ============================================================
-// Versão enxuta e responsiva.
-// Desktop: hero + preview da plataforma.
-// Mobile: foco total na mensagem principal e acesso rápido.
-// ============================================================
-
 import { Link } from 'react-router-dom';
-
 import {
   ArrowRight,
-  Bell,
   CheckCircle2,
-  FileText,
+  Clock,
+  FileCheck,
+  QrCode,
   ShieldCheck,
-  Syringe,
-  UsersRound,
+  Sparkles,
+  Users,
 } from 'lucide-react';
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
+      {/* Background Decorativo HealthTech (Gradientes Suaves) */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/15 via-[#00a884]/20 to-cyan-500/10 blur-3xl" />
+      </div>
 
-      {/* ======================================================
-          HEADER
-          ====================================================== */}
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-6 lg:px-8">
-
-          {/* Logo */}
+      {/* ================= HEADER ================= */}
+      <header className="sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          {/* Logo Oficial */}
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0b2239] sm:h-10 sm:w-10">
-              <Syringe size={19} className="text-emerald-400" />
-            </div>
-
-            <div>
-              <p className="text-base font-bold leading-none text-[#0b2239] sm:text-lg">
-                Easy<span className="text-emerald-600">Vacc</span>
-              </p>
-
-              {/* Esconde o subtítulo em celulares muito pequenos */}
-              <p className="mt-1 hidden text-[9px] font-semibold uppercase tracking-[0.25em] text-slate-400 sm:block">
-                Caderneta Digital
-              </p>
-            </div>
-          </Link>
-
-          {/* Navegação desktop */}
-          <nav className="hidden items-center gap-8 md:flex">
-            <a
-              href="#recursos"
-              className="text-sm font-medium text-slate-600 transition-colors hover:text-[#0b2239]"
-            >
-              Recursos
-            </a>
-          </nav>
-
-          {/* Login */}
-          <Link
-            to="/login"
-            className="
-              group
-              flex items-center gap-2
-              rounded-lg
-              bg-[#0b2239]
-              px-4 py-2.5
-              text-sm font-semibold text-white
-              transition-all duration-200
-              hover:bg-[#123453]
-              sm:px-5 sm:py-3
-            "
-          >
-            Entrar
-
-            <ArrowRight
-              size={15}
-              className="hidden transition-transform group-hover:translate-x-1 sm:block"
+            <img
+              src="/logo.png"
+              alt="EasyVacc Logo"
+              className="h-8 w-8 object-contain"
             />
+            <span className="text-lg font-bold tracking-tight text-white">
+              Easy<span className="text-[#00a884]">Vacc</span>
+            </span>
           </Link>
+
+          {/* Navegação / Ações */}
+          <div className="flex items-center gap-6">
+            <a
+              href="#como-funciona"
+              className="hidden text-xs font-medium text-slate-400 transition-colors hover:text-white sm:block"
+            >
+              Como Funciona
+            </a>
+            <Link
+              to="/login"
+              className="group inline-flex items-center gap-2 rounded-lg bg-[#00a884] px-4 py-2 text-xs font-semibold text-slate-950 shadow-lg shadow-[#00a884]/20 transition-all hover:bg-[#00c49a]"
+            >
+              Acessar Caderneta
+              <ArrowRight
+                size={14}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
+            </Link>
+          </div>
         </div>
       </header>
 
-
       <main>
-
-        {/* ======================================================
-            HERO
-            ====================================================== */}
-        <section className="overflow-hidden bg-slate-50">
-          <div
-            className="
-              mx-auto
-              grid
-              max-w-7xl
-              items-center
-              gap-14
-              px-5
-              py-16
-              sm:px-6 sm:py-20
-              lg:min-h-[650px]
-              lg:grid-cols-2
-              lg:px-8
-              lg:py-20
-            "
-          >
-
-            {/* TEXTO */}
-            <div className="max-w-xl">
-
-              <div
-                className="
-                  mb-6
-                  inline-flex items-center gap-2
-                  rounded-full
-                  border border-emerald-200
-                  bg-emerald-50
-                  px-3 py-1.5
-                  text-xs font-semibold
-                  text-emerald-700
-                "
-              >
-                <ShieldCheck size={14} />
-
-                Gestão digital de vacinação
-              </div>
-
-              <h1
-                className="
-                  text-[42px]
-                  font-bold
-                  leading-[1.05]
-                  tracking-tight
-                  text-[#0b2239]
-                  sm:text-5xl
-                  lg:text-[58px]
-                "
-              >
-                Sua vacinação,
-                <span className="block text-emerald-600">
-                  organizada.
-                </span>
-              </h1>
-
-              <p
-                className="
-                  mt-5
-                  max-w-lg
-                  text-base
-                  leading-7
-                  text-slate-600
-                  sm:mt-6 sm:text-lg
-                "
-              >
-                Histórico, dependentes e registros de vacinação
-                reunidos em um só lugar.
-              </p>
-
-              <div className="mt-8">
-                <Link
-                  to="/login"
-                  className="
-                    group
-                    inline-flex
-                    items-center gap-3
-                    rounded-lg
-                    bg-emerald-600
-                    px-5 py-3.5
-                    text-sm font-semibold
-                    text-white
-                    shadow-sm
-                    transition-all duration-200
-                    hover:-translate-y-0.5
-                    hover:bg-emerald-700
-                    hover:shadow-md
-                  "
-                >
-                  Acessar minha caderneta
-
-                  <ArrowRight
-                    size={17}
-                    className="transition-transform duration-200 group-hover:translate-x-1"
-                  />
-                </Link>
-              </div>
-            </div>
-
-
-            {/* ==================================================
-                PREVIEW DA PLATAFORMA
-                Aparece apenas em telas grandes.
-                No celular não ocupa espaço desnecessário.
-                ================================================== */}
-            <div className="relative hidden lg:block">
-
-              <div
-                className="
-                  overflow-hidden
-                  rounded-xl
-                  border border-slate-200
-                  bg-white
-                  shadow-[0_25px_60px_rgba(15,23,42,0.12)]
-                  transition-transform
-                  duration-500
-                  hover:-translate-y-1
-                "
-              >
-                {/* Barra da janela */}
-                <div className="flex h-12 items-center justify-between border-b border-slate-200 bg-slate-50 px-5">
-                  <div className="flex gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
-                  </div>
-
-                  <span className="text-[10px] font-medium text-slate-400">
-                    EasyVacc
-                  </span>
+        {/* ================= HERO SECTION ================= */}
+        <section className="relative px-4 pt-12 pb-16 sm:px-6 sm:pt-20 lg:px-8 lg:pb-24">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid items-center gap-12 lg:grid-cols-12">
+              
+              {/* Lado Esquerdo: Chamada Principal */}
+              <div className="space-y-6 lg:col-span-6">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-[#00a884]">
+                  <Sparkles size={13} />
+                  <span>Plataforma Digital de Saúde Vacinal</span>
                 </div>
 
-                {/* Conteúdo */}
-                <div className="p-7">
+                <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl lg:leading-[1.15]">
+                  Seu histórico vacinal na <span className="bg-gradient-to-r from-[#00a884] to-cyan-400 bg-clip-text text-transparent">palma da mão.</span>
+                </h1>
 
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                        Visão geral
-                      </p>
+                <p className="max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
+                  Acompanhe imunizações, gerencie os registros da sua família e tenha comprovantes válidos sempre disponíveis de forma prática e segura.
+                </p>
 
-                      <h3 className="mt-2 text-lg font-bold text-slate-900">
-                        Situação vacinal
-                      </h3>
-                    </div>
+                <div className="pt-2">
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#00a884] to-teal-500 px-6 py-3.5 text-sm font-semibold text-slate-950 shadow-lg shadow-[#00a884]/25 transition-all hover:brightness-110"
+                  >
+                    Entrar com CPF
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
 
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                      <Syringe size={18} />
-                    </div>
+                {/* Métricas / Badges de Confiança */}
+                <div className="grid grid-cols-3 gap-4 border-t border-slate-800/80 pt-6">
+                  <div>
+                    <p className="text-xl font-bold text-white">100%</p>
+                    <p className="text-xs text-slate-400">Digital & Sem papel</p>
                   </div>
+                  <div>
+                    <p className="text-xl font-bold text-white">Seguro</p>
+                    <p className="text-xs text-slate-400">Validação via QR Code</p>
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold text-white">Familiar</p>
+                    <p className="text-xs text-slate-400">Gestão de dependentes</p>
+                  </div>
+                </div>
+              </div>
 
-                  {/* Status */}
-                  <div className="mt-7 rounded-lg border border-slate-200 p-5">
-                    <div className="flex items-center justify-between">
-
+              {/* Lado Direito: Preview Interativo do Cartão Vacinal */}
+              <div className="lg:col-span-6">
+                <div className="relative mx-auto max-w-md rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-2xl backdrop-blur-xl">
+                  
+                  {/* Topo do Cartão de Prévia */}
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a884]/10 border border-[#00a884]/30">
+                        <img src="/logo.png" alt="Logo" className="h-6 w-6 object-contain" />
+                      </div>
                       <div>
-                        <p className="text-xs text-slate-500">
-                          Caderneta
-                        </p>
-
-                        <p className="mt-1 font-semibold text-slate-900">
-                          Registros organizados
-                        </p>
+                        <p className="text-xs font-semibold text-slate-400">CADERNETA DIGITAL</p>
+                        <p className="text-sm font-bold text-white">João Victor Gentil</p>
                       </div>
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-[#00a884] border border-emerald-500/20">
+                      <CheckCircle2 size={12} /> Atualizado
+                    </span>
+                  </div>
 
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                        <CheckCircle2 size={18} />
+                  {/* Lista de Doses em Destaque */}
+                  <div className="mt-4 space-y-3">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Últimas Aplicações
+                    </p>
+
+                    {/* Vacina 1 */}
+                    <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/50 p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-[#00a884]">
+                          <ShieldCheck size={16} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-white">Influenza Tetravalente</p>
+                          <p className="text-[10px] text-slate-400">Aplicada em 12/04/2026 • Dose Única</p>
+                        </div>
                       </div>
-
+                      <span className="text-[10px] font-semibold text-emerald-400">Concluída</span>
                     </div>
 
-                    <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full w-4/5 rounded-full bg-emerald-600" />
+                    {/* Vacina 2 */}
+                    <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/50 p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-[#00a884]">
+                          <ShieldCheck size={16} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-white">Covid-19 Bivalente</p>
+                          <p className="text-[10px] text-slate-400">Aplicada em 18/01/2026 • Reforço</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-semibold text-emerald-400">Concluída</span>
+                    </div>
+
+                    {/* Vacina Futura */}
+                    <div className="flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-950/30 p-3 opacity-80">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
+                          <Clock size={16} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-slate-300">Tétano / dTPa</p>
+                          <p className="text-[10px] text-slate-500">Próxima dose prevista para Nov/2026</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-semibold text-amber-400">Pendente</span>
                     </div>
                   </div>
 
-                  {/* Mini cards */}
-                  <div className="mt-4 grid grid-cols-3 gap-3">
-
-                    <div className="rounded-lg border border-slate-200 p-4">
-                      <FileText size={17} className="text-slate-500" />
-
-                      <p className="mt-5 text-[10px] text-slate-400">
-                        Histórico
-                      </p>
-
-                      <p className="mt-1 text-xs font-semibold text-slate-800">
-                        Registros
-                      </p>
+                  {/* Rodapé da Prévia com QR Code fictício */}
+                  <div className="mt-4 flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 p-3">
+                    <div className="flex items-center gap-2">
+                      <QrCode size={24} className="text-[#00a884]" />
+                      <div className="text-left">
+                        <p className="text-[10px] font-semibold text-white">Validação Oficial</p>
+                        <p className="text-[9px] text-slate-500">Código verificável via leitor</p>
+                      </div>
                     </div>
-
-                    <div className="rounded-lg border border-slate-200 p-4">
-                      <UsersRound size={17} className="text-slate-500" />
-
-                      <p className="mt-5 text-[10px] text-slate-400">
-                        Família
-                      </p>
-
-                      <p className="mt-1 text-xs font-semibold text-slate-800">
-                        Dependentes
-                      </p>
-                    </div>
-
-                    <div className="rounded-lg border border-slate-200 p-4">
-                      <Bell size={17} className="text-slate-500" />
-
-                      <p className="mt-5 text-[10px] text-slate-400">
-                        Avisos
-                      </p>
-
-                      <p className="mt-1 text-xs font-semibold text-slate-800">
-                        Informações
-                      </p>
-                    </div>
-
+                    <span className="text-[10px] font-mono text-slate-400">EV-8942-2026</span>
                   </div>
+
                 </div>
               </div>
+
             </div>
           </div>
         </section>
 
-
-        {/* ======================================================
-            RECURSOS COMPACTOS
-
-            Em vez de uma seção enorme com título + descrição +
-            três cards cheios de texto, usamos três atalhos.
-            ====================================================== */}
-        <section
-          id="recursos"
-          className="border-y border-slate-200 bg-white"
-        >
-          <div
-            className="
-              mx-auto
-              grid
-              max-w-7xl
-              divide-y divide-slate-200
-              px-5
-              sm:px-6
-              md:grid-cols-3
-              md:divide-x
-              md:divide-y-0
-              lg:px-8
-            "
-          >
-
-            {/* Histórico */}
-            <Link
-              to="/login"
-              className="
-                group
-                flex items-center
-                gap-4
-                py-6
-                transition-all
-                md:px-6 md:py-8
-              "
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[#0b2239]">
-                <FileText size={18} />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-[#0b2239]">
-                  Histórico
-                </p>
-
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Consulte seus registros
-                </p>
-              </div>
-
-              <ArrowRight
-                size={16}
-                className="
-                  shrink-0
-                  text-slate-300
-                  transition-all
-                  group-hover:translate-x-1
-                  group-hover:text-emerald-600
-                "
-              />
-            </Link>
-
-
-            {/* Dependentes */}
-            <Link
-              to="/login"
-              className="
-                group
-                flex items-center
-                gap-4
-                py-6
-                transition-all
-                md:px-6 md:py-8
-              "
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[#0b2239]">
-                <UsersRound size={18} />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-[#0b2239]">
-                  Dependentes
-                </p>
-
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Organize sua família
-                </p>
-              </div>
-
-              <ArrowRight
-                size={16}
-                className="
-                  shrink-0
-                  text-slate-300
-                  transition-all
-                  group-hover:translate-x-1
-                  group-hover:text-emerald-600
-                "
-              />
-            </Link>
-
-
-            {/* Comprovantes */}
-            <Link
-              to="/login"
-              className="
-                group
-                flex items-center
-                gap-4
-                py-6
-                transition-all
-                md:px-6 md:py-8
-              "
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[#0b2239]">
-                <ShieldCheck size={18} />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-[#0b2239]">
-                  Comprovantes
-                </p>
-
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Acesse seus documentos
-                </p>
-              </div>
-
-              <ArrowRight
-                size={16}
-                className="
-                  shrink-0
-                  text-slate-300
-                  transition-all
-                  group-hover:translate-x-1
-                  group-hover:text-emerald-600
-                "
-              />
-            </Link>
-
-          </div>
-        </section>
-
-
-        {/* ======================================================
-            CTA FINAL
-            Uma frase. Um botão. Acabou.
-            ====================================================== */}
-        <section className="bg-[#0b2239]">
-          <div
-            className="
-              mx-auto
-              flex
-              max-w-7xl
-              flex-col
-              gap-6
-              px-5
-              py-12
-              sm:px-6
-              md:flex-row
-              md:items-center
-              md:justify-between
-              lg:px-8
-              lg:py-14
-            "
-          >
-            <div>
-              <h2 className="text-xl font-bold text-white sm:text-2xl">
-                Sua caderneta. Sempre com você.
+        {/* ================= SEÇÃO BENTO GRID (RECURSOS DO SISTEMA) ================= */}
+        <section id="como-funciona" className="border-t border-slate-800/80 bg-slate-900/40 py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            
+            <div className="text-center">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-[#00a884]">
+                Funcionalidades do Sistema
               </h2>
-
-              <p className="mt-2 text-sm text-slate-400">
-                Consulte suas informações de vacinação.
+              <p className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                Tudo o que você precisa para o seu controle vacinal
               </p>
             </div>
 
-            <Link
-              to="/login"
-              className="
-                group
-                inline-flex
-                w-fit
-                items-center gap-2
-                rounded-lg
-                bg-white
-                px-5 py-3
-                text-sm font-semibold
-                text-[#0b2239]
-                transition-all
-                hover:-translate-y-0.5
-              "
-            >
-              Entrar
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              
+              {/* Card 1 */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 transition-all hover:border-slate-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a884]/10 text-[#00a884]">
+                  <FileCheck size={20} />
+                </div>
+                <h3 className="mt-4 text-lg font-bold text-white">Histórico Unificado</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Consulte doses registradas, lotes e estabelecimentos de vacinação em uma linha do tempo clara.
+                </p>
+              </div>
 
-              <ArrowRight
-                size={16}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </Link>
+              {/* Card 2 */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 transition-all hover:border-slate-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a884]/10 text-[#00a884]">
+                  <Users size={20} />
+                </div>
+                <h3 className="mt-4 text-lg font-bold text-white">Painel da Família</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Adicione e acompanhe a situação vacinal dos seus filhos e dependentes no mesmo perfil.
+                </p>
+              </div>
+
+              {/* Card 3 */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 transition-all hover:border-slate-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a884]/10 text-[#00a884]">
+                  <QrCode size={20} />
+                </div>
+                <h3 className="mt-4 text-lg font-bold text-white">Comprovante Digital</h3>
+                <p className="mt-2 text-sm text-slate-400">
+                  Gere comprovantes instantâneos para viagens, matrículas escolares ou requisitos de trabalho.
+                </p>
+              </div>
+
+            </div>
           </div>
         </section>
-
       </main>
 
-
-      {/* ======================================================
-          FOOTER MINIMALISTA
-          ====================================================== */}
-      <footer className="border-t border-slate-800 bg-[#0b2239]">
-        <div
-          className="
-            mx-auto
-            flex
-            max-w-7xl
-            items-center
-            justify-between
-            px-5
-            py-5
-            text-xs
-            text-slate-500
-            sm:px-6
-            lg:px-8
-          "
-        >
+      {/* ================= FOOTER ================= */}
+      <footer className="border-t border-slate-800/80 bg-slate-950 py-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-xs text-slate-500 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
-            <Syringe size={13} className="text-emerald-500" />
-
-            <span className="font-semibold text-white">
-              EasyVacc
-            </span>
+            <img src="/logo.png" alt="EasyVacc" className="h-5 w-5 object-contain" />
+            <span className="font-semibold text-slate-300">EasyVacc</span>
+            <span>— Sistema de Gestão Vacinal</span>
           </div>
-
-          <span>Caderneta digital</span>
+          <p>© {new Date().getFullYear()} EasyVacc. Todos os direitos reservados.</p>
         </div>
       </footer>
-
     </div>
   );
 }

@@ -1,408 +1,177 @@
-// ======================================================
-// PÁGINA DE LOGIN - EASYVACC
-// ======================================================
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Loader2, Lock } from 'lucide-react';
 import { API_URL } from '../lib/api';
+import { cpfValido, mascaraCpf, salvarPessoaAtiva, soDigitos } from '../lib/brasil';
 
-
-// ======================================================
-// URL DO BACKEND
-// ======================================================
-//
-// Em desenvolvimento:
-// usa http://localhost:8000
-//
-// Quando o projeto estiver publicado na Vercel:
-// vamos criar a variável VITE_API_URL com a URL
-// pública do nosso backend.
-//
-// Exemplo futuro:
-// VITE_API_URL=https://meu-backend.com
-//
 export default function Login() {
-
-  // ======================================================
-  // ESTADOS
-  // ======================================================
-
-  // Guarda o CPF digitado.
   const [cpf, setCpf] = useState('');
-
-  // Guarda a senha digitada.
   const [senha, setSenha] = useState('');
-
-  // Controla o estado do botão durante o login.
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [capsLock, setCapsLock] = useState(false);
   const [carregando, setCarregando] = useState(false);
-
-  // Guarda uma mensagem de erro para mostrar na tela.
   const [erro, setErro] = useState('');
-
-
-  // Permite redirecionar o usuário para outra página.
   const navigate = useNavigate();
 
-
-  // ======================================================
-  // FUNÇÃO DE LOGIN
-  // ======================================================
-
   const handleLogin = async (e: React.FormEvent) => {
-
-    // Evita que o formulário recarregue a página.
     e.preventDefault();
-
-    // Limpa erros anteriores.
     setErro('');
 
-    // Ativa o estado de carregamento.
+    if (!cpfValido(cpf)) {
+      setErro('Informe um CPF válido. O acesso não foi enviado ao servidor.');
+      return;
+    }
+
     setCarregando(true);
 
     try {
+      const response = await fetch(`${API_URL}/api/usuarios/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cpf: soDigitos(cpf), senha }),
+      });
 
-      // ==================================================
-      // REQUISIÇÃO PARA O BACKEND
-      // ==================================================
-
-      const response = await fetch(
-        `${API_URL}/api/usuarios/login`,
-        {
-          method: 'POST',
-
-          headers: {
-            'Content-Type': 'application/json'
-          },
-
-          // Envia CPF e senha para o backend.
-          body: JSON.stringify({
-            cpf,
-            senha
-          })
-        }
-      );
-
-
-      // ==================================================
-      // TRATAMENTO DA RESPOSTA
-      // ==================================================
-
-      const data = await response.json();
-
-
-      if (data.sucesso) {
-
-        // Salva o ID do usuário no navegador.
-        //
-        // As outras páginas utilizam esse ID para saber
-        // qual usuário está logado.
-        localStorage.setItem(
-          'usuarioId',
-          String(data.dados.id)
-        );
-
-
-        // Após o login, envia o usuário para o histórico.
-        navigate('/historico');
-
-      } else {
-
-        // Caso o backend informe CPF/senha incorretos
-        // ou outro problema de autenticação.
-        setErro(
-          data.mensagem || 'Não foi possível realizar o login.'
-        );
+      let data: { sucesso?: boolean; mensagem?: string; dados?: { id: number; nome: string } } = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
       }
 
+      if (response.status === 429) {
+        setErro(data.mensagem || 'Muitas tentativas de acesso. Aguarde alguns minutos.');
+        return;
+      }
 
-    } catch (error) {
+      if (!response.ok && response.status >= 500) {
+        setErro('O servidor está temporariamente indisponível. Tente novamente em instantes.');
+        return;
+      }
 
-      // ==================================================
-      // ERRO DE CONEXÃO
-      // ==================================================
-      //
-      // Normalmente acontece quando:
-      //
-      // - backend está desligado;
-      // - URL está errada;
-      // - backend ainda não foi publicado;
-      // - existe algum problema de CORS.
-      //
+      if (data.sucesso && data.dados) {
+        localStorage.setItem('usuarioId', String(data.dados.id));
+        salvarPessoaAtiva({ tipo: 'titular', id: data.dados.id, nome: data.dados.nome });
+        navigate('/dashboard');
+        return;
+      }
 
-      console.error(
-        'Erro ao conectar com o servidor:',
-        error
-      );
-
-      setErro(
-        'Erro ao conectar com o servidor.'
-      );
-
+      setErro('Não foi possível entrar. Verifique os dados e tente novamente.');
+    } catch {
+      setErro('O servidor está temporariamente indisponível. Tente novamente em instantes.');
     } finally {
-
-      // Independente de sucesso ou erro,
-      // libera novamente o botão.
       setCarregando(false);
     }
   };
 
-
-  // ======================================================
-  // INTERFACE
-  // ======================================================
-
   return (
-
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100 relative overflow-hidden antialiased">
-
-
-      {/* ==================================================
-          CÍRCULOS DECORATIVOS DO FUNDO
-          ================================================== */}
-
-      <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -z-10"></div>
-
-      <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-[#00a884]/10 rounded-full blur-3xl -z-10"></div>
-
-
-      {/* ==================================================
-          BOTÃO VOLTAR
-          ================================================== */}
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100 antialiased">
+      <div className="absolute top-[-10%] left-[-5%] -z-10 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="absolute right-[-5%] bottom-[-10%] -z-10 h-96 w-96 rounded-full bg-[#00a884]/10 blur-3xl" />
 
       <Link
         to="/"
-        className="absolute top-6 left-6 flex items-center gap-2 text-slate-400 hover:text-white font-semibold text-xs transition-all bg-slate-900/80 hover:bg-slate-900 px-4 py-2.5 rounded-full border border-slate-800 shadow-lg backdrop-blur-md"
+        className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-4 text-sm font-semibold text-slate-200 hover:text-white"
       >
-
         <ArrowLeft size={16} />
-
-        Voltar ao Início
-
+        Voltar ao início
       </Link>
 
-
-      {/* ==================================================
-          CARD DO LOGIN
-          ================================================== */}
-
-      <div className="bg-slate-900/90 backdrop-blur-xl max-w-md w-full rounded-3xl shadow-2xl shadow-emerald-950/20 p-8 md:p-10 border border-slate-800 relative z-10">
-
-
-        {/* ==================================================
-            LOGO + TÍTULO
-            ================================================== */}
-
-        <div className="text-center mb-8 flex flex-col items-center">
-
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-white p-1.5 shadow-sm">
-            <img 
-              src="/logo.png" 
-              alt="EasyVacc Logo" 
-              className="h-full w-full object-contain" 
-            />
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/90 p-8 shadow-2xl md:p-10">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-white p-1.5">
+            <img src="/logo.png" alt="EasyVacc" className="h-full w-full object-contain" />
           </div>
-
-
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-
-            Entrar no{' '}
-
-            <span className="text-[#00a884]">
-              EasyVacc
-            </span>
-
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">
+            Entrar no <span className="text-[#00a884]">EasyVacc</span>
           </h1>
-
-
-          <p className="text-slate-400 mt-2 text-xs font-medium leading-relaxed">
-
-            Acesse com seu CPF para visualizar seu histórico de vacinação.
-
+          <p className="mt-2 text-sm leading-relaxed text-slate-200">
+            Use o CPF e a senha da caderneta. Não revelamos se o CPF existe no sistema.
           </p>
-
         </div>
 
-
-        {/* ==================================================
-            FORMULÁRIO
-            ================================================== */}
-
-        <form
-          onSubmit={handleLogin}
-          className="space-y-5"
-        >
-
-
-          {/* ================= CPF ================= */}
-
+        <form onSubmit={handleLogin} className="space-y-5">
           <div>
-
-            <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
-
+            <label htmlFor="cpf" className="mb-2 block text-sm font-bold tracking-wide text-slate-200 uppercase">
               CPF
-
             </label>
-
-
             <input
+              id="cpf"
               type="text"
-
-              placeholder="Digite seu CPF"
-
+              inputMode="numeric"
+              autoComplete="username"
+              placeholder="000.000.000-00"
               value={cpf}
-
-              onChange={(e) =>
-                setCpf(e.target.value)
-              }
-
+              onChange={(e) => setCpf(mascaraCpf(e.target.value))}
               required
-
-              className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 text-white placeholder-slate-600 focus:outline-none focus:border-[#00a884] focus:ring-1 focus:ring-[#00a884] transition-all text-sm font-medium"
+              className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3.5 text-base text-white placeholder-slate-500 focus:border-[#00a884] focus:ring-1 focus:ring-[#00a884] focus:outline-none"
             />
-
           </div>
-
-
-          {/* ================= SENHA ================= */}
 
           <div>
-
-            <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
-
+            <label htmlFor="senha" className="mb-2 block text-sm font-bold tracking-wide text-slate-200 uppercase">
               Senha
-
             </label>
-
-
-            <input
-              type="password"
-
-              placeholder="Sua senha"
-
-              value={senha}
-
-              onChange={(e) =>
-                setSenha(e.target.value)
-              }
-
-              required
-
-              className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 text-white placeholder-slate-600 focus:outline-none focus:border-[#00a884] focus:ring-1 focus:ring-[#00a884] transition-all text-sm font-medium"
-            />
-
+            <div className="relative">
+              <input
+                id="senha"
+                type={mostrarSenha ? 'text' : 'password'}
+                autoComplete="current-password"
+                placeholder="Sua senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                onKeyUp={(e) => setCapsLock(e.getModifierState('CapsLock'))}
+                required
+                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3.5 pr-12 text-base text-white placeholder-slate-500 focus:border-[#00a884] focus:ring-1 focus:ring-[#00a884] focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setMostrarSenha((v) => !v)}
+                className="absolute inset-y-0 right-0 inline-flex min-w-11 items-center justify-center text-slate-300 hover:text-white"
+                aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {mostrarSenha ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {capsLock && (
+              <p className="mt-2 text-sm font-medium text-amber-300">A tecla Caps Lock está ativada.</p>
+            )}
           </div>
-
-
-          {/* ==================================================
-              MENSAGEM DE ERRO
-              ================================================== */}
 
           {erro && (
-
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold text-center p-3 rounded-xl">
-
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-center text-sm font-semibold text-red-300">
               {erro}
-
             </div>
-
           )}
-
-
-          {/* ==================================================
-              BOTÃO DE LOGIN
-              ================================================== */}
 
           <button
             type="submit"
-
-            // Evita vários cliques enquanto
-            // a requisição está acontecendo.
             disabled={carregando}
-
-            className="w-full bg-gradient-to-r from-[#00a884] to-teal-500 text-slate-950 rounded-xl py-3.5 font-bold text-sm hover:brightness-110 active:scale-[0.99] transition-all mt-4 shadow-lg shadow-[#00a884]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#00a884] to-teal-500 py-3.5 text-base font-bold text-slate-950 shadow-lg shadow-[#00a884]/20 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
-
-            <Lock size={16} />
-
-
-            {/* Muda o texto enquanto está conectando */}
-
-            {carregando
-              ? 'Entrando...'
-              : 'Entrar na Caderneta'
-            }
-
+            {carregando ? <Loader2 size={18} className="animate-spin" /> : <Lock size={18} />}
+            {carregando ? 'Entrando...' : 'Entrar na caderneta'}
           </button>
-
         </form>
 
-
-        {/* ==================================================
-            RODAPÉ
-            ================================================== */}
-
-        <div className="mt-8 text-center border-t border-slate-800 pt-6 space-y-3">
-
-
-          {/* CADASTRO */}
-
-          <div>
-
-            <span className="text-xs text-slate-400">
-
-              Ainda não tem uma caderneta?{' '}
-
-            </span>
-
-
-            <Link
-              to="/cadastro"
-              className="text-xs font-bold text-[#00a884] hover:text-[#00c49a] transition-colors"
-            >
-
-              Cadastre-se aqui
-
+        <div className="mt-8 space-y-3 border-t border-slate-800 pt-6 text-center">
+          <p className="text-sm text-slate-300">
+            Ainda não tem caderneta?{' '}
+            <Link to="/cadastro" className="font-bold text-[#00a884] hover:text-[#00c49a]">
+              Cadastre-se
             </Link>
-
+          </p>
+          <Link to="/recuperar-senha" className="inline-flex min-h-11 items-center text-sm font-semibold text-slate-300 hover:text-white">
+            Esqueci minha senha
+          </Link>
+          <div className="flex justify-center gap-4 pt-2 text-sm">
+            <Link to="/privacidade" className="text-[#00a884] hover:underline">Privacidade</Link>
+            <Link to="/termos" className="text-[#00a884] hover:underline">Termos</Link>
           </div>
-
-
-          {/* RECUPERAÇÃO DE SENHA */}
-
-          <div>
-
-            <a
-              href="#"
-              className="text-xs font-semibold text-slate-500 hover:text-slate-300 transition-colors"
-            >
-
-              Esqueci minha senha
-
-            </a>
-
-          </div>
-
-
-          {/* ACESSO ADMINISTRATIVO */}
-
-          <div className="mt-6 text-center">
-
-            <Link
-              to="/admin"
-              className="text-xs font-semibold text-slate-500 hover:text-[#00a884] transition-colors"
-            >
-
-              Acesso Restrito: Profissionais de Saúde / Posto
-
-            </Link>
-
-          </div>
-
+          <Link to="/admin" className="inline-flex min-h-11 items-center text-sm font-semibold text-slate-400 hover:text-[#00a884]">
+            Acesso restrito: profissionais / posto
+          </Link>
         </div>
-
       </div>
-
     </div>
   );
 }

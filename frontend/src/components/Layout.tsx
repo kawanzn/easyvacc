@@ -4,6 +4,7 @@ import {
   NavLink,
   Outlet,
   Link,
+  useNavigate,
 } from 'react-router-dom';
 
 import {
@@ -21,6 +22,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { API_URL } from '../lib/api';
+import { salvarPessoaAtiva } from '../lib/brasil';
 
 
 /*
@@ -48,6 +50,8 @@ import { API_URL } from '../lib/api';
 
 
 export default function Layout() {
+
+  const navigate = useNavigate();
 
   // ==========================================================
   // SIDEBAR
@@ -779,17 +783,31 @@ export default function Layout() {
 
               {dependentes.map((dependente) => (
 
-                <div
+                <button
+                  type="button"
                   key={dependente.id}
-                  title={dependente.nome}
+                  title={`Consultar caderneta de ${dependente.nome}`}
+                  onClick={() => {
+                    salvarPessoaAtiva({
+                      tipo: 'dependente',
+                      id: dependente.id,
+                      nome: dependente.nome,
+                      parentesco: dependente.parentesco,
+                    });
+                    navigate('/dashboard');
+                    window.location.reload();
+                  }}
                   className={`
                     flex
                     h-11
+                    w-full
                     items-center
+                    text-left
 
                     rounded-md
 
                     text-slate-400
+                    hover:bg-white/[0.06]
 
                     ${
                       isOpen
@@ -858,7 +876,7 @@ export default function Layout() {
 
                   )}
 
-                </div>
+                </button>
 
               ))}
 

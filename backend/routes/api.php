@@ -32,7 +32,11 @@ Route::get('/health', function () {
 // o método "cadastrar" do UsuarioController.
 Route::post('/usuarios/cadastro', [UsuarioController::class, 'cadastrar']);
 Route::post('/usuarios/login', [UsuarioController::class, 'login']);
+Route::post('/usuarios/recuperar-senha', [UsuarioController::class, 'recuperarSenha']);
+Route::post('/usuarios/redefinir-senha', [UsuarioController::class, 'redefinirSenha']);
+Route::post('/usuarios/confirmar-email', [UsuarioController::class, 'confirmarEmail']);
 Route::get('/usuarios/cpf/{cpf}', [UsuarioController::class, 'porCpf'])->whereNumber('cpf');
+Route::get('/usuarios/{usuario}/situacao-vacinal', [UsuarioController::class, 'situacaoVacinal'])->whereNumber('usuario');
 Route::get('/usuarios/{usuario}', [UsuarioController::class, 'mostrar'])->whereNumber('usuario');
 Route::get('/vacinas/{usuarioId}', [ApiController::class, 'vacinas'])->whereNumber('usuarioId');
 Route::post('/vacinas', [ApiController::class, 'salvarVacina']);

@@ -1,387 +1,252 @@
-// ======================================================
-// CADASTRO DE USUÁRIO - DARK HEALTH TECH DESIGN SYSTEM
-// ======================================================
-
-// useState permite guardar os valores digitados nos campos.
 import { useState } from 'react';
-
-// useNavigate permite redirecionar o usuário.
-// Link permite navegar entre páginas sem recarregar o site.
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
-
-// Ícones utilizados nos campos do formulário.
 import {
-  User,
-  Lock,
-  FileText,
-  Mail,
-  MapPin
-} from 'lucide-react';
-
+  PRIVACIDADE_VERSAO,
+  TERMOS_VERSAO,
+  cnsValido,
+  cpfValido,
+  mascaraCns,
+  mascaraCpf,
+  senhaAtendeRequisitos,
+  soDigitos,
+} from '../lib/brasil';
 
 export default function Cadastro() {
-
-  // ======================================================
-  // ESTADOS DO FORMULÁRIO
-  // ======================================================
-  // Cada estado guarda o conteúdo de um campo.
-
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
   const [cns, setCns] = useState('');
   const [email, setEmail] = useState('');
+  const [emailConfirmacao, setEmailConfirmacao] = useState('');
   const [cidade, setCidade] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
   const [senha, setSenha] = useState('');
-
-  // Guarda uma mensagem de erro caso o cadastro falhe.
+  const [senhaConfirmacao, setSenhaConfirmacao] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [aceiteTermos, setAceiteTermos] = useState(false);
+  const [aceitePrivacidade, setAceitePrivacidade] = useState(false);
   const [erro, setErro] = useState('');
-
-
-  // ======================================================
-  // NAVEGAÇÃO
-  // ======================================================
-
-  // Permite enviar o usuário para outra página pelo código.
+  const [carregando, setCarregando] = useState(false);
   const navigate = useNavigate();
 
-
-  // ======================================================
-  // FUNÇÃO DE CADASTRO
-  // ======================================================
-
-  // Essa função é executada quando o usuário
-  // clica no botão "Finalizar Cadastro".
   const handleCadastro = async (e: React.FormEvent) => {
-
-    // Impede o formulário de recarregar a página.
     e.preventDefault();
-
-    // Limpa qualquer erro anterior.
     setErro('');
 
+    if (!cpfValido(cpf)) {
+      setErro('Informe um CPF válido. O cadastro não foi enviado.');
+      return;
+    }
+    if (!cnsValido(cns)) {
+      setErro('Informe um Cartão Nacional de Saúde válido. O cadastro não foi enviado.');
+      return;
+    }
+    if (email.trim().toLowerCase() !== emailConfirmacao.trim().toLowerCase()) {
+      setErro('Os e-mails digitados não coincidem.');
+      return;
+    }
+    if (senha !== senhaConfirmacao) {
+      setErro('As senhas precisam ser idênticas.');
+      return;
+    }
+    if (!senhaAtendeRequisitos(senha)) {
+      setErro('A senha deve ter no mínimo 8 caracteres, com letras e números.');
+      return;
+    }
+    if (!aceiteTermos || !aceitePrivacidade) {
+      setErro('Aceite os termos de uso e a política de privacidade para continuar.');
+      return;
+    }
+
+    setCarregando(true);
+
     try {
-
-      // Envia os dados digitados para o backend.
-      const data = await api<{ sucesso: boolean; mensagem?: string }>('/api/usuarios/cadastro', {
-        method: 'POST',
-        body: JSON.stringify({ nome, cpf, cns, email, cidade, senha })
-      });
-
-
-      // ==================================================
-      // VERIFICA O RESULTADO DO CADASTRO
-      // ==================================================
+      const data = await api<{ sucesso: boolean; mensagem?: string; confirmacaoEmail?: string }>(
+        '/api/usuarios/cadastro',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            nome,
+            cpf: soDigitos(cpf),
+            cns: soDigitos(cns),
+            email,
+            email_confirmation: emailConfirmacao,
+            cidade,
+            dataNascimento: dataNascimento || null,
+            senha,
+            senha_confirmation: senhaConfirmacao,
+            aceiteTermos,
+            aceitePrivacidade,
+          }),
+        }
+      );
 
       if (data.sucesso) {
-
-        // Cadastro realizado.
-        alert('Cadastro realizado com sucesso! Faça seu login.');
-
-        // Redireciona para a página de login.
-        navigate('/login');
-
-      } else {
-
-        // O servidor respondeu, mas informou algum erro.
-        setErro(data.mensagem || 'Não foi possível concluir o cadastro.');
+        navigate('/confirmar-email', {
+          state: {
+            mensagem: data.mensagem,
+            email,
+            codigoDemonstracao: data.confirmacaoEmail,
+          },
+        });
+        return;
       }
 
+      setErro(data.mensagem || 'Não foi possível concluir o cadastro.');
     } catch (error) {
-
-      // Esse bloco normalmente é executado quando
-      // o frontend não consegue alcançar o backend.
-      console.error('Erro ao realizar cadastro:', error);
-
       setErro(error instanceof Error ? error.message : 'Erro ao conectar com o servidor.');
+    } finally {
+      setCarregando(false);
     }
   };
 
-
-  // ======================================================
-  // INTERFACE DA PÁGINA
-  // ======================================================
+  const campo = 'w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3.5 text-base text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none';
 
   return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100">
+      <Link
+        to="/login"
+        className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-slate-200 hover:text-white"
+      >
+        <ArrowLeft size={16} /> Voltar ao login
+      </Link>
 
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100 relative overflow-hidden">
-
-      {/* ==================================================
-          DECORAÇÃO DO FUNDO (DARK HEALTH TECH)
-          ================================================== */}
-
-      <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -z-10"></div>
-
-      <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-teal-500/5 rounded-full blur-3xl -z-10"></div>
-
-
-      {/* ==================================================
-          CARD PRINCIPAL
-          ================================================== */}
-
-      <div className="bg-slate-900/90 backdrop-blur-xl max-w-xl w-full rounded-[2.5rem] shadow-2xl shadow-black/50 p-8 md:p-10 border border-slate-800 my-8">
-
-
-        {/* TÍTULO */}
-
-        <div className="text-center mb-8">
-
-          <h2 className="text-3xl font-black text-white tracking-tight">
-            Criar nova conta
-          </h2>
-
-          <p className="text-slate-400 mt-2 text-sm font-medium">
-
+      <div className="my-8 w-full max-w-xl rounded-[2rem] border border-slate-800 bg-slate-900/90 p-8 shadow-2xl md:p-10">
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl font-black tracking-tight text-white">Criar nova conta</h2>
+          <p className="mt-2 text-base text-slate-200">
             Ou{' '}
-
-            <Link
-              to="/login"
-              className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors"
-            >
-              já tenho uma conta (Fazer Login)
+            <Link to="/login" className="font-bold text-emerald-400">
+              já tenho uma conta
             </Link>
-
           </p>
-
         </div>
 
+        <form className="space-y-5" onSubmit={handleCadastro}>
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-200">Nome completo *</label>
+            <input required value={nome} onChange={(e) => setNome(e.target.value)} className={campo} placeholder="Seu nome completo" />
+          </div>
 
-        {/* ==================================================
-            FORMULÁRIO
-            ================================================== */}
-
-        <form
-          className="space-y-5"
-          onSubmit={handleCadastro}
-        >
-
-
-          {/* ================= NOME ================= */}
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-200">CPF *</label>
+              <input
+                required
+                inputMode="numeric"
+                value={cpf}
+                onChange={(e) => setCpf(mascaraCpf(e.target.value))}
+                className={campo}
+                placeholder="000.000.000-00"
+              />
+              <p className="mt-1 text-xs leading-5 text-slate-300">Identifica sua conta e o acesso. Não compartilhado como documento público.</p>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-200">Cartão Nacional de Saúde *</label>
+              <input
+                required
+                inputMode="numeric"
+                value={cns}
+                onChange={(e) => setCns(mascaraCns(e.target.value))}
+                className={campo}
+                placeholder="000 0000 0000 0000"
+              />
+              <p className="mt-1 text-xs leading-5 text-slate-300">Associa a caderneta ao identificador usado na rede pública.</p>
+            </div>
+          </div>
 
           <div>
-
-            <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
-              Nome Completo
-            </label>
-
-            <div className="relative">
-
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-
-                <User className="h-5 w-5 text-slate-500" />
-
-              </div>
-
-              <input
-                type="text"
-                required
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-                placeholder="Seu nome completo"
-              />
-
-            </div>
-
+            <label className="mb-2 block text-sm font-semibold text-slate-200">E-mail *</label>
+            <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={campo} placeholder="seu@email.com" autoComplete="email" />
+            <p className="mt-1 text-xs leading-5 text-slate-300">Usado para confirmar a conta e recuperar a senha.</p>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-200">Confirmar e-mail *</label>
+            <input required type="email" value={emailConfirmacao} onChange={(e) => setEmailConfirmacao(e.target.value)} className={campo} placeholder="Repita o e-mail" autoComplete="email" />
           </div>
 
-
-          {/* CPF + CARTÃO SUS */}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-
-            {/* ================= CPF ================= */}
-
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-
-              <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
-                CPF
-              </label>
-
-              <div className="relative">
-
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-
-                  <FileText className="h-5 w-5 text-slate-500" />
-
-                </div>
-
-                <input
-                  type="text"
-                  required
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-                  placeholder="Somente números"
-                />
-
-              </div>
-
+              <label className="mb-2 block text-sm font-semibold text-slate-200">Cidade *</label>
+              <input required value={cidade} onChange={(e) => setCidade(e.target.value)} className={campo} placeholder="Sua cidade" />
             </div>
-
-
-            {/* ================= CARTÃO SUS ================= */}
-
             <div>
-
-              <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
-                Cartão SUS
-              </label>
-
-              <div className="relative">
-
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-
-                  <FileText className="h-5 w-5 text-slate-500" />
-
-                </div>
-
-                <input
-                  type="text"
-                  required
-                  value={cns}
-                  onChange={(e) => setCns(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-                  placeholder="Número do CNS"
-                />
-
-              </div>
-
+              <label className="mb-2 block text-sm font-semibold text-slate-200">Data de nascimento (opcional)</label>
+              <input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} className={campo} />
+              <p className="mt-1 text-xs leading-5 text-slate-300">Necessária para calcular a situação vacinal por idade.</p>
             </div>
-
           </div>
-
-
-          {/* ================= E-MAIL ================= */}
 
           <div>
-
-            <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
-              E-mail
-            </label>
-
+            <label className="mb-2 block text-sm font-semibold text-slate-200">Senha *</label>
             <div className="relative">
-
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-
-                <Mail className="h-5 w-5 text-slate-500" />
-
-              </div>
-
               <input
-                type="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-                placeholder="seu@email.com"
+                type={mostrarSenha ? 'text' : 'password'}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                className={`${campo} pr-12`}
+                placeholder="Mínimo 8 caracteres, letras e números"
+                autoComplete="new-password"
               />
-
+              <button type="button" onClick={() => setMostrarSenha((v) => !v)} className="absolute inset-y-0 right-0 min-w-11 text-slate-300" aria-label="Mostrar ou ocultar senha">
+                {mostrarSenha ? <EyeOff size={18} className="mx-auto" /> : <Eye size={18} className="mx-auto" />}
+              </button>
             </div>
-
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-200">Confirmar senha *</label>
+            <input
+              required
+              type={mostrarSenha ? 'text' : 'password'}
+              value={senhaConfirmacao}
+              onChange={(e) => setSenhaConfirmacao(e.target.value)}
+              className={campo}
+              placeholder="Repita a senha"
+              autoComplete="new-password"
+            />
           </div>
 
-
-          {/* CIDADE + SENHA */}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-
-            {/* ================= CIDADE ================= */}
-
-            <div>
-
-              <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
-                Cidade
-              </label>
-
-              <div className="relative">
-
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-
-                  <MapPin className="h-5 w-5 text-slate-500" />
-
-                </div>
-
-                <input
-                  type="text"
-                  required
-                  value={cidade}
-                  onChange={(e) => setCidade(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-                  placeholder="Sua cidade"
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* ================= SENHA ================= */}
-
-            <div>
-
-              <label className="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wide">
-                Senha
-              </label>
-
-              <div className="relative">
-
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-
-                  <Lock className="h-5 w-5 text-slate-500" />
-
-                </div>
-
-                <input
-                  type="password"
-                  required
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-                  placeholder="Crie uma senha"
-                />
-
-              </div>
-
-            </div>
-
+          <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/50 p-4 text-sm leading-6 text-slate-200">
+            <label className="flex items-start gap-3">
+              <input type="checkbox" className="mt-1 h-5 w-5" checked={aceiteTermos} onChange={(e) => setAceiteTermos(e.target.checked)} />
+              <span>
+                Li e aceito os{' '}
+                <Link to="/termos" target="_blank" className="font-bold text-[#00a884] underline">
+                  Termos de uso
+                </Link>{' '}
+                (versão {TERMOS_VERSAO}).
+              </span>
+            </label>
+            <label className="flex items-start gap-3">
+              <input type="checkbox" className="mt-1 h-5 w-5" checked={aceitePrivacidade} onChange={(e) => setAceitePrivacidade(e.target.checked)} />
+              <span>
+                Li e aceito a{' '}
+                <Link to="/privacidade" target="_blank" className="font-bold text-[#00a884] underline">
+                  Política de privacidade
+                </Link>{' '}
+                (versão {PRIVACIDADE_VERSAO}).
+              </span>
+            </label>
           </div>
-
-
-          {/* ==================================================
-              MENSAGEM DE ERRO
-              Só aparece quando a variável "erro" possuir texto.
-              ================================================== */}
 
           {erro && (
-
-            <div className="bg-red-950/50 text-red-400 p-3 rounded-lg text-sm text-center font-semibold mt-4 border border-red-900/50">
-
+            <div className="rounded-lg border border-red-900/50 bg-red-950/50 p-3 text-center text-sm font-semibold text-red-300">
               {erro}
-
             </div>
-
           )}
-
-
-          {/* ==================================================
-              BOTÃO DE CADASTRO
-              Como type="submit", executa handleCadastro.
-              ================================================== */}
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl py-4 font-bold text-base hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] transition-all mt-6 shadow-lg shadow-emerald-950/50"
+            disabled={carregando}
+            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-base font-bold text-white hover:from-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Finalizar Cadastro
+            {carregando && <Loader2 className="animate-spin" size={18} />}
+            {carregando ? 'Criando conta...' : 'Finalizar cadastro'}
           </button>
-
         </form>
-
       </div>
-
     </div>
   );
 }

@@ -32,6 +32,11 @@ class User extends Authenticatable
         'alergias',
         'contato_emergencia',
         'telefone_emergencia',
+        'email_verified_at',
+        'termos_aceitos_em',
+        'privacidade_aceita_em',
+        'termos_versao',
+        'privacidade_versao',
     ];
 
     // =====================================================
@@ -55,6 +60,9 @@ class User extends Authenticatable
             // o Laravel armazenará seu hash em vez do texto puro.
             'senha' => 'hashed',
             'data_nascimento' => 'date:Y-m-d',
+            'email_verified_at' => 'datetime',
+            'termos_aceitos_em' => 'datetime',
+            'privacidade_aceita_em' => 'datetime',
         ];
     }
 

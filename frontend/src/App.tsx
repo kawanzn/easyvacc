@@ -5,6 +5,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Cadastro from './pages/Cadastro';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import RecuperarSenha from './pages/RecuperarSenha';
+import ConfirmarEmail from './pages/ConfirmarEmail';
+import { PoliticaPrivacidade, TermosUso } from './pages/DocumentosLegais';
 
 // Páginas da caderneta
 import Dashboard from './pages/Dashboard';
@@ -37,7 +40,10 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route path="/cadastro" element={<Cadastro />} />
-
+        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+        <Route path="/confirmar-email" element={<ConfirmarEmail />} />
+        <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+        <Route path="/termos" element={<TermosUso />} />
         <Route path="/admin" element={<PainelPosto />} />
 
 

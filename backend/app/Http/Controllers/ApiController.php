@@ -2,21 +2,65 @@
 namespace App\Http\Controllers;
 
 use App\Models\{Campanha, Dependente, Posto, Vacina};
+use App\Services\SituacaoDose;
+use App\Services\SituacaoVacinal;
+use Carbon\Carbon;
 use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Support\Facades\Schema;
 
 class ApiController extends Controller
 {
-    public function vacinas(int $usuarioId): JsonResponse
+    public function vacinas(int $usuarioId, Request $request, SituacaoVacinal $situacao): JsonResponse
     {
-        $dados = Vacina::where('usuario_id', $usuarioId)->latest('data_aplicacao')->get()->map(fn ($v) => ['id' => $v->id, 'nome' => $v->nome, 'dataAplicacao' => $v->data_aplicacao, 'lote' => $v->lote, 'fabricante' => $v->fabricante, 'proximaDose' => $v->proxima_dose]);
-        return response()->json(['sucesso' => true, 'dados' => $dados]);
+        $pessoa = $request->query('pessoa', 'titular') === 'dependente' ? 'dependente' : 'titular';
+        $dependenteId = $request->query('dependenteId') ? (int) $request->query('dependenteId') : null;
+        $hoje = Carbon::today();
+        $vacinas = $situacao->vacinasDoPerfil($usuarioId, $pessoa, $dependenteId);
+        $ultima = $vacinas->sortByDesc('updated_at')->first();
+
+        return response()->json([
+            'sucesso' => true,
+            'origem' => 'cadastro_manual',
+            'origemRotulo' => 'Mesma base do dashboard e do certificado (cadastro manual EasyVacc).',
+            'sincronizadoEm' => optional($ultima?->updated_at)?->toIso8601String(),
+            'dados' => $vacinas->map(fn ($v) => SituacaoDose::formatar($v, $hoje))->values(),
+        ]);
     }
+
     public function salvarVacina(Request $request): JsonResponse
     {
-        $d = $request->validate(['usuarioId' => ['required', 'integer', 'exists:users,id'], 'nome' => ['required', 'string', 'max:255'], 'dataAplicacao' => ['required', 'date'], 'lote' => ['nullable', 'string'], 'fabricante' => ['nullable', 'string'], 'proximaDose' => ['nullable', 'date']]);
-        $v = Vacina::create(['usuario_id' => $d['usuarioId'], 'nome' => $d['nome'], 'data_aplicacao' => $d['dataAplicacao'], 'lote' => $d['lote'] ?? null, 'fabricante' => $d['fabricante'] ?? null, 'proxima_dose' => $d['proximaDose'] ?? null]);
-        return response()->json(['sucesso' => true, 'mensagem' => 'Vacina registrada.', 'dados' => $v], 201);
+        $regras = [
+            'usuarioId' => ['required', 'integer', 'exists:users,id'],
+            'nome' => ['required', 'string', 'max:255'],
+            'dataAplicacao' => ['required', 'date'],
+            'lote' => ['nullable', 'string'],
+            'fabricante' => ['nullable', 'string'],
+            'proximaDose' => ['nullable', 'date'],
+            'posto' => ['nullable', 'string', 'max:255'],
+            'profissional' => ['nullable', 'string', 'max:255'],
+            'dependenteId' => ['nullable', 'integer'],
+            'aplicavel' => ['nullable', 'boolean'],
+        ];
+        $d = $request->validate($regras);
+        $payload = [
+            'usuario_id' => $d['usuarioId'],
+            'nome' => $d['nome'],
+            'data_aplicacao' => $d['dataAplicacao'],
+            'lote' => $d['lote'] ?? null,
+            'fabricante' => $d['fabricante'] ?? null,
+            'proxima_dose' => $d['proximaDose'] ?? null,
+        ];
+        if (Schema::hasColumn('vacinas', 'posto')) {
+            $payload['posto'] = $d['posto'] ?? null;
+            $payload['profissional'] = $d['profissional'] ?? null;
+            $payload['dependente_id'] = $d['dependenteId'] ?? null;
+            $payload['aplicavel'] = $d['aplicavel'] ?? true;
+        }
+        $v = Vacina::create($payload);
+
+        return response()->json(['sucesso' => true, 'mensagem' => 'Vacina registrada.', 'dados' => SituacaoDose::formatar($v, Carbon::today())], 201);
     }
+
     public function dependentes(int $usuarioId): JsonResponse
     {
         $dados = Dependente::where('usuario_id', $usuarioId)->get()->map(fn ($d) => ['id' => $d->id, 'nome' => $d->nome, 'parentesco' => $d->parentesco, 'dataNascimento' => $d->data_nascimento]);

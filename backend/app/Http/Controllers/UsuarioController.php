@@ -250,11 +250,12 @@ class UsuarioController extends Controller
 
     public function situacaoVacinal(User $usuario, Request $request, SituacaoVacinal $servico): JsonResponse
     {
-        $tipo = $request->query('pessoa', 'titular');
+        $tipo = $request->query('pessoa', 'titular') === 'dependente' ? 'dependente' : 'titular';
+        $dependenteId = $request->query('dependenteId') ? (int) $request->query('dependenteId') : null;
 
         return response()->json([
             'sucesso' => true,
-            'dados' => $servico->calcular($usuario, $tipo === 'dependente' ? 'dependente' : 'titular'),
+            'dados' => $servico->calcular($usuario, $tipo, $dependenteId),
         ]);
     }
 

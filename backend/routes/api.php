@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\CertificadoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,6 +41,8 @@ Route::get('/usuarios/{usuario}/situacao-vacinal', [UsuarioController::class, 's
 Route::get('/usuarios/{usuario}', [UsuarioController::class, 'mostrar'])->whereNumber('usuario');
 Route::get('/vacinas/{usuarioId}', [ApiController::class, 'vacinas'])->whereNumber('usuarioId');
 Route::post('/vacinas', [ApiController::class, 'salvarVacina']);
+Route::post('/certificados', [CertificadoController::class, 'emitir']);
+Route::get('/certificados/{codigo}', [CertificadoController::class, 'mostrar']);
 Route::get('/dependentes/{usuarioId}', [ApiController::class, 'dependentes'])->whereNumber('usuarioId');
 Route::post('/dependentes', [ApiController::class, 'salvarDependente']);
 Route::get('/postos', [ApiController::class, 'postos']);

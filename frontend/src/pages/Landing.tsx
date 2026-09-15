@@ -85,9 +85,7 @@ export default function Landing() {
                 </h1>
 
                 <p className="max-w-xl text-lg leading-relaxed text-slate-200">
-                  O EasyVacc ajuda cidadãos, responsáveis por crianças e profissionais de posto a
-                  registrar doses, acompanhar próximas aplicações e emitir um certificado com o que
-                  foi cadastrado na plataforma.
+                  Sua caderneta de vacinação na palma da mão. Acompanhe doses aplicadas, receba alertas de próximos retornos e emita certificados digitais de forma rápida e segura.
                 </p>
 
                 <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-100">

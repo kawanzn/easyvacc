@@ -10,7 +10,8 @@ const userDto = (u: Record<string, unknown>) => ({ id: u.id, nome: u.nome, cpf: 
 
 export default async function handler(req: Request, res: Response) {
   res.setHeader('Content-Type', 'application/json');
-  const databaseUrl = process.env.DATABASE_URL;
+  const env = process.env as Record<string, string | undefined>;
+  const databaseUrl = env.DATABASE_URL;
   if (!databaseUrl) return ok(res, { sucesso: false, mensagem: 'DATABASE_URL não configurada na Vercel.' }, 500);
 
   const sql = neon(databaseUrl);
@@ -52,6 +53,43 @@ export default async function handler(req: Request, res: Response) {
       const rows = await sql.query('select * from users where cpf = $1 limit 1', [match[1]]);
       return rows[0] ? ok(res, { sucesso: true, dados: userDto(rows[0]) }) : ok(res, { sucesso: false, mensagem: 'Usuário não encontrado.' }, 404);
     }
+
+    match = path.match(/^usuarios\/(\d+)\/situacao-vacinal$/);
+    if (req.method === 'GET' && match) {
+      const usuarioId = match[1];
+      const tipo = req.query.pessoa === 'dependente' ? 'dependente' : 'titular';
+      
+      const userRows = await sql.query('select * from users where id = $1 limit 1', [usuarioId]);
+      if (!userRows[0]) return ok(res, { sucesso: false, mensagem: 'Usuário não encontrado.' }, 404);
+      const usuario = userRows[0];
+
+      const vacinas = await sql.query('select id, nome, data_aplicacao as "dataAplicacao", lote, fabricante, proxima_dose as "proximaDose" from vacinas where usuario_id = $1 order by data_aplicacao desc', [usuarioId]);
+      
+      const totalRegistros = vacinas.length;
+      const atrasadas: any[] = [];
+      const proximaDoseEncontrada = vacinas.find((v: any) => v.proximaDose);
+      const proximaDose = proximaDoseEncontrada ? { nome: proximaDoseEncontrada.nome, data: proximaDoseEncontrada.proximaDose } : null;
+
+      const dados = {
+        pessoa: { tipo, id: Number(usuario.id), nome: String(usuario.nome) },
+        origemDados: 'base_local',
+        origemRotulo: 'Caderneta Digital',
+        sincronizadoEm: new Date().toISOString(),
+        totalRegistros,
+        atrasadas,
+        proximaDose,
+        campanhasAplicaveis: [],
+        coberturaPercentual: totalRegistros > 0 ? 100 : 0,
+        coberturaDisponivel: totalRegistros > 0,
+        status: totalRegistros > 0 ? 'em_dia' : 'atrasada',
+        statusRotulo: totalRegistros > 0 ? 'Em dia' : 'Pendente',
+        statusDetalhe: totalRegistros > 0 ? 'Sua caderneta possui registros.' : 'Nenhum registro de vacina encontrado.',
+        regra: 'calendario_nacional'
+      };
+
+      return ok(res, { sucesso: true, dados });
+    }
+
     match = path.match(/^usuarios\/(\d+)$/);
     if (req.method === 'GET' && match) {
       const rows = await sql.query('select * from users where id = $1 limit 1', [match[1]]);

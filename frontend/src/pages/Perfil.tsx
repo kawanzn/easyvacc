@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, CreditCard, Shield, Calendar, Activity, Heart, Home, Camera, Eye, EyeOff, FileText, Download } from 'lucide-react';
+import { User, Mail, Phone, MapPin, CreditCard, Calendar, Activity, Heart, Home, Camera, Eye, EyeOff, FileText, Download } from 'lucide-react';
 import { API_URL } from '../lib/api';
 
 export default function Perfil() {

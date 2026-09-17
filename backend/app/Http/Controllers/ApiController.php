@@ -63,25 +63,72 @@ class ApiController extends Controller
 
     public function dependentes(int $usuarioId): JsonResponse
     {
-        $dados = Dependente::where('usuario_id', $usuarioId)->get()->map(fn ($d) => ['id' => $d->id, 'nome' => $d->nome, 'parentesco' => $d->parentesco, 'dataNascimento' => $d->data_nascimento]);
+        $dados = Dependente::where('usuario_id', $usuarioId)->get()->map(fn ($d) => [
+            'id' => $d->id, 
+            'nome' => $d->nome, 
+            'parentesco' => $d->parentesco, 
+            'cns' => $d->cns ?? null,
+            'dataNascimento' => $d->data_nascimento
+        ]);
         return response()->json(['sucesso' => true, 'dados' => $dados]);
     }
+
     public function salvarDependente(Request $request): JsonResponse
     {
-        $d = $request->validate(['usuarioId' => ['required', 'integer', 'exists:users,id'], 'nome' => ['required', 'string', 'max:255'], 'parentesco' => ['required', 'string', 'max:100'], 'dataNascimento' => ['nullable', 'date']]);
-        $dep = Dependente::create(['usuario_id' => $d['usuarioId'], 'nome' => $d['nome'], 'parentesco' => $d['parentesco'], 'data_nascimento' => $d['dataNascimento'] ?? null]);
-        return response()->json(['sucesso' => true, 'mensagem' => 'Dependente cadastrado.', 'dados' => $dep], 201);
+        $d = $request->validate([
+            'usuarioId' => ['required', 'integer', 'exists:users,id'], 
+            'nome' => ['required', 'string', 'max:255'], 
+            'parentesco' => ['required', 'string', 'max:100'], 
+            'cns' => ['nullable', 'string', 'size:15'], // Validação rigorosa: P2 (15 dígitos)
+            'dataNascimento' => ['required', 'date', 'before_or_equal:today'] // Validação rigorosa: P2 (não futura)
+        ]);
+
+        $dep = Dependente::create([
+            'usuario_id' => $d['usuarioId'], 
+            'nome' => $d['nome'], 
+            'parentesco' => $d['parentesco'], 
+            'cns' => $d['cns'] ?? null,
+            'data_nascimento' => $d['dataNascimento']
+        ]);
+
+        return response()->json([
+            'sucesso' => true, 
+            'mensagem' => 'Dependente cadastrado com sucesso.', 
+            'dados' => $dep
+        ], 201);
     }
+
+    public function excluirDependente(int $id): JsonResponse
+    {
+        $dependente = Dependente::find($id);
+
+        if (!$dependente) {
+            return response()->json([
+                'sucesso' => false,
+                'mensagem' => 'Dependente não encontrado.'
+            ], 404);
+        }
+
+        $dependente->delete();
+
+        return response()->json([
+            'sucesso' => true,
+            'mensagem' => 'Dependente removido com sucesso do sistema.'
+        ]);
+    }
+
     public function postos(): JsonResponse
     {
         $dados = Posto::all()->map(fn ($p) => ['id' => $p->id, 'nome' => $p->nome, 'endereco' => $p->endereco, 'horarioFuncionamento' => $p->horario_funcionamento, 'telefone' => $p->telefone, 'aberto' => $p->aberto]);
         return response()->json(['sucesso' => true, 'dados' => $dados]);
     }
+
     public function campanhas(): JsonResponse
     {
         $dados = Campanha::all()->map(fn ($c) => ['id' => $c->id, 'titulo' => $c->titulo, 'descricao' => $c->descricao, 'dataInicio' => optional($c->data_inicio)->format('d/m/Y'), 'dataFim' => optional($c->data_fim)->format('d/m/Y'), 'status' => $c->status]);
         return response()->json(['sucesso' => true, 'dados' => $dados]);
     }
+
     public function notificacoes(int $usuarioId): JsonResponse
     {
         $dados = [['id' => 1, 'titulo' => 'Bem-vindo ao EasyVacc', 'mensagem' => 'Sua caderneta digital está pronta.', 'lida' => true]];

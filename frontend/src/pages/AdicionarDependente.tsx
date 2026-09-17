@@ -21,9 +21,28 @@ interface Dependente {
   statusVacinal: string;
 }
 
+// Função auxiliar para formatar a data de YYYY-MM-DD para DD/MM/YYYY
+function formatarData(dataIso: string) {
+  if (!dataIso) return '';
+  const partes = dataIso.split('-');
+  if (partes.length !== 3) return dataIso;
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
 export default function AdicionarDependente() {
   const navigate = useNavigate();
-  const [dependentes, setDependentes] = useState<Dependente[]>([]);
+
+  // 1. Inicializa o estado buscando os dependentes salvos no localStorage com segurança
+  const [dependentes, setDependentes] = useState<Dependente[]>(() => {
+    try {
+      const salvo = localStorage.getItem('@EasyVacc:dependentes');
+      return salvo ? JSON.parse(salvo) : [];
+    } catch (erro) {
+      console.error('Erro ao ler o localStorage:', erro);
+      return [];
+    }
+  });
+
   const [nome, setNome] = useState('');
   const [parentesco, setParentesco] = useState('Filho(a)');
   const [dataNascimento, setDataNascimento] = useState('');
@@ -38,24 +57,51 @@ export default function AdicionarDependente() {
       nome,
       parentesco,
       dataNascimento,
-      cartaoSus: cartaoSus || 'Não informado',
+      cartaoSus: cartaoSus.trim() ? cartaoSus : 'Não informado',
       statusVacinal: 'Em dia',
     };
 
-    setDependentes([...dependentes, novo]);
-    setNome('');
-    setParentesco('Filho(a)');
-    setDataNascimento('');
-    setCartaoSus('');
+    const atualizados = [...dependentes, novo];
+    
+    try {
+      // 2. Salva no localStorage para persistir os dados
+      localStorage.setItem('@EasyVacc:dependentes', JSON.stringify(atualizados));
+      
+      // 3. Atualiza o estado local da página
+      setDependentes(atualizados);
+
+      // 4. Dispara um evento global para a sidebar e outros componentes atualizarem na hora
+      window.dispatchEvent(new Event('storage'));
+
+      // Limpa o formulário
+      setNome('');
+      setParentesco('Filho(a)');
+      setDataNascimento('');
+      setCartaoSus('');
+    } catch (erro) {
+      console.error('Erro ao salvar no localStorage:', erro);
+      alert('Não foi possível salvar o dependente. Verifique o espaço do navegador.');
+    }
   };
 
   const handleRemove = (id: string) => {
-    setDependentes(dependentes.filter((d) => d.id !== id));
+    const atualizados = dependentes.filter((d) => d.id !== id);
+    
+    try {
+      // Atualiza o localStorage e o estado ao remover
+      localStorage.setItem('@EasyVacc:dependentes', JSON.stringify(atualizados));
+      setDependentes(atualizados);
+      
+      // Avisa a sidebar que um dependente foi removido
+      window.dispatchEvent(new Event('storage'));
+    } catch (erro) {
+      console.error('Erro ao remover do localStorage:', erro);
+    }
   };
 
   return (
     <div className="relative min-h-screen bg-slate-950 p-6 md:p-10 text-slate-100 antialiased">
-      {/* Background Decorativo HealthTech (Mesmo gradiente suave da Landing) */}
+      {/* Background Decorativo HealthTech */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/15 via-[#00a884]/20 to-cyan-500/10 blur-3xl" />
       </div>
@@ -92,7 +138,7 @@ export default function AdicionarDependente() {
         {/* Grid Principal */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           
-          {/* Formulário estilo Landing */}
+          {/* Formulário */}
           <div className="lg:col-span-5">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl">
               <div className="mb-6 flex items-center gap-3">
@@ -174,7 +220,7 @@ export default function AdicionarDependente() {
             </div>
           </div>
 
-          {/* Lista de Dependentes estilo Bento-Grid */}
+          {/* Lista de Dependentes */}
           <div className="lg:col-span-7 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-white">
@@ -231,7 +277,9 @@ export default function AdicionarDependente() {
                           <span className="flex items-center gap-1.5 text-slate-400">
                             <Calendar size={13} /> Nascimento:
                           </span>
-                          <span className="font-semibold text-slate-200">{dep.dataNascimento}</span>
+                          <span className="font-semibold text-slate-200">
+                            {formatarData(dep.dataNascimento)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-slate-400">

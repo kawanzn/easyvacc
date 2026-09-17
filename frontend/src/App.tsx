@@ -1,6 +1,9 @@
 // Importa somente o que realmente usamos do React Router.
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// Importa o Provider global de dependentes
+import { DependentesProvider } from './context/DependentesContext';
+
 // Páginas públicas
 import Cadastro from './pages/Cadastro';
 import Landing from './pages/Landing';
@@ -29,79 +32,43 @@ import PainelPosto from './pages/PainelPosto';
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      {/* O Provider envolve as rotas para disponibilizar os dados globalmente */}
+      <DependentesProvider>
+        <Routes>
 
-        {/* =====================================================
-            ROTAS SEM MENU LATERAL
-            ===================================================== */}
+          {/* =====================================================
+              ROTAS SEM MENU LATERAL
+              ===================================================== */}
 
-        <Route path="/" element={<Landing />} />
-
-        <Route path="/login" element={<Login />} />
-
-        <Route path="/cadastro" element={<Cadastro />} />
-        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
-        <Route path="/confirmar-email" element={<ConfirmarEmail />} />
-        <Route path="/privacidade" element={<PoliticaPrivacidade />} />
-        <Route path="/termos" element={<TermosUso />} />
-        <Route path="/admin" element={<PainelPosto />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Cadastro />} />
+          <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+          <Route path="/confirmar-email" element={<ConfirmarEmail />} />
+          <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+          <Route path="/termos" element={<TermosUso />} />
+          <Route path="/admin" element={<PainelPosto />} />
 
 
-        {/* =====================================================
-            ROTAS COM MENU LATERAL
-            Todas ficam dentro do componente Layout.
-            ===================================================== */}
+          {/* =====================================================
+              ROTAS COM MENU LATERAL
+              Todas ficam dentro do componente Layout.
+              ===================================================== */}
 
-        <Route element={<Layout />}>
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/historico" element={<Historico />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/certificado" element={<Certificado />} />
+            <Route path="/dependentes" element={<Dependentes />} />
+            <Route path="/adicionar-dependente" element={<AdicionarDependente />} />
+            <Route path="/notificacoes" element={<Notificacoes />} />
+            <Route path="/campanhas" element={<Campanhas />} />
+            <Route path="/postos" element={<Postos />} />
+          </Route>
 
-          <Route
-            path="/dashboard"
-            element={<Dashboard />}
-          />
-
-          <Route
-            path="/historico"
-            element={<Historico />}
-          />
-
-          <Route
-            path="/perfil"
-            element={<Perfil />}
-          />
-
-          <Route
-            path="/certificado"
-            element={<Certificado />}
-          />
-
-          <Route
-            path="/dependentes"
-            element={<Dependentes />}
-          />
-
-          <Route
-            path="/adicionar-dependente"
-            element={<AdicionarDependente />}
-          />
-
-          <Route
-            path="/notificacoes"
-            element={<Notificacoes />}
-          />
-
-          <Route
-            path="/campanhas"
-            element={<Campanhas />}
-          />
-
-          <Route
-            path="/postos"
-            element={<Postos />}
-          />
-
-        </Route>
-
-      </Routes>
+        </Routes>
+      </DependentesProvider>
     </BrowserRouter>
   );
 }

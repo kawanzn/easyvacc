@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  
   ChevronRight,
   Plus,
   ShieldCheck,
@@ -10,56 +9,135 @@ import {
   X,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../lib/api'; // Ajuste o caminho se necessário para o seu arquivo de config da API
 
 interface Dependente {
-  id: string;
+  id: number;
   nome: string;
   parentesco: string;
   dataNascimento: string;
-  cartaoSus: string;
+  cns?: string;
   statusVacinal: string;
 }
 
 export default function Dependentes() {
-  const [dependentes, setDependentes] = useState<Dependente[]>([
-    {
-      id: '1',
-      nome: 'Lucas Sampaio',
-      parentesco: 'Filho(a)',
-      dataNascimento: '12/05/2018',
-      cartaoSus: '7000 0000 0000 001',
-      statusVacinal: 'Em dia',
-    },
-  ]);
-
+  const [dependentes, setDependentes] = useState<Dependente[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [novoDependente, setNovoDependente] = useState({
     nome: '',
     parentesco: 'Filho(a)',
     dataNascimento: '',
-    cartaoSus: '',
+    cns: '',
   });
 
-  const handleAddDependente = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!novoDependente.nome || !novoDependente.dataNascimento) return;
+  // Função para buscar os dependentes reais da API do Laravel
+  const carregarDependentes = async () => {
+    const usuarioId = localStorage.getItem('usuarioId');
+    if (!usuarioId) {
+      setCarregando(false);
+      return;
+    }
 
-    const item: Dependente = {
-      id: Date.now().toString(),
-      nome: novoDependente.nome,
-      parentesco: novoDependente.parentesco,
-      dataNascimento: novoDependente.dataNascimento,
-      cartaoSus: novoDependente.cartaoSus || 'Não informado',
-      statusVacinal: 'Em dia',
-    };
-
-    setDependentes([...dependentes, item]);
-    setNovoDependente({ nome: '', parentesco: 'Filho(a)', dataNascimento: '', cartaoSus: '' });
-    setIsModalOpen(false);
+    try {
+      const response = await fetch(`${API_URL}/dependentes/${usuarioId}`);
+      const data = await response.json();
+      if (data.sucesso && data.dados) {
+        // Mapeia os dados adaptando para a interface da tela
+        const formatados = data.dados.map((d: any) => ({
+          id: d.id,
+          nome: d.nome,
+          parentesco: d.parentesco || 'Outro',
+          dataNascimento: d.dataNascimento ? d.dataNascimento.split('-').reverse().join('/') : '',
+          cns: d.cns || 'Não informado',
+          statusVacinal: 'Em dia',
+        }));
+        setDependentes(formatados);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar dependentes:', err);
+    } finally {
+      setCarregando(false);
+    }
   };
 
-  const handleRemove = (id: string) => {
-    setDependentes(dependentes.filter((d) => d.id !== id));
+  useEffect(() => {
+    carregarDependentes();
+  }, []);
+
+  const handleAddDependente = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErro('');
+
+    // Validação P2: Data de nascimento não pode ser futura
+    const dataAtual = new Date().toISOString().split('T')[0];
+    if (novoDependente.dataNascimento > dataAtual) {
+      setErro('A data de nascimento não pode ser uma data futura.');
+      return;
+    }
+
+    // Validação P2: Se o CNS/Cartão SUS for preenchido, deve ter exatamente 15 dígitos
+    if (novoDependente.cns && !/^\d{15}$/.test(novoDependente.cns.replace(/\D/g, ''))) {
+      setErro('O número do Cartão SUS (CNS) deve conter exatamente 15 dígitos numéricos.');
+      return;
+    }
+
+    const usuarioId = localStorage.getItem('usuarioId');
+    if (!usuarioId) {
+      setErro('Usuário não autenticado.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/dependentes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usuarioId: Number(usuarioId),
+          nome: novoDependente.nome,
+          parentesco: novoDependente.parentesco,
+          dataNascimento: novoDependente.dataNascimento,
+          cns: novoDependente.cns ? novoDependente.cns.replace(/\D/g, '') : null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.sucesso) {
+        setIsModalOpen(false);
+        setNovoDependente({ nome: '', parentesco: 'Filho(a)', dataNascimento: '', cns: '' });
+        carregarDependentes(); // Recarrega a lista direto da API
+      } else {
+        setErro(data.mensagem || 'Erro ao cadastrar dependente.');
+      }
+    } catch (err) {
+      console.error('Erro na requisição:', err);
+      setErro('Erro de conexão com o servidor.');
+    }
+  };
+
+  const handleRemove = async (id: number) => {
+    if (!window.confirm('Tem certeza de que deseja remover este dependente?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/dependentes/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+
+      if (data.sucesso) {
+        setDependentes(dependentes.filter((d) => d.id !== id));
+      } else {
+        alert(data.mensagem || 'Erro ao remover dependente.');
+      }
+    } catch (err) {
+      console.error('Erro ao excluir:', err);
+      alert('Erro de conexão ao tentar remover.');
+    }
   };
 
   return (
@@ -86,7 +164,10 @@ export default function Dependentes() {
             </div>
 
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setErro('');
+                setIsModalOpen(true);
+              }}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
             >
               <UserPlus size={16} />
@@ -96,7 +177,9 @@ export default function Dependentes() {
         </header>
 
         {/* Lista de Dependentes */}
-        {dependentes.length === 0 ? (
+        {carregando ? (
+          <div className="py-12 text-center text-sm text-slate-500">Carregando dependentes...</div>
+        ) : dependentes.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
               <User size={24} />
@@ -106,7 +189,10 @@ export default function Dependentes() {
               Adicione filhos ou outros dependentes para gerenciar a imunização deles.
             </p>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setErro('');
+                setIsModalOpen(true);
+              }}
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
             >
               <Plus size={14} />
@@ -149,7 +235,7 @@ export default function Dependentes() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400">Cartão SUS:</span>
-                      <span className="font-medium text-slate-700">{dep.cartaoSus}</span>
+                      <span className="font-medium text-slate-700">{dep.cns}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400">Situação Vacinal:</span>
@@ -187,6 +273,12 @@ export default function Dependentes() {
                   <X size={18} />
                 </button>
               </div>
+
+              {erro && (
+                <div className="mt-3 rounded-lg bg-red-50 p-3 text-xs font-medium text-red-700 border border-red-200">
+                  {erro}
+                </div>
+              )}
 
               <form onSubmit={handleAddDependente} className="mt-4 space-y-4">
                 <div>
@@ -227,6 +319,7 @@ export default function Dependentes() {
                   <input
                     type="date"
                     required
+                    max={new Date().toISOString().split('T')[0]} // Impede seleção de datas futuras nativamente no input
                     value={novoDependente.dataNascimento}
                     onChange={(e) => setNovoDependente({ ...novoDependente, dataNascimento: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none"
@@ -235,13 +328,14 @@ export default function Dependentes() {
 
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-                    Número do Cartão SUS (Opcional)
+                    Número do Cartão SUS (CNS - 15 dígitos)
                   </label>
                   <input
                     type="text"
-                    placeholder="000 0000 0000 0000"
-                    value={novoDependente.cartaoSus}
-                    onChange={(e) => setNovoDependente({ ...novoDependente, cartaoSus: e.target.value })}
+                    maxLength={15}
+                    placeholder="Ex: 700000000000001"
+                    value={novoDependente.cns}
+                    onChange={(e) => setNovoDependente({ ...novoDependente, cns: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none"
                   />
                 </div>

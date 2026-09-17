@@ -71,7 +71,7 @@ export default function AdicionarDependente() {
       setDependentes(atualizados);
 
       // 4. Dispara um evento global para a sidebar e outros componentes atualizarem na hora
-      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('dependenteAdicionado'));
 
       // Limpa o formulário
       setNome('');

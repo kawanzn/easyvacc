@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   UserPlus, 
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 interface Dependente {
-  id: string;
+  id: number | string;
   nome: string;
   parentesco: string;
   dataNascimento: string;
@@ -32,70 +32,104 @@ function formatarData(dataIso: string) {
 export default function AdicionarDependente() {
   const navigate = useNavigate();
 
-  // 1. Inicializa o estado buscando os dependentes salvos no localStorage com segurança
-  const [dependentes, setDependentes] = useState<Dependente[]>(() => {
-    try {
-      const salvo = localStorage.getItem('@EasyVacc:dependentes');
-      return salvo ? JSON.parse(salvo) : [];
-    } catch (erro) {
-      console.error('Erro ao ler o localStorage:', erro);
-      return [];
-    }
-  });
+  const [dependentes, setDependentes] = useState<Dependente[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [nome, setNome] = useState('');
   const [parentesco, setParentesco] = useState('Filho(a)');
   const [dataNascimento, setDataNascimento] = useState('');
   const [cartaoSus, setCartaoSus] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ID do usuário logado (ajuste conforme o seu sistema de autenticação real)
+  const usuarioId = 1; 
+
+  // URL da API (usa variável de ambiente da Vercel ou o localhost para testes)
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+  // 1. Buscar dependentes direto da API (banco de dados) ao carregar a página
+  useEffect(() => {
+    fetch(`${API_URL}/api/dependentes/${usuarioId}`)
+      .then((res) => res.json())
+      .then((resposta) => {
+        if (resposta.sucesso && Array.isArray(resposta.dados)) {
+          const formatados = resposta.dados.map((d: any) => ({
+            id: d.id,
+            nome: d.nome,
+            parentesco: d.parentesco,
+            dataNascimento: d.data_nascimento || d.dataNascimento,
+            cartaoSus: d.cartao_sus || d.cartaoSus || 'Não informado',
+            statusVacinal: 'Em dia',
+          }));
+          setDependentes(formatados);
+        }
+        setLoading(false);
+      })
+      .catch((erro) => {
+        console.error('Erro ao buscar dependentes da API:', erro);
+        setLoading(false);
+      });
+  }, [API_URL, usuarioId]);
+
+  // 2. Enviar novo dependente para salvar no banco via API
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome || !dataNascimento) return;
 
-    const novo: Dependente = {
-      id: Date.now().toString(),
-      nome,
-      parentesco,
-      dataNascimento,
-      cartaoSus: cartaoSus.trim() ? cartaoSus : 'Não informado',
-      statusVacinal: 'Em dia',
-    };
-
-    const atualizados = [...dependentes, novo];
-    
     try {
-      // 2. Salva no localStorage para persistir os dados
-      localStorage.setItem('@EasyVacc:dependentes', JSON.stringify(atualizados));
-      
-      // 3. Atualiza o estado local da página
-      setDependentes(atualizados);
+      const response = await fetch(`${API_URL}/api/dependentes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          usuario_id: usuarioId,
+          nome: nome,
+          parentesco: parentesco,
+          data_nascimento: dataNascimento,
+          cartao_sus: cartaoSus.trim() ? cartaoSus : null,
+        }),
+      });
 
-      // 4. Dispara um evento global para a sidebar e outros componentes atualizarem na hora
-      window.dispatchEvent(new CustomEvent('dependenteAdicionado'));
+      const resultado = await response.json();
 
-      // Limpa o formulário
-      setNome('');
-      setParentesco('Filho(a)');
-      setDataNascimento('');
-      setCartaoSus('');
+      if (response.ok && resultado.sucesso) {
+        const novoItem: Dependente = {
+          id: resultado.dados.id,
+          nome: resultado.dados.nome,
+          parentesco: resultado.dados.parentesco,
+          dataNascimento: resultado.dados.data_nascimento || dataNascimento,
+          cartaoSus: resultado.dados.cartao_sus || cartaoSus || 'Não informado',
+          statusVacinal: 'Em dia',
+        };
+
+        setDependentes([...dependentes, novoItem]);
+
+        // Dispara evento caso outros componentes precisem saber
+        window.dispatchEvent(new CustomEvent('dependenteAdicionado'));
+
+        // Limpa o formulário
+        setNome('');
+        setParentesco('Filho(a)');
+        setDataNascimento('');
+        setCartaoSus('');
+      } else {
+        alert('Erro ao salvar no banco de dados.');
+      }
     } catch (erro) {
-      console.error('Erro ao salvar no localStorage:', erro);
-      alert('Não foi possível salvar o dependente. Verifique o espaço do navegador.');
+      console.error('Erro na requisição:', erro);
+      alert('Não foi possível conectar com o servidor da API.');
     }
   };
 
-  const handleRemove = (id: string) => {
-    const atualizados = dependentes.filter((d) => d.id !== id);
-    
+  const handleRemove = async (id: number | string) => {
     try {
-      // Atualiza o localStorage e o estado ao remover
-      localStorage.setItem('@EasyVacc:dependentes', JSON.stringify(atualizados));
-      setDependentes(atualizados);
-      
-      // Avisa a sidebar que um dependente foi removido
-      window.dispatchEvent(new Event('storage'));
+      // Se houver rota de delete na API, você pode chamar aqui:
+      // await fetch(`${API_URL}/api/dependentes/${id}`, { method: 'DELETE' });
+
+      setDependentes(dependentes.filter((d) => d.id !== id));
     } catch (erro) {
-      console.error('Erro ao remover do localStorage:', erro);
+      console.error('Erro ao remover dependente:', erro);
     }
   };
 
@@ -147,7 +181,7 @@ export default function AdicionarDependente() {
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-white">Novo Dependente</h2>
-                  <p className="text-xs text-slate-400">Preencha os dados abaixo</p>
+                  <p className="text-xs text-slate-400">Preencha os dados para salvar no banco</p>
                 </div>
               </div>
 
@@ -214,7 +248,7 @@ export default function AdicionarDependente() {
                   className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#00a884] py-3 text-xs font-semibold text-slate-950 shadow-lg shadow-[#00a884]/20 transition-all hover:bg-[#00c49a] active:scale-[0.99]"
                 >
                   <UserPlus size={15} />
-                  Salvar Dependente
+                  Salvar Dependente no Banco
                 </button>
               </form>
             </div>
@@ -231,7 +265,9 @@ export default function AdicionarDependente() {
               </span>
             </div>
 
-            {dependentes.length === 0 ? (
+            {loading ? (
+              <div className="py-12 text-center text-xs text-slate-400">A carregar dependentes do banco...</div>
+            ) : dependentes.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/50 p-12 text-center shadow-xl backdrop-blur-xl">
                 <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-800 bg-slate-950 text-slate-500">
                   <User size={24} />

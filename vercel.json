@@ -11,11 +11,10 @@
       "dest": "backend/api/index.php"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "frontend/assets/$1"
+      "handle": "filesystem"
     },
     {
-      "src": "/((?!api).*)" ,
+      "src": "/(.*)",
       "dest": "frontend/$1"
     }
   ]

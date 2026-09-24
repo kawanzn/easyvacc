@@ -1,31 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  UserPlus, 
-  User, 
-  ShieldCheck, 
-  Trash2, 
-  ChevronRight, 
-  ArrowLeft, 
-  CheckCircle2, 
-  Calendar, 
-  CreditCard 
+import {
+  UserPlus,
+  User,
+  ShieldCheck,
+  Trash2,
+  ChevronRight,
+  ArrowLeft,
+  Calendar,
+  CreditCard,
+  Loader2,
 } from 'lucide-react';
 
+import { supabase } from '../services/supabase';
+import { salvarPessoaAtiva } from '../lib/brasil';
+
 interface Dependente {
-  id: number | string;
+  id: number;
   nome: string;
   parentesco: string;
   dataNascimento: string;
   cartaoSus: string;
-  statusVacinal: string;
 }
 
-// Função auxiliar para formatar a data de YYYY-MM-DD para DD/MM/YYYY
+interface DependenteBanco {
+  id: number;
+  usuario_id: string;
+  nome: string;
+  parentesco: string | null;
+  data_nascimento: string | null;
+  cns: string | null;
+}
+
 function formatarData(dataIso: string) {
-  if (!dataIso) return '';
-  const partes = dataIso.split('-');
-  if (partes.length !== 3) return dataIso;
+  if (!dataIso) return 'Não informada';
+
+  const partes = dataIso.substring(0, 10).split('-');
+
+  if (partes.length !== 3) {
+    return dataIso;
+  }
+
   return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
@@ -34,324 +49,839 @@ export default function AdicionarDependente() {
 
   const [dependentes, setDependentes] = useState<Dependente[]>([]);
   const [loading, setLoading] = useState(true);
+  const [salvando, setSalvando] = useState(false);
+  const [removendoId, setRemovendoId] = useState<number | null>(null);
+  const [erro, setErro] = useState('');
+  const [sucesso, setSucesso] = useState('');
 
   const [nome, setNome] = useState('');
   const [parentesco, setParentesco] = useState('Filho(a)');
   const [dataNascimento, setDataNascimento] = useState('');
   const [cartaoSus, setCartaoSus] = useState('');
 
-  // ID do usuário logado (ajuste conforme o seu sistema de autenticação real)
-  const usuarioId = 1; 
+  // =====================================================
+  // BUSCAR DEPENDENTES
+  // =====================================================
 
-  // URL da API (usa variável de ambiente da Vercel ou o localhost para testes)
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-  // 1. Buscar dependentes direto da API (banco de dados) ao carregar a página
-  useEffect(() => {
-    fetch(`${API_URL}/api/dependentes/${usuarioId}`)
-      .then((res) => res.json())
-      .then((resposta) => {
-        if (resposta.sucesso && Array.isArray(resposta.dados)) {
-          const formatados = resposta.dados.map((d: any) => ({
-            id: d.id,
-            nome: d.nome,
-            parentesco: d.parentesco,
-            dataNascimento: d.data_nascimento || d.dataNascimento,
-            cartaoSus: d.cartao_sus || d.cartaoSus || 'Não informado',
-            statusVacinal: 'Em dia',
-          }));
-          setDependentes(formatados);
-        }
-        setLoading(false);
-      })
-      .catch((erro) => {
-        console.error('Erro ao buscar dependentes da API:', erro);
-        setLoading(false);
-      });
-  }, [API_URL, usuarioId]);
-
-  // 2. Enviar novo dependente para salvar no banco via API
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nome || !dataNascimento) return;
+  const carregarDependentes = async () => {
+    setLoading(true);
+    setErro('');
 
     try {
-      const response = await fetch(`${API_URL}/api/dependentes`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          usuario_id: usuarioId,
-          nome: nome,
-          parentesco: parentesco,
-          data_nascimento: dataNascimento,
-          cartao_sus: cartaoSus.trim() ? cartaoSus : null,
-        }),
-      });
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
 
-      const resultado = await response.json();
-
-      if (response.ok && resultado.sucesso) {
-        const novoItem: Dependente = {
-          id: resultado.dados.id,
-          nome: resultado.dados.nome,
-          parentesco: resultado.dados.parentesco,
-          dataNascimento: resultado.dados.data_nascimento || dataNascimento,
-          cartaoSus: resultado.dados.cartao_sus || cartaoSus || 'Não informado',
-          statusVacinal: 'Em dia',
-        };
-
-        setDependentes([...dependentes, novoItem]);
-
-        // Dispara evento caso outros componentes precisem saber
-        window.dispatchEvent(new CustomEvent('dependenteAdicionado'));
-
-        // Limpa o formulário
-        setNome('');
-        setParentesco('Filho(a)');
-        setDataNascimento('');
-        setCartaoSus('');
-      } else {
-        alert('Erro ao salvar no banco de dados.');
+      if (authError) {
+        throw authError;
       }
-    } catch (erro) {
-      console.error('Erro na requisição:', erro);
-      alert('Não foi possível conectar com o servidor da API.');
+
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('dependentes')
+        .select(`
+          id,
+          usuario_id,
+          nome,
+          parentesco,
+          data_nascimento,
+          cns
+        `)
+        .eq('usuario_id', user.id)
+        .order('nome', {
+          ascending: true,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      const lista = (data ?? []) as DependenteBanco[];
+
+      setDependentes(
+        lista.map((dependente) => ({
+          id: dependente.id,
+
+          nome: dependente.nome,
+
+          parentesco:
+            dependente.parentesco || 'Outro',
+
+          dataNascimento:
+            dependente.data_nascimento || '',
+
+          cartaoSus:
+            dependente.cns || 'Não informado',
+        }))
+      );
+    } catch (error: any) {
+      console.error(
+        'Erro ao buscar dependentes:',
+        error
+      );
+
+      setErro(
+        error?.message ||
+          'Não foi possível carregar os dependentes.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRemove = async (id: number | string) => {
-    try {
-      // Se houver rota de delete na API, você pode chamar aqui:
-      // await fetch(`${API_URL}/api/dependentes/${id}`, { method: 'DELETE' });
+  // =====================================================
+  // CARREGAR AO ABRIR
+  // =====================================================
 
-      setDependentes(dependentes.filter((d) => d.id !== id));
-    } catch (erro) {
-      console.error('Erro ao remover dependente:', erro);
+  useEffect(() => {
+    void carregarDependentes();
+  }, []);
+
+  // =====================================================
+  // CADASTRAR DEPENDENTE
+  // =====================================================
+
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
+    e.preventDefault();
+
+    setErro('');
+    setSucesso('');
+
+    if (!nome.trim()) {
+      setErro('Informe o nome do dependente.');
+      return;
     }
+
+    if (!dataNascimento) {
+      setErro('Informe a data de nascimento.');
+      return;
+    }
+
+    const hoje = new Date()
+      .toISOString()
+      .split('T')[0];
+
+    if (dataNascimento > hoje) {
+      setErro(
+        'A data de nascimento não pode ser futura.'
+      );
+      return;
+    }
+
+    const cnsLimpo = cartaoSus.replace(/\D/g, '');
+
+    if (
+      cnsLimpo.length > 0 &&
+      cnsLimpo.length !== 15
+    ) {
+      setErro(
+        'O Cartão SUS (CNS) deve possuir 15 dígitos.'
+      );
+      return;
+    }
+
+    setSalvando(true);
+
+    try {
+      // ==============================================
+      // PEGAR USUÁRIO LOGADO
+      // ==============================================
+
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      // ==============================================
+      // INSERT NO SUPABASE
+      // ==============================================
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from('dependentes')
+        .insert({
+          usuario_id: user.id,
+
+          nome: nome.trim(),
+
+          parentesco,
+
+          data_nascimento:
+            dataNascimento,
+
+          cns:
+            cnsLimpo || null,
+        })
+        .select(`
+          id,
+          usuario_id,
+          nome,
+          parentesco,
+          data_nascimento,
+          cns
+        `)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // ==============================================
+      // ADICIONAR NA TELA
+      // ==============================================
+
+      const novo: Dependente = {
+        id: data.id,
+
+        nome: data.nome,
+
+        parentesco:
+          data.parentesco || 'Outro',
+
+        dataNascimento:
+          data.data_nascimento || '',
+
+        cartaoSus:
+          data.cns || 'Não informado',
+      };
+
+      setDependentes((anteriores) =>
+        [...anteriores, novo].sort(
+          (a, b) =>
+            a.nome.localeCompare(
+              b.nome,
+              'pt-BR'
+            )
+        )
+      );
+
+      // ==============================================
+      // LIMPAR FORMULÁRIO
+      // ==============================================
+
+      setNome('');
+      setParentesco('Filho(a)');
+      setDataNascimento('');
+      setCartaoSus('');
+
+      setSucesso(
+        'Dependente cadastrado com sucesso.'
+      );
+
+      // Atualiza o Layout
+
+      window.dispatchEvent(
+        new Event('dependenteAtualizado')
+      );
+    } catch (error: any) {
+      console.error(
+        'Erro ao cadastrar dependente:',
+        error
+      );
+
+      if (error?.code === '23514') {
+        setErro(
+          'O CNS informado não possui um formato válido.'
+        );
+      } else if (error?.code === '23505') {
+        setErro(
+          'Esse dependente já está cadastrado.'
+        );
+      } else {
+        setErro(
+          error?.message ||
+            'Não foi possível cadastrar o dependente.'
+        );
+      }
+    } finally {
+      setSalvando(false);
+    }
+  };
+
+  // =====================================================
+  // REMOVER DEPENDENTE
+  // =====================================================
+
+  const handleRemove = async (
+    id: number
+  ) => {
+    const confirmar = window.confirm(
+      'Deseja realmente remover este dependente?'
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    setErro('');
+    setSucesso('');
+    setRemovendoId(id);
+
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('dependentes')
+        .delete()
+        .eq('id', id)
+        .eq('usuario_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      setDependentes((anteriores) =>
+        anteriores.filter(
+          (dependente) =>
+            dependente.id !== id
+        )
+      );
+
+      setSucesso(
+        'Dependente removido com sucesso.'
+      );
+
+      window.dispatchEvent(
+        new Event('dependenteAtualizado')
+      );
+    } catch (error: any) {
+      console.error(
+        'Erro ao remover dependente:',
+        error
+      );
+
+      setErro(
+        error?.message ||
+          'Não foi possível remover o dependente.'
+      );
+    } finally {
+      setRemovendoId(null);
+    }
+  };
+
+  // =====================================================
+  // ABRIR CADERNETA
+  // =====================================================
+
+  const abrirCaderneta = (
+    dependente: Dependente
+  ) => {
+    salvarPessoaAtiva({
+      tipo: 'dependente',
+      id: dependente.id,
+      nome: dependente.nome,
+    });
+
+    navigate('/historico');
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-950 p-6 md:p-10 text-slate-100 antialiased">
-      {/* Background Decorativo HealthTech */}
+    <div className="relative min-h-screen bg-slate-950 p-6 text-slate-100 antialiased md:p-10">
+
+      {/* Background */}
+
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/15 via-[#00a884]/20 to-cyan-500/10 blur-3xl" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-6xl space-y-8">
-        
-        {/* Cabeçalho */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-800/80 pb-6">
+
+        {/* ================================================= */}
+        {/* CABEÇALHO */}
+        {/* ================================================= */}
+
+        <div className="flex flex-col gap-4 border-b border-slate-800/80 pb-6 sm:flex-row sm:items-center sm:justify-between">
+
           <div>
+
             <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              <Link to="/dashboard" className="transition-colors hover:text-white">
+
+              <Link
+                to="/dashboard"
+                className="transition-colors hover:text-white"
+              >
                 EASYVACC
               </Link>
-              <ChevronRight size={12} className="text-slate-500" />
-              <span className="text-[#00a884]">DEPENDENTES</span>
+
+              <ChevronRight
+                size={12}
+                className="text-slate-500"
+              />
+
+              <span className="text-[#00a884]">
+                DEPENDENTES
+              </span>
+
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+
+            <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
               Gestão de Dependentes
             </h1>
-            <p className="mt-1 text-xs md:text-sm text-slate-400">
-              Cadastre e acompanhe a situação vacinal da sua família em um só lugar.
+
+            <p className="mt-1 text-xs text-slate-400 md:text-sm">
+              Cadastre e acompanhe os dependentes
+              vinculados à sua conta.
             </p>
+
           </div>
 
           <button
-            onClick={() => navigate('/dashboard')}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2.5 text-xs font-semibold text-slate-300 shadow-lg backdrop-blur-xl transition-all hover:border-slate-700 hover:text-white active:scale-95"
+            type="button"
+            onClick={() =>
+              navigate('/dashboard')
+            }
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2.5 text-xs font-semibold text-slate-300 shadow-lg backdrop-blur-xl transition-all hover:border-slate-700 hover:text-white"
           >
+
             <ArrowLeft size={15} />
+
             Voltar ao Início
+
           </button>
+
         </div>
 
-        {/* Grid Principal */}
+        {/* ================================================= */}
+        {/* MENSAGENS */}
+        {/* ================================================= */}
+
+        {erro && (
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm font-medium text-red-300">
+            {erro}
+          </div>
+        )}
+
+        {sucesso && (
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm font-medium text-emerald-300">
+            {sucesso}
+          </div>
+        )}
+
+        {/* ================================================= */}
+        {/* CONTEÚDO */}
+        {/* ================================================= */}
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-          
-          {/* Formulário */}
+
+          {/* FORMULÁRIO */}
+
           <div className="lg:col-span-5">
+
             <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl">
+
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a884]/10 border border-[#00a884]/30 text-[#00a884]">
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00a884]/30 bg-[#00a884]/10 text-[#00a884]">
                   <UserPlus size={18} />
                 </div>
+
                 <div>
-                  <h2 className="text-base font-bold text-white">Novo Dependente</h2>
-                  <p className="text-xs text-slate-400">Preencha os dados para salvar no banco</p>
+
+                  <h2 className="text-base font-bold text-white">
+                    Novo Dependente
+                  </h2>
+
+                  <p className="text-xs text-slate-400">
+                    Os dados serão salvos diretamente no Supabase
+                  </p>
+
                 </div>
+
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-4"
+              >
+
+                {/* NOME */}
+
                 <div>
+
                   <label className="block text-xs font-semibold text-slate-300">
-                    Nome Completo <span className="text-[#00a884]">*</span>
+                    Nome Completo{' '}
+                    <span className="text-[#00a884]">
+                      *
+                    </span>
                   </label>
+
                   <input
                     type="text"
                     required
                     placeholder="Ex: Lucas Gentil"
                     value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 transition-all focus:border-[#00a884] focus:outline-none focus:ring-1 focus:ring-[#00a884]"
+                    onChange={(e) =>
+                      setNome(e.target.value)
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-[#00a884] focus:outline-none"
                   />
+
                 </div>
 
+                {/* PARENTESCO */}
+
                 <div>
+
                   <label className="block text-xs font-semibold text-slate-300">
                     Parentesco
                   </label>
+
                   <select
                     value={parentesco}
-                    onChange={(e) => setParentesco(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white transition-all focus:border-[#00a884] focus:outline-none focus:ring-1 focus:ring-[#00a884]"
+                    onChange={(e) =>
+                      setParentesco(
+                        e.target.value
+                      )
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white focus:border-[#00a884] focus:outline-none"
                   >
-                    <option value="Filho(a)" className="bg-slate-900 text-white">Filho(a)</option>
-                    <option value="Cônjuge" className="bg-slate-900 text-white">Cônjuge</option>
-                    <option value="Pai/Mãe" className="bg-slate-900 text-white">Pai/Mãe</option>
-                    <option value="Tutelado(a)" className="bg-slate-900 text-white">Tutelado(a)</option>
-                    <option value="Outro" className="bg-slate-900 text-white">Outro</option>
+
+                    <option value="Filho(a)">
+                      Filho(a)
+                    </option>
+
+                    <option value="Cônjuge">
+                      Cônjuge
+                    </option>
+
+                    <option value="Pai/Mãe">
+                      Pai/Mãe
+                    </option>
+
+                    <option value="Tutelado(a)">
+                      Tutelado(a)
+                    </option>
+
+                    <option value="Outro">
+                      Outro
+                    </option>
+
                   </select>
+
                 </div>
 
+                {/* DATA NASCIMENTO */}
+
                 <div>
+
                   <label className="block text-xs font-semibold text-slate-300">
-                    Data de Nascimento <span className="text-[#00a884]">*</span>
+                    Data de Nascimento{' '}
+                    <span className="text-[#00a884]">
+                      *
+                    </span>
                   </label>
+
                   <input
                     type="date"
                     required
+                    max={
+                      new Date()
+                        .toISOString()
+                        .split('T')[0]
+                    }
                     value={dataNascimento}
-                    onChange={(e) => setDataNascimento(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white transition-all focus:border-[#00a884] focus:outline-none focus:ring-1 focus:ring-[#00a884] [color-scheme:dark]"
+                    onChange={(e) =>
+                      setDataNascimento(
+                        e.target.value
+                      )
+                    }
+                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white focus:border-[#00a884] focus:outline-none [color-scheme:dark]"
                   />
+
                 </div>
 
+                {/* CNS */}
+
                 <div>
+
                   <label className="block text-xs font-semibold text-slate-300">
-                    Nº Cartão SUS <span className="font-normal text-slate-500">(Opcional)</span>
+                    Nº Cartão SUS{' '}
+                    <span className="font-normal text-slate-500">
+                      (Opcional)
+                    </span>
                   </label>
+
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={18}
                     placeholder="000 0000 0000 0000"
                     value={cartaoSus}
-                    onChange={(e) => setCartaoSus(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 transition-all focus:border-[#00a884] focus:outline-none focus:ring-1 focus:ring-[#00a884]"
+                    onChange={(e) => {
+                      const valor =
+                        e.target.value
+                          .replace(/\D/g, '')
+                          .slice(0, 15);
+
+                      setCartaoSus(valor);
+                    }}
+                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-[#00a884] focus:outline-none"
                   />
+
                 </div>
+
+                {/* BOTÃO */}
 
                 <button
                   type="submit"
-                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#00a884] py-3 text-xs font-semibold text-slate-950 shadow-lg shadow-[#00a884]/20 transition-all hover:bg-[#00c49a] active:scale-[0.99]"
+                  disabled={salvando}
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#00a884] py-3 text-xs font-semibold text-slate-950 shadow-lg shadow-[#00a884]/20 transition-all hover:bg-[#00c49a] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <UserPlus size={15} />
-                  Salvar Dependente no Banco
+
+                  {salvando ? (
+                    <Loader2
+                      size={15}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <UserPlus size={15} />
+                  )}
+
+                  {salvando
+                    ? 'Salvando...'
+                    : 'Salvar Dependente'}
+
                 </button>
+
               </form>
+
             </div>
+
           </div>
 
-          {/* Lista de Dependentes */}
-          <div className="lg:col-span-7 space-y-4">
+          {/* ================================================= */}
+          {/* LISTA */}
+          {/* ================================================= */}
+
+          <div className="space-y-4 lg:col-span-7">
+
             <div className="flex items-center justify-between">
+
               <h2 className="text-base font-bold text-white">
                 Dependentes Cadastrados
               </h2>
+
               <span className="rounded-full border border-[#00a884]/30 bg-[#00a884]/10 px-2.5 py-0.5 text-xs font-semibold text-[#00a884]">
                 {dependentes.length}
               </span>
+
             </div>
 
             {loading ? (
-              <div className="py-12 text-center text-xs text-slate-400">A carregar dependentes do banco...</div>
+
+              <div className="flex items-center justify-center gap-2 py-12 text-xs text-slate-400">
+
+                <Loader2
+                  size={18}
+                  className="animate-spin"
+                />
+
+                Carregando dependentes...
+
+              </div>
+
             ) : dependentes.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/50 p-12 text-center shadow-xl backdrop-blur-xl">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-800 bg-slate-950 text-slate-500">
-                  <User size={24} />
-                </div>
-                <h3 className="text-sm font-bold text-slate-200">Nenhum dependente cadastrado</h3>
-                <p className="mt-1 max-w-xs text-xs text-slate-400">
-                  Adicione seus familiares no formulário ao lado para gerenciar as cadernetas de vacinação.
+
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/50 p-12 text-center">
+
+                <User
+                  size={28}
+                  className="text-slate-500"
+                />
+
+                <h3 className="mt-3 text-sm font-bold text-slate-200">
+                  Nenhum dependente cadastrado
+                </h3>
+
+                <p className="mt-1 text-xs text-slate-400">
+                  Utilize o formulário para adicionar
+                  seu primeiro dependente.
                 </p>
+
               </div>
+
             ) : (
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {dependentes.map((dep) => (
-                  <div
-                    key={dep.id}
-                    className="group flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl transition-all hover:border-slate-700 hover:shadow-2xl backdrop-blur-xl"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-2">
+
+                {dependentes.map(
+                  (dependente) => (
+
+                    <div
+                      key={dependente.id}
+                      className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl"
+                    >
+
+                      <div className="flex items-start justify-between">
+
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00a884]/10 border border-[#00a884]/30 text-[#00a884]">
+
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00a884]/30 bg-[#00a884]/10 text-[#00a884]">
+
                             <User size={20} />
+
                           </div>
+
                           <div>
-                            <h3 className="text-sm font-bold text-white leading-tight">
-                              {dep.nome}
+
+                            <h3 className="text-sm font-bold text-white">
+                              {dependente.nome}
                             </h3>
-                            <span className="inline-block mt-0.5 rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-300">
-                              {dep.parentesco}
+
+                            <span className="mt-0.5 inline-block rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-300">
+                              {dependente.parentesco}
                             </span>
+
                           </div>
+
                         </div>
+
                         <button
-                          onClick={() => handleRemove(dep.id)}
-                          className="rounded-lg p-1 text-slate-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
-                          title="Remover dependente"
+                          type="button"
+                          disabled={
+                            removendoId ===
+                            dependente.id
+                          }
+                          onClick={() =>
+                            handleRemove(
+                              dependente.id
+                            )
+                          }
+                          className="rounded-lg p-1 text-slate-500 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
                         >
-                          <Trash2 size={16} />
+
+                          {removendoId ===
+                          dependente.id ? (
+
+                            <Loader2
+                              size={16}
+                              className="animate-spin"
+                            />
+
+                          ) : (
+
+                            <Trash2 size={16} />
+
+                          )}
+
                         </button>
+
                       </div>
 
-                      <div className="mt-4 space-y-2 border-t border-slate-800/80 pt-3 text-xs text-slate-300">
-                        <div className="flex items-center justify-between">
+                      <div className="mt-4 space-y-2 border-t border-slate-800 pt-3 text-xs">
+
+                        <div className="flex justify-between">
+
                           <span className="flex items-center gap-1.5 text-slate-400">
-                            <Calendar size={13} /> Nascimento:
+                            <Calendar size={13} />
+                            Nascimento:
                           </span>
+
                           <span className="font-semibold text-slate-200">
-                            {formatarData(dep.dataNascimento)}
+                            {formatarData(
+                              dependente.dataNascimento
+                            )}
                           </span>
+
                         </div>
-                        <div className="flex items-center justify-between">
+
+                        <div className="flex justify-between">
+
                           <span className="flex items-center gap-1.5 text-slate-400">
-                            <CreditCard size={13} /> Cartão SUS:
+                            <CreditCard size={13} />
+                            Cartão SUS:
                           </span>
-                          <span className="font-semibold text-slate-200">{dep.cartaoSus}</span>
+
+                          <span className="font-semibold text-slate-200">
+                            {dependente.cartaoSus}
+                          </span>
+
                         </div>
-                        <div className="flex items-center justify-between">
+
+                        <div className="flex justify-between">
+
                           <span className="flex items-center gap-1.5 text-slate-400">
-                            <ShieldCheck size={13} /> Situação:
+                            <ShieldCheck size={13} />
+                            Situação:
                           </span>
-                          <span className="inline-flex items-center gap-1 font-semibold text-[#00a884]">
-                            <CheckCircle2 size={13} /> {dep.statusVacinal}
+
+                          <span className="font-semibold text-slate-300">
+                            Consulte a caderneta
                           </span>
+
                         </div>
+
                       </div>
+
+                      <div className="mt-4 border-t border-slate-800 pt-3">
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            abrirCaderneta(
+                              dependente
+                            )
+                          }
+                          className="flex w-full items-center justify-between text-xs font-semibold text-[#00a884] hover:text-[#00c49a]"
+                        >
+
+                          <span>
+                            Ver caderneta completa
+                          </span>
+
+                          <ChevronRight
+                            size={14}
+                          />
+
+                        </button>
+
+                      </div>
+
                     </div>
 
-                    <div className="mt-4 border-t border-slate-800/80 pt-3">
-                      <Link
-                        to={`/historico?dependenteId=${dep.id}`}
-                        className="flex items-center justify-between text-xs font-semibold text-[#00a884] transition-colors hover:text-[#00c49a]"
-                      >
-                        <span>Ver caderneta completa</span>
-                        <ChevronRight size={14} />
-                      </Link>
-                    </div>
-                  </div>
-                ))}
+                  )
+                )}
+
               </div>
+
             )}
+
           </div>
 
         </div>
 
       </div>
+
     </div>
   );
 }

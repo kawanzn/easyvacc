@@ -1,67 +1,93 @@
-import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
-import { api } from '../lib/api';
+import { Link, useLocation } from 'react-router-dom';
+import { CheckCircle2, Mail } from 'lucide-react';
 
 export default function ConfirmarEmail() {
   const location = useLocation();
-  const navigate = useNavigate();
+
   const state = (location.state || {}) as {
     mensagem?: string;
     email?: string;
-    codigoDemonstracao?: string;
   };
-  const [token, setToken] = useState(state.codigoDemonstracao || '');
-  const [erro, setErro] = useState('');
-  const [ok, setOk] = useState(state.mensagem || 'Conta criada. Confirme o e-mail para concluir.');
-  const [carregando, setCarregando] = useState(false);
 
-  const confirmar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErro('');
-    setCarregando(true);
-    try {
-      const data = await api<{ sucesso: boolean; mensagem?: string }>('/api/usuarios/confirmar-email', {
-        method: 'POST',
-        body: JSON.stringify({ token }),
-      });
-      setOk(data.mensagem || 'E-mail confirmado.');
-      setTimeout(() => navigate('/login'), 1200);
-    } catch (error) {
-      setErro(error instanceof Error ? error.message : 'Não foi possível confirmar o e-mail.');
-    } finally {
-      setCarregando(false);
-    }
-  };
+  const email = state.email || '';
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100">
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8">
-        <h1 className="text-2xl font-bold text-white">Cadastro realizado</h1>
-        <p className="mt-3 text-base leading-7 text-slate-200">{ok}</p>
-        {state.email && <p className="mt-2 text-sm text-slate-300">E-mail informado: {state.email}</p>}
-        {state.codigoDemonstracao && (
-          <p className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
-            Ambiente de demonstração: o código de confirmação é <strong className="break-all">{state.codigoDemonstracao}</strong>.
-          </p>
+      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+
+        {/* Ícone */}
+        <div className="mb-6 flex justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
+            <Mail
+              size={32}
+              className="text-emerald-400"
+            />
+          </div>
+        </div>
+
+        {/* Título */}
+        <h1 className="text-center text-2xl font-bold text-white">
+          Verifique seu e-mail
+        </h1>
+
+        {/* Mensagem */}
+        <p className="mt-4 text-center text-base leading-7 text-slate-300">
+          Seu cadastro foi realizado com sucesso.
+          Enviamos um link de confirmação para o seu e-mail.
+        </p>
+
+        {/* E-mail */}
+        {email && (
+          <div className="mt-5 rounded-xl border border-slate-700 bg-slate-950/70 p-4 text-center">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              E-mail informado
+            </p>
+
+            <p className="mt-1 break-all font-semibold text-emerald-400">
+              {email}
+            </p>
+          </div>
         )}
-        <form onSubmit={confirmar} className="mt-6 space-y-4">
-          <input
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3.5 text-sm text-white"
-            placeholder="Cole o código recebido"
-            required
-          />
-          {erro && <p className="text-sm font-semibold text-red-300">{erro}</p>}
-          <button disabled={carregando} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#00a884] font-bold text-slate-950 disabled:opacity-50">
-            {carregando && <Loader2 className="animate-spin" size={18} />}
-            Confirmar e-mail
-          </button>
-        </form>
-        <Link to="/login" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[#00a884]">
+
+        {/* Instruções */}
+        <div className="mt-6 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+
+          <div className="flex items-start gap-3">
+
+            <CheckCircle2
+              size={21}
+              className="mt-0.5 shrink-0 text-emerald-400"
+            />
+
+            <div>
+              <p className="font-semibold text-white">
+                Como confirmar sua conta
+              </p>
+
+              <p className="mt-1 text-sm leading-6 text-slate-300">
+                Abra o e-mail enviado pelo EasyVacc e clique no
+                link de confirmação.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Aviso */}
+        <p className="mt-5 text-center text-sm leading-6 text-slate-400">
+          Não recebeu o e-mail? Verifique também sua caixa de spam
+          ou lixo eletrônico.
+        </p>
+
+        {/* Login */}
+        <Link
+          to="/login"
+          className="mt-7 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#00a884] font-bold text-slate-950 transition hover:bg-[#00bd96]"
+        >
           Ir para o login
         </Link>
+
       </div>
     </div>
   );

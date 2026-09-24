@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ChevronRight,
+  Loader2,
   Plus,
   ShieldCheck,
   Trash2,
@@ -8,358 +9,967 @@ import {
   UserPlus,
   X,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { API_URL } from '../lib/api'; // Ajuste o caminho se necessário para o seu arquivo de config da API
+import { Link, useNavigate } from 'react-router-dom';
+
+import { supabase } from '../services/supabase';
+import { salvarPessoaAtiva } from '../lib/brasil';
+
+interface DependenteBanco {
+  id: number;
+  usuario_id: string;
+  nome: string;
+  parentesco: string | null;
+  data_nascimento: string | null;
+  cns: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
 
 interface Dependente {
   id: number;
   nome: string;
   parentesco: string;
   dataNascimento: string;
-  cns?: string;
+  cns: string;
   statusVacinal: string;
 }
 
 export default function Dependentes() {
-  const [dependentes, setDependentes] = useState<Dependente[]>([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const [novoDependente, setNovoDependente] = useState({
-    nome: '',
-    parentesco: 'Filho(a)',
-    dataNascimento: '',
-    cns: '',
-  });
+  const [dependentes, setDependentes] =
+    useState<Dependente[]>([]);
 
-  // Função para buscar os dependentes reais da API do Laravel
-  const carregarDependentes = async () => {
-    const usuarioId = localStorage.getItem('usuarioId');
-    if (!usuarioId) {
-      setCarregando(false);
-      return;
+  const [carregando, setCarregando] =
+    useState(true);
+
+  const [salvando, setSalvando] =
+    useState(false);
+
+  const [removendoId, setRemovendoId] =
+    useState<number | null>(null);
+
+  const [erro, setErro] =
+    useState('');
+
+  const [isModalOpen, setIsModalOpen] =
+    useState(false);
+
+  const [novoDependente, setNovoDependente] =
+    useState({
+      nome: '',
+      parentesco: 'Filho(a)',
+      dataNascimento: '',
+      cns: '',
+    });
+
+  // ==========================================
+  // FORMATAR DATA
+  // ==========================================
+
+  const formatarData = (
+    data: string | null
+  ) => {
+    if (!data) {
+      return 'Não informada';
     }
 
+    const partes =
+      data.substring(0, 10).split('-');
+
+    if (partes.length !== 3) {
+      return data;
+    }
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  };
+
+  // ==========================================
+  // CARREGAR DEPENDENTES
+  // ==========================================
+
+  const carregarDependentes = async () => {
+    setCarregando(true);
+    setErro('');
+
     try {
-      const response = await fetch(`${API_URL}/dependentes/${usuarioId}`);
-      const data = await response.json();
-      if (data.sucesso && data.dados) {
-        // Mapeia os dados adaptando para a interface da tela
-        const formatados = data.dados.map((d: any) => ({
-          id: d.id,
-          nome: d.nome,
-          parentesco: d.parentesco || 'Outro',
-          dataNascimento: d.dataNascimento ? d.dataNascimento.split('-').reverse().join('/') : '',
-          cns: d.cns || 'Não informado',
-          statusVacinal: 'Em dia',
-        }));
-        setDependentes(formatados);
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) {
+        throw authError;
       }
-    } catch (err) {
-      console.error('Erro ao buscar dependentes:', err);
+
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from('dependentes')
+        .select(`
+          id,
+          usuario_id,
+          nome,
+          parentesco,
+          data_nascimento,
+          cns,
+          created_at,
+          updated_at
+        `)
+        .eq('usuario_id', user.id)
+        .order('nome', {
+          ascending: true,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      const formatados: Dependente[] =
+        (
+          (data ?? []) as DependenteBanco[]
+        ).map((dep) => ({
+          id: dep.id,
+
+          nome: dep.nome,
+
+          parentesco:
+            dep.parentesco || 'Outro',
+
+          dataNascimento:
+            formatarData(
+              dep.data_nascimento
+            ),
+
+          cns:
+            dep.cns ||
+            'Não informado',
+
+          /*
+           * Por enquanto não vamos inventar
+           * situação vacinal.
+           *
+           * Depois, quando migrarmos vacinas,
+           * calcularemos isso com os registros.
+           */
+          statusVacinal:
+            'Consultar caderneta',
+        }));
+
+      setDependentes(formatados);
+
+    } catch (error) {
+      console.error(
+        'Erro ao buscar dependentes:',
+        error
+      );
+
+      setErro(
+        'Não foi possível carregar os dependentes.'
+      );
+
     } finally {
       setCarregando(false);
     }
   };
 
+  // ==========================================
+  // CARREGAR AO ABRIR
+  // ==========================================
+
   useEffect(() => {
-    carregarDependentes();
+    void carregarDependentes();
   }, []);
 
-  const handleAddDependente = async (e: React.FormEvent) => {
+  // ==========================================
+  // ADICIONAR DEPENDENTE
+  // ==========================================
+
+  const handleAddDependente = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
+
     setErro('');
 
-    // Validação P2: Data de nascimento não pode ser futura
-    const dataAtual = new Date().toISOString().split('T')[0];
-    if (novoDependente.dataNascimento > dataAtual) {
-      setErro('A data de nascimento não pode ser uma data futura.');
+    // Nome
+
+    if (!novoDependente.nome.trim()) {
+      setErro(
+        'Informe o nome do dependente.'
+      );
+
       return;
     }
 
-    // Validação P2: Se o CNS/Cartão SUS for preenchido, deve ter exatamente 15 dígitos
-    if (novoDependente.cns && !/^\d{15}$/.test(novoDependente.cns.replace(/\D/g, ''))) {
-      setErro('O número do Cartão SUS (CNS) deve conter exatamente 15 dígitos numéricos.');
+    // Data
+
+    const dataAtual =
+      new Date()
+        .toISOString()
+        .split('T')[0];
+
+    if (
+      novoDependente.dataNascimento >
+      dataAtual
+    ) {
+      setErro(
+        'A data de nascimento não pode ser uma data futura.'
+      );
+
       return;
     }
 
-    const usuarioId = localStorage.getItem('usuarioId');
-    if (!usuarioId) {
-      setErro('Usuário não autenticado.');
+    // CNS
+
+    const cnsLimpo =
+      novoDependente.cns.replace(
+        /\D/g,
+        ''
+      );
+
+    if (
+      cnsLimpo &&
+      !/^\d{15}$/.test(cnsLimpo)
+    ) {
+      setErro(
+        'O número do Cartão SUS (CNS) deve conter exatamente 15 dígitos numéricos.'
+      );
+
       return;
     }
+
+    setSalvando(true);
 
     try {
-      const response = await fetch(`${API_URL}/dependentes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          usuarioId: Number(usuarioId),
-          nome: novoDependente.nome,
-          parentesco: novoDependente.parentesco,
-          dataNascimento: novoDependente.dataNascimento,
-          cns: novoDependente.cns ? novoDependente.cns.replace(/\D/g, '') : null,
-        }),
+      // ======================================
+      // USUÁRIO AUTENTICADO
+      // ======================================
+
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (!user) {
+        setErro(
+          'Usuário não autenticado.'
+        );
+
+        return;
+      }
+
+      // ======================================
+      // INSERT
+      // ======================================
+
+      const {
+        error: insertError,
+      } = await supabase
+        .from('dependentes')
+        .insert({
+          usuario_id: user.id,
+
+          nome:
+            novoDependente.nome.trim(),
+
+          parentesco:
+            novoDependente.parentesco,
+
+          data_nascimento:
+            novoDependente.dataNascimento,
+
+          cns:
+            cnsLimpo || null,
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      // ======================================
+      // LIMPAR FORMULÁRIO
+      // ======================================
+
+      setNovoDependente({
+        nome: '',
+        parentesco: 'Filho(a)',
+        dataNascimento: '',
+        cns: '',
       });
 
-      const data = await response.json();
+      setIsModalOpen(false);
 
-      if (data.sucesso) {
-        setIsModalOpen(false);
-        setNovoDependente({ nome: '', parentesco: 'Filho(a)', dataNascimento: '', cns: '' });
-        carregarDependentes(); // Recarrega a lista direto da API
-      } else {
-        setErro(data.mensagem || 'Erro ao cadastrar dependente.');
+      // ======================================
+      // ATUALIZAR LISTA
+      // ======================================
+
+      await carregarDependentes();
+
+      // Atualiza também o Layout
+
+      window.dispatchEvent(
+        new Event(
+          'dependenteAtualizado'
+        )
+      );
+
+    } catch (error: any) {
+      console.error(
+        'Erro ao cadastrar dependente:',
+        error
+      );
+
+      if (error?.code === '23505') {
+        setErro(
+          'Já existe um dependente com esses dados.'
+        );
+
+        return;
       }
-    } catch (err) {
-      console.error('Erro na requisição:', err);
-      setErro('Erro de conexão com o servidor.');
+
+      if (error?.code === '23514') {
+        setErro(
+          'O CNS informado não é válido.'
+        );
+
+        return;
+      }
+
+      setErro(
+        error?.message ||
+        'Não foi possível cadastrar o dependente.'
+      );
+
+    } finally {
+      setSalvando(false);
     }
   };
 
-  const handleRemove = async (id: number) => {
-    if (!window.confirm('Tem certeza de que deseja remover este dependente?')) {
+  // ==========================================
+  // REMOVER DEPENDENTE
+  // ==========================================
+
+  const handleRemove = async (
+    id: number
+  ) => {
+    const confirmar =
+      window.confirm(
+        'Tem certeza de que deseja remover este dependente?'
+      );
+
+    if (!confirmar) {
       return;
     }
 
-    try {
-      const response = await fetch(`${API_URL}/dependentes/${id}`, {
-        method: 'DELETE',
-      });
-      const data = await response.json();
+    setRemovendoId(id);
 
-      if (data.sucesso) {
-        setDependentes(dependentes.filter((d) => d.id !== id));
-      } else {
-        alert(data.mensagem || 'Erro ao remover dependente.');
+    try {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) {
+        throw authError;
       }
-    } catch (err) {
-      console.error('Erro ao excluir:', err);
-      alert('Erro de conexão ao tentar remover.');
+
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      const {
+        error,
+      } = await supabase
+        .from('dependentes')
+        .delete()
+        .eq('id', id)
+        .eq('usuario_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      setDependentes(
+        (anteriores) =>
+          anteriores.filter(
+            (dependente) =>
+              dependente.id !== id
+          )
+      );
+
+      window.dispatchEvent(
+        new Event(
+          'dependenteAtualizado'
+        )
+      );
+
+    } catch (error) {
+      console.error(
+        'Erro ao excluir dependente:',
+        error
+      );
+
+      alert(
+        'Não foi possível remover o dependente.'
+      );
+
+    } finally {
+      setRemovendoId(null);
     }
+  };
+
+  // ==========================================
+  // ABRIR CADERNETA DO DEPENDENTE
+  // ==========================================
+
+  const abrirCaderneta = (
+    dependente: Dependente
+  ) => {
+    salvarPessoaAtiva({
+      tipo: 'dependente',
+      id: dependente.id,
+      nome: dependente.nome,
+    });
+
+    navigate('/historico');
+
+    window.dispatchEvent(
+      new Event(
+        'dependenteAtualizado'
+      )
+    );
   };
 
   return (
-    <div className="min-h-full bg-slate-50 text-slate-900">
+    <div className="min-h-full bg-slate-950 text-slate-100">
+
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10">
-        {/* Cabeçalho */}
-        <header className="mb-8 border-b border-slate-200 pb-7">
-          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-            <Link to="/dashboard" className="hover:text-slate-800">
+
+        {/* ================================= */}
+        {/* CABEÇALHO */}
+        {/* ================================= */}
+
+        <header className="mb-8 border-b border-slate-800 pb-7">
+
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+
+            <Link
+              to="/dashboard"
+              className="hover:text-white"
+            >
               EasyVacc
             </Link>
+
             <ChevronRight size={13} />
-            <span className="text-slate-700">Dependentes</span>
+
+            <span className="text-slate-200">
+              Dependentes
+            </span>
+
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950 md:text-[34px]">
+
+              <h1 className="text-3xl font-bold tracking-tight text-white md:text-[34px]">
                 Gestão de Dependentes
               </h1>
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                Cadastre e acompanhe as cadernetas de vacinação da sua família.
+
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Cadastre e acompanhe as
+                cadernetas de vacinação da sua
+                família.
               </p>
+
             </div>
 
             <button
+              type="button"
               onClick={() => {
                 setErro('');
                 setIsModalOpen(true);
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#00a884] px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:brightness-110"
             >
+
               <UserPlus size={16} />
+
               Adicionar dependente
+
             </button>
+
           </div>
+
         </header>
 
-        {/* Lista de Dependentes */}
-        {carregando ? (
-          <div className="py-12 text-center text-sm text-slate-500">Carregando dependentes...</div>
-        ) : dependentes.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-              <User size={24} />
-            </div>
-            <h3 className="mt-4 text-base font-semibold text-slate-900">Nenhum dependente cadastrado</h3>
-            <p className="mt-1 text-xs text-slate-500">
-              Adicione filhos ou outros dependentes para gerenciar a imunização deles.
-            </p>
-            <button
-              onClick={() => {
-                setErro('');
-                setIsModalOpen(true);
-              }}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
-            >
-              <Plus size={14} />
-              Cadastrar Primeiro Dependente
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {dependentes.map((dep) => (
-              <div
-                key={dep.id}
-                className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
-                <div>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-                        <User size={20} />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-900">{dep.nome}</h3>
-                        <span className="inline-block rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
-                          {dep.parentesco}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleRemove(dep.id)}
-                      className="text-slate-400 transition-colors hover:text-red-600"
-                      title="Remover dependente"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+        {/* ================================= */}
+        {/* ERRO */}
+        {/* ================================= */}
 
-                  <div className="mt-5 space-y-2 border-t border-slate-100 pt-4 text-xs text-slate-600">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Nascimento:</span>
-                      <span className="font-medium text-slate-700">{dep.dataNascimento}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Cartão SUS:</span>
-                      <span className="font-medium text-slate-700">{dep.cns}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Situação Vacinal:</span>
-                      <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
-                        <ShieldCheck size={14} /> {dep.statusVacinal}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 border-t border-slate-100 pt-3">
-                  <Link
-                    to={`/historico?dependenteId=${dep.id}`}
-                    className="flex items-center justify-between text-xs font-semibold text-slate-700 hover:text-slate-950"
-                  >
-                    <span>Ver caderneta do dependente</span>
-                    <ChevronRight size={14} />
-                  </Link>
-                </div>
-              </div>
-            ))}
+        {erro && !isModalOpen && (
+          <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-medium text-red-300">
+            {erro}
           </div>
         )}
 
-        {/* Modal de Cadastro */}
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <h2 className="text-lg font-bold text-slate-900">Novo Dependente</h2>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+        {/* ================================= */}
+        {/* CARREGANDO */}
+        {/* ================================= */}
+
+        {carregando ? (
+
+          <div className="flex items-center justify-center gap-3 py-16 text-sm text-slate-400">
+
+            <Loader2
+              size={20}
+              className="animate-spin text-[#00a884]"
+            />
+
+            Carregando dependentes...
+
+          </div>
+
+        ) : dependentes.length === 0 ? (
+
+          /* =============================== */
+          /* VAZIO */
+          /* =============================== */
+
+          <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900 p-12 text-center">
+
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-slate-300">
+
+              <User size={24} />
+
+            </div>
+
+            <h3 className="mt-4 text-base font-semibold text-white">
+              Nenhum dependente cadastrado
+            </h3>
+
+            <p className="mt-1 text-xs text-slate-400">
+              Adicione filhos ou outros
+              dependentes para gerenciar a
+              imunização deles.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                setErro('');
+                setIsModalOpen(true);
+              }}
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#00a884] px-4 py-2 text-xs font-semibold text-slate-950"
+            >
+
+              <Plus size={14} />
+
+              Cadastrar primeiro dependente
+
+            </button>
+
+          </div>
+
+        ) : (
+
+          /* =============================== */
+          /* LISTA */
+          /* =============================== */
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+            {dependentes.map(
+              (dep) => (
+
+                <div
+                  key={dep.id}
+                  className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-900 p-5"
                 >
+
+                  <div>
+
+                    <div className="flex items-start justify-between">
+
+                      <div className="flex items-center gap-3">
+
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-slate-300">
+
+                          <User size={20} />
+
+                        </div>
+
+                        <div>
+
+                          <h3 className="font-semibold text-white">
+                            {dep.nome}
+                          </h3>
+
+                          <span className="inline-block rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-300">
+
+                            {dep.parentesco}
+
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={
+                          removendoId ===
+                          dep.id
+                        }
+                        onClick={() =>
+                          handleRemove(
+                            dep.id
+                          )
+                        }
+                        className="text-slate-500 transition hover:text-red-400 disabled:opacity-50"
+                        title="Remover dependente"
+                      >
+
+                        {removendoId ===
+                        dep.id ? (
+
+                          <Loader2
+                            size={16}
+                            className="animate-spin"
+                          />
+
+                        ) : (
+
+                          <Trash2
+                            size={16}
+                          />
+
+                        )}
+
+                      </button>
+
+                    </div>
+
+                    <div className="mt-5 space-y-2 border-t border-slate-800 pt-4 text-xs">
+
+                      <div className="flex items-center justify-between">
+
+                        <span className="text-slate-500">
+                          Nascimento:
+                        </span>
+
+                        <span className="font-medium text-slate-300">
+                          {dep.dataNascimento}
+                        </span>
+
+                      </div>
+
+                      <div className="flex items-center justify-between">
+
+                        <span className="text-slate-500">
+                          Cartão SUS:
+                        </span>
+
+                        <span className="font-medium text-slate-300">
+                          {dep.cns}
+                        </span>
+
+                      </div>
+
+                      <div className="flex items-center justify-between">
+
+                        <span className="text-slate-500">
+                          Situação:
+                        </span>
+
+                        <span className="inline-flex items-center gap-1 font-semibold text-slate-300">
+
+                          <ShieldCheck
+                            size={14}
+                          />
+
+                          {dep.statusVacinal}
+
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <div className="mt-6 border-t border-slate-800 pt-3">
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        abrirCaderneta(dep)
+                      }
+                      className="flex w-full items-center justify-between text-xs font-semibold text-slate-300 hover:text-white"
+                    >
+
+                      <span>
+                        Ver caderneta do dependente
+                      </span>
+
+                      <ChevronRight
+                        size={14}
+                      />
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              )
+            )}
+
+          </div>
+        )}
+
+        {/* ================================= */}
+        {/* MODAL */}
+        {/* ================================= */}
+
+        {isModalOpen && (
+
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+
+            <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+
+                <h2 className="text-lg font-bold text-white">
+                  Novo Dependente
+                </h2>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsModalOpen(false)
+                  }
+                  className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+                >
+
                   <X size={18} />
+
                 </button>
+
               </div>
 
               {erro && (
-                <div className="mt-3 rounded-lg bg-red-50 p-3 text-xs font-medium text-red-700 border border-red-200">
+
+                <div className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs font-medium text-red-300">
                   {erro}
                 </div>
+
               )}
 
-              <form onSubmit={handleAddDependente} className="mt-4 space-y-4">
+              <form
+                onSubmit={
+                  handleAddDependente
+                }
+                className="mt-4 space-y-4"
+              >
+
+                {/* NOME */}
+
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-                    Nome Completo
+
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Nome completo
                   </label>
+
                   <input
                     type="text"
                     required
                     placeholder="Ex: Lucas Sampaio"
-                    value={novoDependente.nome}
-                    onChange={(e) => setNovoDependente({ ...novoDependente, nome: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none"
+                    value={
+                      novoDependente.nome
+                    }
+                    onChange={(e) =>
+                      setNovoDependente({
+                        ...novoDependente,
+                        nome:
+                          e.target.value,
+                      })
+                    }
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:border-[#00a884] focus:outline-none"
                   />
+
                 </div>
 
+                {/* PARENTESCO */}
+
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
                     Parentesco
                   </label>
+
                   <select
-                    value={novoDependente.parentesco}
-                    onChange={(e) => setNovoDependente({ ...novoDependente, parentesco: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none"
+                    value={
+                      novoDependente.parentesco
+                    }
+                    onChange={(e) =>
+                      setNovoDependente({
+                        ...novoDependente,
+                        parentesco:
+                          e.target.value,
+                      })
+                    }
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-[#00a884] focus:outline-none"
                   >
-                    <option value="Filho(a)">Filho(a)</option>
-                    <option value="Cônjuge">Cônjuge</option>
-                    <option value="Pai/Mãe">Pai/Mãe</option>
-                    <option value="Tutelado(a)">Tutelado(a)</option>
-                    <option value="Outro">Outro</option>
+
+                    <option value="Filho(a)">
+                      Filho(a)
+                    </option>
+
+                    <option value="Cônjuge">
+                      Cônjuge
+                    </option>
+
+                    <option value="Pai/Mãe">
+                      Pai/Mãe
+                    </option>
+
+                    <option value="Tutelado(a)">
+                      Tutelado(a)
+                    </option>
+
+                    <option value="Outro">
+                      Outro
+                    </option>
+
                   </select>
+
                 </div>
 
+                {/* DATA */}
+
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-                    Data de Nascimento
+
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Data de nascimento
                   </label>
+
                   <input
                     type="date"
                     required
-                    max={new Date().toISOString().split('T')[0]} // Impede seleção de datas futuras nativamente no input
-                    value={novoDependente.dataNascimento}
-                    onChange={(e) => setNovoDependente({ ...novoDependente, dataNascimento: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none"
+                    max={
+                      new Date()
+                        .toISOString()
+                        .split('T')[0]
+                    }
+                    value={
+                      novoDependente.dataNascimento
+                    }
+                    onChange={(e) =>
+                      setNovoDependente({
+                        ...novoDependente,
+                        dataNascimento:
+                          e.target.value,
+                      })
+                    }
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-[#00a884] focus:outline-none"
                   />
+
                 </div>
+
+                {/* CNS */}
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
-                    Número do Cartão SUS (CNS - 15 dígitos)
+
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Número do Cartão SUS (CNS)
                   </label>
+
                   <input
                     type="text"
+                    inputMode="numeric"
                     maxLength={15}
-                    placeholder="Ex: 700000000000001"
-                    value={novoDependente.cns}
-                    onChange={(e) => setNovoDependente({ ...novoDependente, cns: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 focus:border-slate-400 focus:outline-none"
+                    placeholder="15 dígitos"
+                    value={
+                      novoDependente.cns
+                    }
+                    onChange={(e) =>
+                      setNovoDependente({
+                        ...novoDependente,
+                        cns:
+                          e.target.value
+                            .replace(
+                              /\D/g,
+                              ''
+                            )
+                            .slice(
+                              0,
+                              15
+                            ),
+                      })
+                    }
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:border-[#00a884] focus:outline-none"
                   />
+
                 </div>
 
-                <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+                {/* BOTÕES */}
+
+                <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-800 pt-4">
+
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    disabled={salvando}
+                    onClick={() =>
+                      setIsModalOpen(false)
+                    }
+                    className="rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
                   >
                     Cancelar
                   </button>
+
                   <button
                     type="submit"
-                    className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                    disabled={salvando}
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#00a884] px-4 py-2 text-xs font-semibold text-slate-950 disabled:opacity-50"
                   >
-                    Salvar Dependente
+
+                    {salvando && (
+                      <Loader2
+                        size={14}
+                        className="animate-spin"
+                      />
+                    )}
+
+                    {salvando
+                      ? 'Salvando...'
+                      : 'Salvar dependente'}
+
                   </button>
+
                 </div>
+
               </form>
+
             </div>
+
           </div>
         )}
+
       </div>
+
     </div>
   );
 }

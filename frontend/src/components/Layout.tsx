@@ -19,7 +19,7 @@ import {
   PanelLeftOpen,
   ChevronRight,
 } from 'lucide-react';
-import { API_URL } from '../lib/api';
+import { supabase } from '../services/supabase';
 import { salvarPessoaAtiva } from '../lib/brasil';
 
 /*
@@ -31,62 +31,190 @@ import { salvarPessoaAtiva } from '../lib/brasil';
 export default function Layout() {
   const navigate = useNavigate();
 
-  // SIDEBAR
   const [isOpen, setIsOpen] = useState(true);
-
-  // DADOS
   const [dependentes, setDependentes] = useState<any[]>([]);
   const [notificacoesNaoLidas, setNotificacoesNaoLidas] = useState(0);
+  const abrirTitular = async () => {
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-  // CARREGAMENTO DOS DADOS (DEPENDENTES E NOTIFICAÇÕES)
-  useEffect(() => {
-    const usuarioId = localStorage.getItem('usuarioId');
-    if (!usuarioId) {
+    if (error || !user) {
+      console.error('Usuário não autenticado:', error);
+      navigate('/login');
       return;
     }
 
-    // Função para buscar os dependentes da API
-    const carregarDependentes = () => {
-      fetch(`${API_URL}/api/dependentes/${usuarioId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.sucesso) {
-            setDependentes(data.dados);
-          }
-        })
-        .catch((erro) => {
-          console.error('Erro ao buscar dependentes:', erro);
-        });
+    // Busca o nome real do titular
+    const { data: perfil, error: perfilError } = await supabase
+      .from('users')
+      .select('id, nome')
+      .eq('id', user.id)
+      .single();
+
+    if (perfilError) {
+      console.error('Erro ao buscar titular:', perfilError);
+    }
+
+    salvarPessoaAtiva({
+      tipo: 'titular',
+      id: user.id,
+      nome:
+        perfil?.nome ||
+        user.user_metadata?.nome ||
+        'Titular',
+    });
+
+    // Avisa os componentes que a pessoa ativa mudou
+    window.dispatchEvent(
+      new Event('pessoaAtivaAtualizada')
+    );
+
+    navigate('/dashboard');
+  } catch (error) {
+    console.error('Erro ao abrir caderneta do titular:', error);
+  }
+};
+
+  // ==========================================
+  // LOGOUT
+  // ==========================================
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error('Erro ao sair:', error);
+      }
+    } finally {
+      localStorage.removeItem('usuarioId');
+      localStorage.removeItem('pessoaAtiva');
+
+      navigate('/');
+    }
+  };
+
+  // ==========================================
+  // CARREGAR DADOS
+  // ==========================================
+  useEffect(() => {
+    let ativo = true;
+
+    const carregarDados = async () => {
+      try {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+          console.error(
+            'Usuário não autenticado:',
+            userError
+          );
+
+          localStorage.removeItem('usuarioId');
+          navigate('/login');
+          return;
+        }
+
+        localStorage.setItem(
+          'usuarioId',
+          user.id
+        );
+
+        // ======================================
+        // DEPENDENTES
+        // ======================================
+
+        const {
+          data: dadosDependentes,
+          error: dependentesError,
+        } = await supabase
+          .from('dependentes')
+          .select('*')
+          .eq('usuario_id', user.id)
+          .order('nome', {
+            ascending: true,
+          });
+
+        if (dependentesError) {
+          console.error(
+            'Erro ao buscar dependentes:',
+            dependentesError
+          );
+        } else if (ativo) {
+          setDependentes(
+            dadosDependentes ?? []
+          );
+        }
+
+        // ======================================
+        // NOTIFICAÇÕES
+        // ======================================
+
+        const {
+          count,
+          error: notificacoesError,
+        } = await supabase
+          .from('notificacoes')
+          .select('*', {
+            count: 'exact',
+            head: true,
+          })
+          .eq('usuario_id', user.id)
+          .eq('lida', false);
+
+        if (notificacoesError) {
+          console.error(
+            'Erro ao buscar notificações:',
+            notificacoesError
+          );
+        } else if (ativo) {
+          setNotificacoesNaoLidas(
+            count ?? 0
+          );
+        }
+      } catch (error) {
+        console.error(
+          'Erro ao carregar dados do Layout:',
+          error
+        );
+      }
     };
 
-    // Função para buscar as notificações da API
-    const carregarNotificacoes = () => {
-      fetch(`${API_URL}/api/notificacoes/${usuarioId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.sucesso) {
-            const quantidadeNaoLidas = data.dados.filter(
-              (notificacao: any) => notificacao.lida === false
-            ).length;
-            setNotificacoesNaoLidas(quantidadeNaoLidas);
-          }
-        })
-        .catch((erro) => {
-          console.error('Erro ao buscar notificações:', erro);
-        });
+    const atualizarDados = () => {
+      void carregarDados();
     };
 
-    // Executa as chamadas iniciais
-    carregarDependentes();
-    carregarNotificacoes();
+    void carregarDados();
 
-    // Escuta o evento customizado disparado quando um dependente é adicionado ou removido
-    window.addEventListener('dependenteAtualizado', carregarDependentes);
+    window.addEventListener(
+      'dependenteAtualizado',
+      atualizarDados
+    );
+
+    window.addEventListener(
+      'notificacaoAtualizada',
+      atualizarDados
+    );
 
     return () => {
-      window.removeEventListener('dependenteAtualizado', carregarDependentes);
+      ativo = false;
+
+      window.removeEventListener(
+        'dependenteAtualizado',
+        atualizarDados
+      );
+
+      window.removeEventListener(
+        'notificacaoAtualizada',
+        atualizarDados
+      );
     };
-  }, []);
+  }, [navigate]);
 
   // ESTILO DOS LINKS
   const estiloLink = ({ isActive }: { isActive: boolean }) => `
@@ -124,7 +252,14 @@ export default function Layout() {
           }`}
         >
           {isOpen ? (
-            <Link to="/dashboard" className="flex items-center gap-3">
+            <Link
+  to="/dashboard"
+  onClick={(e) => {
+    e.preventDefault();
+    void abrirTitular();
+  }}
+  className="flex items-center gap-3"
+>
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white">
                 <img
                   src="/logo.png"
@@ -143,10 +278,14 @@ export default function Layout() {
             </Link>
           ) : (
             <Link
-              to="/dashboard"
-              title="EasyVacc"
-              className="flex h-9 w-9 items-center justify-center rounded-md bg-white"
-            >
+  to="/dashboard"
+  title="EasyVacc"
+  onClick={(e) => {
+    e.preventDefault();
+    void abrirTitular();
+  }}
+  className="flex h-9 w-9 items-center justify-center rounded-md bg-white"
+>
               <img
                 src="/logo.png"
                 alt="EasyVacc"
@@ -165,10 +304,27 @@ export default function Layout() {
             </p>
           )}
           <div className="space-y-1">
-            <NavLink to="/dashboard" title="Início" className={estiloLink}>
-              <LayoutDashboard size={18} strokeWidth={1.8} className="shrink-0" />
-              {isOpen && <span className="truncate">Início</span>}
-            </NavLink>
+           <NavLink
+  to="/dashboard"
+  title="Início"
+  className={estiloLink}
+  onClick={(e) => {
+    e.preventDefault();
+    void abrirTitular();
+  }}
+>
+  <LayoutDashboard
+    size={18}
+    strokeWidth={1.8}
+    className="shrink-0"
+  />
+
+  {isOpen && (
+    <span className="truncate">
+      Início
+    </span>
+  )}
+</NavLink>
           </div>
 
           {/* CADERNETA */}
@@ -249,40 +405,48 @@ export default function Layout() {
             )}
 
             <div className="space-y-1">
-              {dependentes.map((dependente) => (
-                <button
-                  type="button"
-                  key={dependente.id}
-                  title={`Consultar caderneta de ${dependente.nome}`}
-                  onClick={() => {
-                    salvarPessoaAtiva({
-                      tipo: 'dependente',
-                      id: dependente.id,
-                      nome: dependente.nome,
-                      parentesco: dependente.parentesco,
-                    });
-                    navigate('/dashboard');
-                  }}
-                  className={`
-                    flex h-11 w-full items-center text-left rounded-md text-slate-400 hover:bg-white/[0.06]
-                    ${isOpen ? 'gap-3 px-3' : 'justify-center'}
-                  `}
-                >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-[11px] font-semibold text-slate-200">
-                    {dependente.nome?.charAt(0).toUpperCase()}
-                  </div>
-                  {isOpen && (
-                    <div className="min-w-0">
-                      <p className="truncate text-xs font-medium text-slate-300">
-                        {dependente.nome}
-                      </p>
-                      <p className="mt-0.5 truncate text-[9px] text-slate-500">
-                        {dependente.parentesco}
-                      </p>
-                    </div>
-                  )}
-                </button>
-              ))}
+             {dependentes.map((dependente) => (
+  <button
+    type="button"
+    key={dependente.id}
+    title={`Consultar caderneta de ${dependente.nome}`}
+    onClick={() => {
+      salvarPessoaAtiva({
+        tipo: 'dependente',
+        id: dependente.id,
+        nome: dependente.nome,
+        parentesco: dependente.parentesco,
+      });
+
+      window.dispatchEvent(
+        new Event('pessoaAtivaAtualizada')
+      );
+
+      navigate('/dashboard');
+    }}
+    className={`
+      flex h-11 w-full items-center text-left rounded-md
+      text-slate-400 hover:bg-white/[0.06]
+      ${isOpen ? 'gap-3 px-3' : 'justify-center'}
+    `}
+  >
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-[11px] font-semibold text-slate-200">
+      {dependente.nome?.charAt(0).toUpperCase()}
+    </div>
+
+    {isOpen && (
+      <div className="min-w-0">
+        <p className="truncate text-xs font-medium text-slate-300">
+          {dependente.nome}
+        </p>
+
+        <p className="mt-0.5 truncate text-[9px] text-slate-500">
+          {dependente.parentesco}
+        </p>
+      </div>
+    )}
+  </button>
+))}
 
               {dependentes.length === 0 && isOpen && (
                 <div className="px-3 py-2">
@@ -322,17 +486,28 @@ export default function Layout() {
             </Link>
           )}
 
-          <Link
-            to="/"
-            title="Sair da conta"
-            className={`
-              flex h-10 items-center rounded-md text-slate-500 transition-colors hover:bg-red-500/10 hover:text-red-300
-              ${isOpen ? 'gap-3 px-3' : 'justify-center'}
-            `}
-          >
-            <LogOut size={17} strokeWidth={1.8} className="shrink-0" />
-            {isOpen && <span className="text-xs font-medium">Sair da conta</span>}
-          </Link>
+          <button
+  type="button"
+  onClick={handleLogout}
+  title="Sair da conta"
+  className={`
+    flex h-10 w-full items-center rounded-md text-slate-500
+    transition-colors hover:bg-red-500/10 hover:text-red-300
+    ${isOpen ? 'gap-3 px-3' : 'justify-center'}
+  `}
+>
+  <LogOut
+    size={17}
+    strokeWidth={1.8}
+    className="shrink-0"
+  />
+
+  {isOpen && (
+    <span className="text-xs font-medium">
+      Sair da conta
+    </span>
+  )}
+</button>
         </div>
 
         {/* BOTÃO DE RECOLHER */}

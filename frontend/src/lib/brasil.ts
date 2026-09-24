@@ -83,7 +83,7 @@ export function senhaAtendeRequisitos(senha: string): boolean {
 
 export type PessoaAtiva = {
   tipo: 'titular' | 'dependente';
-  id: number;
+  id: string | number;
   nome: string;
   parentesco?: string;
 };

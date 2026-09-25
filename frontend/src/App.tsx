@@ -34,6 +34,7 @@ import AdicionarDependente from './pages/AdicionarDependente';
 import Notificacoes from './pages/Notificacoes';
 import Campanhas from './pages/Campanhas';
 import Postos from './pages/Postos';
+import ValidarCertificado from './pages/ValidarCertificado';
 
 // ============================================
 // PROFISSIONAIS
@@ -94,6 +95,11 @@ function App() {
             path="/termos"
             element={<TermosUso />}
           />
+                     <Route
+  path="/validar/:codigo"
+  element={<ValidarCertificado />}
+/>
+
 
           {/* ======================================
               LOGIN PROFISSIONAL
@@ -167,7 +173,7 @@ function App() {
               path="/postos"
               element={<Postos />}
             />
-
+   
           </Route>
 
         </Routes>

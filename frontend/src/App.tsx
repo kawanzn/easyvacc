@@ -14,6 +14,7 @@ import Cadastro from './pages/Cadastro';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import RecuperarSenha from './pages/RecuperarSenha';
+import RedefinirSenha from './pages/RedefinirSenha';
 import ConfirmarEmail from './pages/ConfirmarEmail';
 
 import {
@@ -35,6 +36,7 @@ import Notificacoes from './pages/Notificacoes';
 import Campanhas from './pages/Campanhas';
 import Postos from './pages/Postos';
 import ValidarCertificado from './pages/ValidarCertificado';
+
 
 // ============================================
 // PROFISSIONAIS
@@ -61,6 +63,16 @@ function App() {
               ROTAS PÚBLICAS
           ====================================== */}
 
+
+<Route
+  path="/recuperar-senha"
+  element={<RecuperarSenha />}
+/>
+
+<Route
+  path="/redefinir-senha"
+  element={<RedefinirSenha />}
+/>
           <Route
             path="/"
             element={<Landing />}

@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Bell,
   CalendarClock,
   Check,
   CheckCircle2,
   ChevronRight,
+  Clock3,
+  ExternalLink,
   Inbox,
   Loader2,
   Megaphone,
@@ -19,6 +22,7 @@ interface Notificacao {
   titulo: string;
   mensagem: string;
   tipo: string;
+  referencia: string | null;
   lida: boolean;
   created_at: string;
 }
@@ -43,7 +47,7 @@ interface NovaNotificacao {
   mensagem: string;
 }
 
-const formatarData = (data: string) => {
+function formatarData(data: string) {
   const [ano, mes, dia] = data.split('-');
 
   if (!ano || !mes || !dia) {
@@ -51,13 +55,42 @@ const formatarData = (data: string) => {
   }
 
   return `${dia}/${mes}/${ano}`;
-};
+}
+
+function formatarDataHora(data: string) {
+  const valor = new Date(data);
+
+  if (Number.isNaN(valor.getTime())) {
+    return 'Data não disponível';
+  }
+
+  return valor.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function obterIdCampanha(referencia: string | null) {
+  if (!referencia?.startsWith('campanha-')) {
+    return null;
+  }
+
+  const id = Number(referencia.replace('campanha-', ''));
+
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
 
 export default function Notificacoes() {
+  const navigate = useNavigate();
+
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
   const [marcandoTodas, setMarcandoTodas] = useState(false);
+  const [abrindoId, setAbrindoId] = useState<number | null>(null);
 
   const carregarNotificacoes = useCallback(async () => {
     setCarregando(true);
@@ -85,10 +118,6 @@ export default function Notificacoes() {
         pessoaAtiva?.tipo === 'dependente'
           ? Number(pessoaAtiva.id)
           : null;
-
-      /*
-       * VACINAS DA PESSOA ATIVA
-       */
 
       let queryVacinas = supabase
         .from('vacinas')
@@ -120,10 +149,6 @@ export default function Notificacoes() {
 
       const vacinas = (vacinasData || []) as Vacina[];
 
-      /*
-       * CAMPANHAS ATIVAS
-       */
-
       const {
         data: campanhasData,
         error: campanhasError,
@@ -143,10 +168,6 @@ export default function Notificacoes() {
       }
 
       const campanhas = (campanhasData || []) as Campanha[];
-
-      /*
-       * GERAÇÃO DAS NOTIFICAÇÕES
-       */
 
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
@@ -209,10 +230,6 @@ export default function Notificacoes() {
         });
       });
 
-      /*
-       * CONSULTA AS NOTIFICAÇÕES QUE JÁ EXISTEM
-       */
-
       let queryExistentes = supabase
         .from('notificacoes')
         .select('tipo, referencia')
@@ -241,13 +258,10 @@ export default function Notificacoes() {
 
       const chavesExistentes = new Set(
         (existentesData || []).map(
-          (item) => `${item.tipo}|${item.referencia}`
+          (item) =>
+            `${item.tipo}|${item.referencia}`
         )
       );
-
-      /*
-       * INSERE SOMENTE O QUE AINDA NÃO EXISTE
-       */
 
       const paraInserir = novasNotificacoes.filter(
         (item) =>
@@ -261,25 +275,18 @@ export default function Notificacoes() {
           .from('notificacoes')
           .insert(paraInserir);
 
-        if (insertError) {
-          /*
-           * O índice UNIQUE do banco continua protegendo
-           * contra duplicações em acessos simultâneos.
-           */
-          if (insertError.code !== '23505') {
-            throw insertError;
-          }
+        if (
+          insertError &&
+          insertError.code !== '23505'
+        ) {
+          throw insertError;
         }
       }
-
-      /*
-       * BUSCA A LISTA FINAL
-       */
 
       let queryNotificacoes = supabase
         .from('notificacoes')
         .select(
-          'id, titulo, mensagem, tipo, lida, created_at'
+          'id, titulo, mensagem, tipo, referencia, lida, created_at'
         )
         .eq('usuario_id', user.id);
 
@@ -319,9 +326,7 @@ export default function Notificacoes() {
       );
 
       setErro(
-        error instanceof Error
-          ? error.message
-          : 'Não foi possível carregar as notificações.'
+        'Não foi possível carregar as notificações. Tente novamente.'
       );
     } finally {
       setCarregando(false);
@@ -348,15 +353,11 @@ export default function Notificacoes() {
     };
   }, [carregarNotificacoes]);
 
-  /*
-   * MARCAR UMA COMO LIDA
-   */
-
   const marcarComoLida = async (
     notificacao: Notificacao
   ) => {
     if (notificacao.lida) {
-      return;
+      return true;
     }
 
     try {
@@ -382,17 +383,60 @@ export default function Notificacoes() {
             : item
         )
       );
+
+      return true;
     } catch (error) {
       console.error(
         'Erro ao marcar notificação como lida:',
         error
       );
+
+      setErro(
+        'Não foi possível atualizar a notificação.'
+      );
+
+      return false;
     }
   };
 
-  /*
-   * MARCAR TODAS COMO LIDAS
-   */
+  const abrirNotificacao = async (
+    notificacao: Notificacao
+  ) => {
+    if (abrindoId !== null) {
+      return;
+    }
+
+    setAbrindoId(notificacao.id);
+    setErro('');
+
+    try {
+      await marcarComoLida(notificacao);
+
+      if (notificacao.tipo === 'campanha') {
+        const campanhaId =
+          obterIdCampanha(notificacao.referencia);
+
+        if (campanhaId !== null) {
+          navigate(
+            `/campanhas?campanha=${campanhaId}`
+          );
+          return;
+        }
+
+        navigate('/campanhas');
+        return;
+      }
+
+      if (
+        notificacao.tipo === 'dose_atrasada' ||
+        notificacao.tipo === 'proxima_dose'
+      ) {
+        navigate('/historico');
+      }
+    } finally {
+      setAbrindoId(null);
+    }
+  };
 
   const marcarTodasComoLidas = async () => {
     const ids = notificacoes
@@ -404,6 +448,7 @@ export default function Notificacoes() {
     }
 
     setMarcandoTodas(true);
+    setErro('');
 
     try {
       const {
@@ -416,6 +461,7 @@ export default function Notificacoes() {
       }
 
       if (!user) {
+        setErro('Você precisa estar autenticado.');
         return;
       }
 
@@ -442,6 +488,10 @@ export default function Notificacoes() {
       console.error(
         'Erro ao marcar todas como lidas:',
         error
+      );
+
+      setErro(
+        'Não foi possível marcar todas as notificações como lidas.'
       );
     } finally {
       setMarcandoTodas(false);
@@ -470,6 +520,40 @@ export default function Notificacoes() {
     return <Bell size={18} />;
   };
 
+  const fonteNotificacao = (
+    notificacao: Notificacao
+  ) => {
+    if (notificacao.tipo === 'campanha') {
+      return 'Fonte oficial: Ministério da Saúde';
+    }
+
+    if (
+      notificacao.tipo === 'dose_atrasada' ||
+      notificacao.tipo === 'proxima_dose'
+    ) {
+      return 'Registro interno do EasyVacc';
+    }
+
+    return 'EasyVacc';
+  };
+
+  const acaoNotificacao = (
+    notificacao: Notificacao
+  ) => {
+    if (notificacao.tipo === 'campanha') {
+      return 'Ver campanha';
+    }
+
+    if (
+      notificacao.tipo === 'dose_atrasada' ||
+      notificacao.tipo === 'proxima_dose'
+    ) {
+      return 'Ver caderneta';
+    }
+
+    return 'Marcar como lida';
+  };
+
   const naoLidas = notificacoes.filter(
     (notificacao) => !notificacao.lida
   ).length;
@@ -486,14 +570,11 @@ export default function Notificacoes() {
             <div>
               <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-[#00a884]">
                 <Sparkles size={13} />
-
                 <span>Central de Avisos</span>
-
                 <ChevronRight
                   size={12}
                   className="opacity-50"
                 />
-
                 <span>EasyVacc</span>
               </div>
 
@@ -502,8 +583,8 @@ export default function Notificacoes() {
               </h1>
 
               <p className="mt-1 text-sm text-slate-400">
-                Avisos e lembretes importantes sincronizados
-                com a sua caderneta de vacinação.
+                Avisos e lembretes importantes da sua
+                caderneta e das campanhas de vacinação.
               </p>
             </div>
 
@@ -553,23 +634,32 @@ export default function Notificacoes() {
         </header>
 
         {erro && (
-          <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-medium text-red-300">
+          <div
+            role="alert"
+            className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-medium text-red-300"
+          >
             {erro}
           </div>
         )}
 
         {carregando ? (
-          <div className="flex min-h-[35vh] items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-xl">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2
-                size={32}
-                className="animate-spin text-[#00a884]"
-              />
+          <div className="space-y-4">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="animate-pulse rounded-2xl border border-slate-800 bg-slate-900/80 p-6"
+              >
+                <div className="flex gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-slate-800" />
 
-              <p className="text-sm font-medium text-slate-400">
-                Carregando notificações...
-              </p>
-            </div>
+                  <div className="flex-1 space-y-3">
+                    <div className="h-4 w-40 rounded bg-slate-800" />
+                    <div className="h-3 w-full rounded bg-slate-800" />
+                    <div className="h-3 w-56 rounded bg-slate-800" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="space-y-4">
@@ -578,14 +668,15 @@ export default function Notificacoes() {
                 <button
                   type="button"
                   key={notif.id}
+                  disabled={abrindoId === notif.id}
                   onClick={() =>
-                    void marcarComoLida(notif)
+                    void abrirNotificacao(notif)
                   }
                   className={`relative block w-full overflow-hidden rounded-2xl border p-5 text-left transition-all duration-200 sm:p-6 ${
                     notif.lida
-                      ? 'border-slate-800/80 bg-slate-950/40 text-slate-400 opacity-80 hover:opacity-100'
+                      ? 'border-slate-800/80 bg-slate-950/40 text-slate-400 hover:border-slate-700'
                       : 'border-emerald-500/30 bg-slate-900/90 text-white shadow-xl shadow-[#00a884]/5 backdrop-blur-xl hover:border-emerald-500/50'
-                  }`}
+                  } disabled:cursor-wait disabled:opacity-70`}
                 >
                   {!notif.lida && (
                     <div className="absolute bottom-0 left-0 top-0 w-1.5 bg-[#00a884]" />
@@ -593,17 +684,24 @@ export default function Notificacoes() {
 
                   <div className="flex items-start gap-4">
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
                         notif.lida
                           ? 'border-transparent bg-slate-800/60 text-slate-500'
-                          : 'border-[#00a884]/30 bg-[#00a884]/10 text-[#00a884] shadow-lg shadow-[#00a884]/20'
+                          : 'border-[#00a884]/30 bg-[#00a884]/10 text-[#00a884]'
                       }`}
                     >
-                      {iconeNotificacao(notif)}
+                      {abrindoId === notif.id ? (
+                        <Loader2
+                          size={18}
+                          className="animate-spin"
+                        />
+                      ) : (
+                        iconeNotificacao(notif)
+                      )}
                     </div>
 
-                    <div className="flex-1 pr-2">
-                      <div className="mb-1 flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
                         <h3
                           className={`text-base font-bold ${
                             notif.lida
@@ -614,22 +712,51 @@ export default function Notificacoes() {
                           {notif.titulo}
                         </h3>
 
-                        {!notif.lida && (
-                          <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#00a884]">
-                            Nova
-                          </span>
-                        )}
+                        <span
+                          className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            notif.lida
+                              ? 'border-slate-700 bg-slate-800/70 text-slate-400'
+                              : 'border-emerald-500/30 bg-emerald-500/10 text-[#00a884]'
+                          }`}
+                        >
+                          {notif.lida
+                            ? 'Lida'
+                            : 'Não lida'}
+                        </span>
                       </div>
 
-                      <p className="text-sm leading-relaxed text-slate-400">
+                      <p className="mt-1 text-sm leading-relaxed text-slate-400">
                         {notif.mensagem}
                       </p>
 
-                      {!notif.lida && (
-                        <p className="mt-3 text-xs font-medium text-emerald-400">
-                          Clique para marcar como lida
-                        </p>
-                      )}
+                      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock3 size={13} />
+                          {formatarDataHora(
+                            notif.created_at
+                          )}
+                        </span>
+
+                        <span
+                          className={
+                            notif.tipo === 'campanha'
+                              ? 'font-semibold text-emerald-400'
+                              : ''
+                          }
+                        >
+                          {fonteNotificacao(notif)}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[#00a884]">
+                        {notif.tipo === 'campanha' ? (
+                          <ExternalLink size={13} />
+                        ) : (
+                          <ChevronRight size={13} />
+                        )}
+
+                        {acaoNotificacao(notif)}
+                      </div>
                     </div>
                   </div>
                 </button>

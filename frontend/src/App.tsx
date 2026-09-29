@@ -37,7 +37,6 @@ import Campanhas from './pages/Campanhas';
 import Postos from './pages/Postos';
 import ValidarCertificado from './pages/ValidarCertificado';
 
-
 // ============================================
 // PROFISSIONAIS
 // ============================================
@@ -58,21 +57,10 @@ function App() {
     <BrowserRouter>
       <DependentesProvider>
         <Routes>
-
           {/* ======================================
               ROTAS PÚBLICAS
           ====================================== */}
 
-
-<Route
-  path="/recuperar-senha"
-  element={<RecuperarSenha />}
-/>
-
-<Route
-  path="/redefinir-senha"
-  element={<RedefinirSenha />}
-/>
           <Route
             path="/"
             element={<Landing />}
@@ -94,6 +82,11 @@ function App() {
           />
 
           <Route
+            path="/redefinir-senha"
+            element={<RedefinirSenha />}
+          />
+
+          <Route
             path="/confirmar-email"
             element={<ConfirmarEmail />}
           />
@@ -107,11 +100,11 @@ function App() {
             path="/termos"
             element={<TermosUso />}
           />
-                     <Route
-  path="/validar/:codigo"
-  element={<ValidarCertificado />}
-/>
 
+          <Route
+            path="/validar/:codigo"
+            element={<ValidarCertificado />}
+          />
 
           {/* ======================================
               LOGIN PROFISSIONAL
@@ -140,7 +133,6 @@ function App() {
           ====================================== */}
 
           <Route element={<Layout />}>
-
             <Route
               path="/dashboard"
               element={<Dashboard />}
@@ -185,9 +177,7 @@ function App() {
               path="/postos"
               element={<Postos />}
             />
-   
           </Route>
-
         </Routes>
       </DependentesProvider>
     </BrowserRouter>

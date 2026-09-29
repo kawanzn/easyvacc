@@ -118,10 +118,19 @@ export default function AdicionarDependente() {
           cartaoSus: dependente.cns || 'Não informado',
         }))
       );
-    } catch (error) {
-      console.error('Erro ao buscar dependentes:', error);
-      setErro('Não foi possível carregar os dependentes. Tente novamente.');
-    } finally {
+    } catch (error: any) {
+  console.error('Erro ao remover dependente:', error);
+
+  if (error?.code === '23503') {
+    setErro(
+      'Não é possível remover este dependente porque ele possui registros de vacinação. O histórico precisa ser preservado.'
+    );
+  } else {
+    setErro(
+      'Não foi possível remover o dependente. Tente novamente.'
+    );
+  }
+} finally {
       setLoading(false);
     }
   };

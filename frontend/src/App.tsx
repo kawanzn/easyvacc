@@ -43,8 +43,15 @@ import ValidarCertificado from './pages/ValidarCertificado';
 
 import LoginProfissional from './pages/LoginProfissional';
 import PainelPosto from './pages/PainelPosto';
-
 import RotaProfissional from './components/RotaProfissional';
+
+// ============================================
+// ADMINISTRAÇÃO
+// ============================================
+
+import LoginAdministrador from './pages/LoginAdministrador';
+import PainelAdministrador from './pages/PainelAdministrador';
+import RotaAdministrador from './components/RotaAdministrador';
 
 // ============================================
 // LAYOUT
@@ -107,7 +114,7 @@ function App() {
           />
 
           {/* ======================================
-              LOGIN PROFISSIONAL
+              ÁREA PROFISSIONAL
           ====================================== */}
 
           <Route
@@ -115,16 +122,30 @@ function App() {
             element={<LoginProfissional />}
           />
 
-          {/* ======================================
-              PAINEL PROFISSIONAL PROTEGIDO
-          ====================================== */}
-
           <Route
-            path="/admin"
+            path="/profissional/painel"
             element={
               <RotaProfissional>
                 <PainelPosto />
               </RotaProfissional>
+            }
+          />
+
+          {/* ======================================
+              ÁREA ADMINISTRATIVA
+          ====================================== */}
+
+          <Route
+            path="/admin/login"
+            element={<LoginAdministrador />}
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <RotaAdministrador>
+                <PainelAdministrador />
+              </RotaAdministrador>
             }
           />
 

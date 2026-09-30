@@ -24,6 +24,7 @@ interface VacinaBanco {
   data_aplicacao: string;
   lote: string | null;
   fabricante: string | null;
+  dose: string | null;
   proxima_dose: string | null;
   usuario_id: string;
   dependente_id: number | null;
@@ -39,6 +40,7 @@ interface Vacina {
   dataAplicacaoISO: string;
   lote: string;
   fabricante: string;
+  dose: string;
   proximaDose: string;
   proximaDoseISO: string | null;
   situacao: SituacaoVacina;
@@ -142,13 +144,14 @@ export default function Historico() {
             data_aplicacao,
             lote,
             fabricante,
+            dose,
             proxima_dose,
             registrado_por,
             registrado_em,
             status
           `)
           .eq('usuario_id', user.id)
-          .eq('status', 'ativo');
+          .in('status', ['ativo', 'corrigido']);
 
         if (pessoaAtiva.tipo === 'dependente') {
           query = query.eq('dependente_id', Number(pessoaAtiva.id));
@@ -172,6 +175,7 @@ export default function Historico() {
             dataAplicacaoISO: vacina.data_aplicacao,
             lote: vacina.lote || '',
             fabricante: vacina.fabricante || '',
+            dose: vacina.dose || '',
             proximaDose: formatarData(vacina.proxima_dose),
             proximaDoseISO: vacina.proxima_dose,
             situacao: calcularSituacao(vacina.proxima_dose),
@@ -426,6 +430,7 @@ export default function Historico() {
                 <thead>
                   <tr className="border-b border-slate-800/80 bg-slate-950/40 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                     <th className="px-6 py-4">Imunizante</th>
+                    <th className="px-6 py-4">Dose</th>
                     <th className="px-6 py-4">Aplicação</th>
                     <th className="px-6 py-4">Lote</th>
                     <th className="px-6 py-4">Fabricante</th>
@@ -452,6 +457,10 @@ export default function Historico() {
                               {vacina.nome}
                             </span>
                           </div>
+                        </td>
+
+                        <td className="px-6 py-5 text-sm font-semibold text-slate-300">
+                          {vacina.dose || '—'}
                         </td>
 
                         <td className="px-6 py-5 text-sm text-slate-300">
@@ -507,7 +516,7 @@ export default function Historico() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-20 text-center">
+                      <td colSpan={7} className="px-6 py-20 text-center">
                         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-800 bg-slate-800/50 text-slate-500">
                           <Syringe size={24} />
                         </div>

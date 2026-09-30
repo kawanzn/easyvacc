@@ -31,10 +31,6 @@ export default function Login() {
     e.preventDefault();
     setErro('');
 
-    // ==============================
-    // 1. VALIDAR CPF
-    // ==============================
-
     if (!cpfValido(cpf)) {
       setErro('Informe um CPF válido.');
       return;
@@ -50,95 +46,74 @@ export default function Login() {
     try {
       const cpfLimpo = soDigitos(cpf);
 
-      // ==============================
-      // 2. DESCOBRIR O E-MAIL PELO CPF
-      // ==============================
+      // A Edge Function localiza o e-mail e valida a senha no servidor.
+      // O e-mail cadastrado não é exposto ao navegador.
+      const { data: loginData, error: loginError } =
+        await supabase.functions.invoke('login-cpf', {
+          body: {
+            cpf: cpfLimpo,
+            senha,
+          },
+        });
 
-      const {
-        data: emailUsuario,
-        error: emailError,
-      } = await supabase.rpc(
-        'buscar_email_por_cpf',
-        {
-          p_cpf: cpfLimpo,
-        }
-      );
-
-      if (emailError) {
+      if (loginError) {
         console.error(
-          'Erro ao localizar usuário:',
-          emailError
+          'Erro na autenticação por CPF:',
+          loginError
         );
 
-        throw emailError;
-      }
+        const mensagemServidor =
+          loginData &&
+          typeof loginData === 'object' &&
+          'error' in loginData &&
+          typeof loginData.error === 'string'
+            ? loginData.error
+            : '';
 
-      if (!emailUsuario) {
         setErro(
-          'Não foi possível entrar. Verifique o CPF e a senha.'
+          mensagemServidor ||
+            'Não foi possível entrar. Verifique o CPF e a senha.'
         );
         return;
       }
 
-      // ==============================
-      // 3. LOGIN NO SUPABASE AUTH
-      // ==============================
+      if (
+        !loginData?.access_token ||
+        !loginData?.refresh_token
+      ) {
+        setErro(
+          loginData?.error ||
+            'Não foi possível entrar. Verifique o CPF e a senha.'
+        );
+        return;
+      }
 
       const {
-        data: authData,
-        error: authError,
-      } = await supabase.auth.signInWithPassword({
-        email: emailUsuario,
-        password: senha,
+        data: sessionData,
+        error: sessionError,
+      } = await supabase.auth.setSession({
+        access_token: loginData.access_token,
+        refresh_token: loginData.refresh_token,
       });
 
-      if (authError) {
+      if (
+        sessionError ||
+        !sessionData.session ||
+        !sessionData.user
+      ) {
         console.error(
-          'Erro no Supabase Auth:',
-          authError
+          'Erro ao instalar sessão:',
+          sessionError
         );
 
-        const mensagem =
-          authError.message.toLowerCase();
-
-        if (
-          mensagem.includes('email not confirmed')
-        ) {
-          setErro(
-            'Confirme seu e-mail antes de entrar.'
-          );
-          return;
-        }
-
-        if (
-          mensagem.includes('invalid login credentials')
-        ) {
-          setErro(
-            'Não foi possível entrar. Verifique o CPF e a senha.'
-          );
-          return;
-        }
-
         setErro(
-          'Não foi possível entrar. Verifique o CPF e a senha.'
-        );
-
-        return;
-      }
-
-      if (!authData.user) {
-        setErro(
-          'Não foi possível validar sua conta.'
+          'Não foi possível validar sua sessão.'
         );
         return;
       }
 
-      // ==============================
-      // 4. BUSCAR PERFIL DO USUÁRIO
-      // Agora o usuário está autenticado,
-      // então o RLS permite o SELECT.
-      // ==============================
-
+      // A partir daqui o usuário já está autenticado e
+      // o RLS permite consultar somente o próprio perfil.
       const {
         data: usuario,
         error: perfilError,
@@ -152,7 +127,7 @@ export default function Login() {
           cns,
           cidade
         `)
-        .eq('id', authData.user.id)
+        .eq('id', sessionData.user.id)
         .single();
 
       if (perfilError) {
@@ -166,7 +141,6 @@ export default function Login() {
         setErro(
           'Não foi possível carregar os dados da sua conta.'
         );
-
         return;
       }
 
@@ -176,17 +150,10 @@ export default function Login() {
         setErro(
           'Perfil do usuário não encontrado.'
         );
-
         return;
       }
 
-      // ==============================
-      // 5. SEGURANÇA:
-      // confirmar se Auth e perfil
-      // pertencem à mesma pessoa
-      // ==============================
-
-      if (usuario.id !== authData.user.id) {
+      if (usuario.id !== sessionData.user.id) {
         console.error(
           'ID do Auth diferente do perfil.'
         );
@@ -196,13 +163,8 @@ export default function Login() {
         setErro(
           'Não foi possível validar sua conta.'
         );
-
         return;
       }
-
-      // ==============================
-      // 6. SALVAR USUÁRIO ATIVO
-      // ==============================
 
       localStorage.setItem(
         'usuarioId',
@@ -215,12 +177,7 @@ export default function Login() {
         nome: usuario.nome,
       });
 
-      // ==============================
-      // 7. IR PARA DASHBOARD
-      // ==============================
-
       navigate('/dashboard');
-
     } catch (error) {
       console.error(
         'Erro ao realizar login:',
@@ -230,7 +187,6 @@ export default function Login() {
       setErro(
         'Não foi possível entrar. Tente novamente.'
       );
-
     } finally {
       setCarregando(false);
     }

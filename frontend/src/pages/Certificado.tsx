@@ -25,6 +25,7 @@ interface Vacina {
   data_aplicacao: string;
   lote: string | null;
   fabricante: string | null;
+  dose: string | null;
   proxima_dose: string | null;
   posto: string | null;
   profissional: string | null;
@@ -199,12 +200,13 @@ export default function Certificado() {
         data_aplicacao,
         lote,
         fabricante,
+        dose,
         proxima_dose,
         posto,
         profissional
       `)
       .eq('usuario_id', uid)
-      .eq('status', 'ativo')
+      .in('status', ['ativo', 'corrigido'])
       .order('data_aplicacao', {
         ascending: false,
       });
@@ -1123,6 +1125,10 @@ export default function Certificado() {
                             </th>
 
                             <th className="px-4 py-3">
+                              Dose
+                            </th>
+
+                            <th className="px-4 py-3">
                               Fabricante
                             </th>
 
@@ -1150,6 +1156,10 @@ export default function Certificado() {
                                   {
                                     vacina.nome
                                   }
+                                </td>
+
+                                <td className="px-4 py-4 text-xs font-semibold text-slate-300 print:text-slate-600">
+                                  {vacina.dose || '—'}
                                 </td>
 
                                 <td className="px-4 py-4 text-xs text-slate-300 print:text-slate-600">

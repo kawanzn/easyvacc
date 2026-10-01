@@ -11,7 +11,7 @@ import {
   User,
   Users,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import { supabase } from '../services/supabase';
 import {
   lerPessoaAtiva,
@@ -1040,7 +1040,7 @@ export default function Certificado() {
 
               {/* DOCUMENTO */}
 
-              <section className="mx-auto max-w-5xl overflow-hidden border border-slate-800 bg-[#111827] shadow-2xl print:max-w-none print:border-0 print:bg-white print:shadow-none">
+              <section className="mx-auto max-w-5xl overflow-hidden border border-slate-800 bg-[#111827] shadow-2xl print:max-w-none print:border-0 print:bg-white print:shadow-none print:[-webkit-print-color-adjust:exact] print:[print-color-adjust:exact]">
                 <div className="border-b border-slate-800 px-8 py-7 md:px-10 print:border-slate-200 print:px-0 print:pt-0">
                   <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-4">
@@ -1225,7 +1225,7 @@ export default function Certificado() {
 
                   {/* VALIDAÇÃO */}
 
-                  <footer className="mt-10 flex flex-col justify-between gap-6 border-t border-slate-800 pt-6 sm:flex-row sm:items-end print:border-slate-200">
+                  <footer className="mt-10 flex flex-col justify-between gap-6 border-t border-slate-800 pt-6 sm:flex-row sm:items-end print:break-inside-avoid print:flex-row print:border-slate-200">
                     <div className="max-w-2xl">
                       <div className="flex items-center gap-2">
                         <ShieldCheck
@@ -1270,8 +1270,8 @@ export default function Certificado() {
                       </p>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-3 rounded-lg border border-slate-800 bg-white p-3 print:border-slate-300">
-                      <QRCodeSVG
+                    <div className="flex shrink-0 items-center gap-3 rounded-lg border border-slate-800 bg-white p-3 print:break-inside-avoid print:border-slate-300">
+                      <QRCodeCanvas
                         value={
                           urlValidacao
                         }

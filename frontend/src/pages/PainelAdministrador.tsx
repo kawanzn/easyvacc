@@ -9,6 +9,8 @@ import {
   AlertCircle,
   Moon,
   Sun,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 
 import { supabase } from '../services/supabase';
@@ -16,6 +18,14 @@ import { supabase } from '../services/supabase';
 type StatusSincronizacao = {
   ultima_atualizacao: string | null;
   quantidade: number;
+};
+
+
+type SolicitacaoExclusao = {
+  id: number;
+  usuario_id: string;
+  status: string;
+  solicitado_em: string;
 };
 
 export default function PainelAdministrador() {
@@ -51,6 +61,12 @@ export default function PainelAdministrador() {
 
   const [erro, setErro] =
     useState('');
+
+  const [solicitacoesExclusao, setSolicitacoesExclusao] =
+    useState<SolicitacaoExclusao[]>([]);
+
+  const [processandoExclusao, setProcessandoExclusao] =
+    useState<number | null>(null);
 
   const formatarData = (
     data: string | null | undefined
@@ -88,6 +104,7 @@ export default function PainelAdministrador() {
         adminResult,
         postosResult,
         campanhasResult,
+        exclusoesResult,
       ] = await Promise.all([
         supabase
           .from('administradores')
@@ -103,6 +120,12 @@ export default function PainelAdministrador() {
         supabase.rpc(
           'status_sincronizacao_campanhas'
         ),
+
+        supabase
+          .from('solicitacoes_exclusao')
+          .select('id, usuario_id, status, solicitado_em')
+          .in('status', ['pendente', 'em_analise'])
+          .order('solicitado_em', { ascending: true }),
       ]);
 
       if (adminResult.data?.nome) {
@@ -128,6 +151,17 @@ export default function PainelAdministrador() {
 
         throw new Error(
           'Não foi possível consultar a sincronização das campanhas.'
+        );
+      }
+
+      if (exclusoesResult.error) {
+        console.error(
+          'Erro ao consultar solicitações de exclusão:',
+          exclusoesResult.error
+        );
+      } else {
+        setSolicitacoesExclusao(
+          (exclusoesResult.data || []) as SolicitacaoExclusao[]
         );
       }
 
@@ -182,6 +216,44 @@ export default function PainelAdministrador() {
   useEffect(() => {
     void carregarDados();
   }, []);
+
+  const processarExclusao = async (solicitacao: SolicitacaoExclusao) => {
+    const confirmou = window.confirm(
+      'Confirma o processamento desta exclusão? Esta ação encerrará a conta do cidadão e não poderá ser desfeita.'
+    );
+
+    if (!confirmou) return;
+
+    setProcessandoExclusao(solicitacao.id);
+    setErro('');
+
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        'processar-exclusao-conta',
+        {
+          body: { solicitacao_id: solicitacao.id },
+        }
+      );
+
+      if (error) throw error;
+      if (!data?.sucesso) {
+        throw new Error(data?.erro || 'Não foi possível processar a exclusão.');
+      }
+
+      setSolicitacoesExclusao((atuais) =>
+        atuais.filter((item) => item.id !== solicitacao.id)
+      );
+    } catch (error) {
+      console.error('Erro ao processar exclusão:', error);
+      setErro(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível processar a exclusão.'
+      );
+    } finally {
+      setProcessandoExclusao(null);
+    }
+  };
 
   const sair = async () => {
     await supabase.auth.signOut();
@@ -449,6 +521,62 @@ export default function PainelAdministrador() {
             )}
           </section>
         </div>
+
+        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <Trash2 className="text-red-400" size={22} />
+            <div>
+              <h3 className="font-semibold">Solicitações de exclusão</h3>
+              <p className="mt-1 text-sm text-slate-400">
+                Solicitações pendentes de encerramento de conta.
+              </p>
+            </div>
+          </div>
+
+          {solicitacoesExclusao.length === 0 ? (
+            <p className="text-sm text-slate-400">
+              Nenhuma solicitação pendente.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {solicitacoesExclusao.map((solicitacao) => (
+                <div
+                  key={solicitacao.id}
+                  className="flex flex-col gap-4 rounded-xl border border-slate-800 bg-slate-950 p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">
+                      Solicitação #{solicitacao.id}
+                    </p>
+                    <p className="mt-1 break-all text-xs text-slate-400">
+                      Usuário: {solicitacao.usuario_id}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Solicitada em: {formatarData(solicitacao.solicitado_em)}
+                    </p>
+                    <p className="mt-1 text-xs text-amber-400">
+                      Status: {solicitacao.status}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => void processarExclusao(solicitacao)}
+                    disabled={processandoExclusao === solicitacao.id}
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {processandoExclusao === solicitacao.id ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={16} />
+                    )}
+                    Processar exclusão
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
           <div className="flex gap-3">

@@ -263,6 +263,12 @@ export default function Postos() {
       (position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
+        
+        console.log('LOCALIZAÇÃO DO NAVEGADOR:', {
+  latitude,
+  longitude,
+  precisao: position.coords.accuracy,
+});
 
         void buscarPostos(
           latitude,

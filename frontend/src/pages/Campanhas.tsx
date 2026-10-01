@@ -111,10 +111,6 @@ function calcularStatus(
 }
 
 export default function Campanhas() {
-  const [temaClaro] = useState(() => {
-    return localStorage.getItem('easyvacc-tema') === 'claro';
-  });
-
   const [searchParams] = useSearchParams();
 
   const [campanhas, setCampanhas] =
@@ -332,55 +328,8 @@ export default function Campanhas() {
   }
 
   return (
-    <div className={`relative min-h-screen w-full bg-slate-950 text-slate-100 antialiased ${temaClaro ? 'easyvacc-campanhas-light' : ''}`}>
-      <style>{`
-        .easyvacc-campanhas-light {
-          background: #f8fafc !important;
-          color: #0f172a !important;
-        }
-        .easyvacc-campanhas-light .text-white,
-        .easyvacc-campanhas-light .text-slate-100 {
-          color: #0f172a !important;
-        }
-        .easyvacc-campanhas-light .text-slate-200,
-        .easyvacc-campanhas-light .text-slate-300 {
-          color: #334155 !important;
-        }
-        .easyvacc-campanhas-light .text-slate-400 {
-          color: #475569 !important;
-        }
-        .easyvacc-campanhas-light .text-slate-500 {
-          color: #64748b !important;
-        }
-        .easyvacc-campanhas-light [class~="bg-slate-900"],
-        .easyvacc-campanhas-light [class~="bg-slate-900/60"],
-        .easyvacc-campanhas-light [class~="bg-slate-900/70"],
-        .easyvacc-campanhas-light [class~="bg-slate-900/80"],
-        .easyvacc-campanhas-light [class~="bg-slate-900/90"] {
-          background-color: #ffffff !important;
-        }
-        .easyvacc-campanhas-light [class~="bg-slate-950"],
-        .easyvacc-campanhas-light [class~="bg-slate-950/40"],
-        .easyvacc-campanhas-light [class~="bg-slate-950/50"],
-        .easyvacc-campanhas-light [class~="bg-slate-950/60"] {
-          background-color: #f8fafc !important;
-        }
-        .easyvacc-campanhas-light [class~="bg-slate-800"] {
-          background-color: #f1f5f9 !important;
-        }
-        .easyvacc-campanhas-light [class~="border-slate-800"],
-        .easyvacc-campanhas-light [class~="border-slate-700"],
-        .easyvacc-campanhas-light [class~="border-slate-600"] {
-          border-color: #cbd5e1 !important;
-        }
-        .easyvacc-campanhas-light [class~="hover:text-white"]:hover {
-          color: #0f172a !important;
-        }
-        .easyvacc-campanhas-light [class~="hover:bg-slate-800"]:hover,
-        .easyvacc-campanhas-light [class~="hover:bg-slate-900"]:hover {
-          background-color: #f1f5f9 !important;
-        }
-      `}</style>
+    <div className="relative min-h-screen w-full bg-slate-950 text-slate-100 antialiased">
+
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/10 via-[#00a884]/15 to-cyan-500/10 blur-3xl" />

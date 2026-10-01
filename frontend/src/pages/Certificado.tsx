@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -118,6 +118,8 @@ export default function Certificado() {
   const [statusCertificado, setStatusCertificado] =
     useState<StatusCertificado | ''>('');
   const [emitindoNovaVersao, setEmitindoNovaVersao] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const possuiVacinas = vacinas.length > 0;
 
@@ -133,6 +135,31 @@ export default function Certificado() {
   const urlValidacao = codigoCertificado
     ? `${window.location.origin}/validar/${codigoCertificado}`
     : '';
+
+  useEffect(() => {
+    if (!urlValidacao) {
+      setQrCodeDataUrl('');
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      const canvas = qrCanvasRef.current;
+
+      if (!canvas) {
+        setQrCodeDataUrl('');
+        return;
+      }
+
+      try {
+        setQrCodeDataUrl(canvas.toDataURL('image/png'));
+      } catch (error) {
+        console.error('Erro ao preparar QR Code para impressão:', error);
+        setQrCodeDataUrl('');
+      }
+    }, 100);
+
+    return () => window.clearTimeout(timer);
+  }, [urlValidacao]);
 
   function limparCertificado() {
     setCodigoCertificado('');
@@ -635,10 +662,21 @@ export default function Certificado() {
       }
     };
 
-  const gerarPDF = () => {
+  const gerarPDF = async () => {
     if (!certificadoEmitido) {
       return;
     }
+
+    if (!qrCodeDataUrl) {
+      setErro('Aguarde um instante enquanto o QR Code é preparado para o PDF.');
+      return;
+    }
+
+    setErro('');
+
+    // Em navegadores móveis, aguarda a imagem PNG do QR ser pintada antes
+    // de abrir a interface de impressão/salvamento em PDF.
+    await new Promise((resolve) => window.setTimeout(resolve, 300));
 
     window.print();
   };
@@ -1040,7 +1078,7 @@ export default function Certificado() {
 
               {/* DOCUMENTO */}
 
-              <section className="mx-auto max-w-5xl overflow-hidden border border-slate-800 bg-[#111827] shadow-2xl print:max-w-none print:border-0 print:bg-white print:shadow-none print:[-webkit-print-color-adjust:exact] print:[print-color-adjust:exact]">
+              <section className="mx-auto max-w-5xl overflow-hidden border border-slate-800 bg-[#111827] shadow-2xl print:max-w-none print:border-0 print:bg-white print:shadow-none">
                 <div className="border-b border-slate-800 px-8 py-7 md:px-10 print:border-slate-200 print:px-0 print:pt-0">
                   <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-4">
@@ -1270,17 +1308,35 @@ export default function Certificado() {
                       </p>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-3 rounded-lg border border-slate-800 bg-white p-3 print:break-inside-avoid print:border-slate-300">
-                      <QRCodeCanvas
-                        value={
-                          urlValidacao
-                        }
-                        size={82}
-                        level="M"
-                        includeMargin={
-                          false
-                        }
-                      />
+                    <div className="flex shrink-0 items-center gap-3 rounded-lg border border-slate-800 bg-white p-3 print:border-slate-300">
+                      <div className="relative h-[82px] w-[82px] shrink-0">
+                        <QRCodeCanvas
+                          ref={qrCanvasRef}
+                          value={urlValidacao}
+                          size={164}
+                          level="M"
+                          includeMargin={false}
+                          className="absolute h-px w-px overflow-hidden opacity-0"
+                          aria-hidden="true"
+                        />
+
+                        {qrCodeDataUrl ? (
+                          <img
+                            src={qrCodeDataUrl}
+                            alt="QR Code para validação pública do certificado"
+                            width={82}
+                            height={82}
+                            className="h-[82px] w-[82px] object-contain"
+                          />
+                        ) : (
+                          <div
+                            className="flex h-[82px] w-[82px] items-center justify-center text-center text-[9px] text-slate-500"
+                            role="status"
+                          >
+                            Preparando QR...
+                          </div>
+                        )}
+                      </div>
 
                       <div className="max-w-[130px]">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900">

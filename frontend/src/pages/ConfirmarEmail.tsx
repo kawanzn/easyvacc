@@ -1,6 +1,19 @@
 import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle2, Mail } from 'lucide-react';
 
+function mascararEmail(email: string) {
+  const [usuario, dominio] = email.split('@');
+
+  if (!usuario || !dominio) {
+    return 'E-mail protegido';
+  }
+
+  const visiveis = usuario.slice(0, Math.min(3, usuario.length));
+  const ocultos = '*'.repeat(Math.max(3, usuario.length - visiveis.length));
+
+  return `${visiveis}${ocultos}@${dominio}`;
+}
+
 export default function ConfirmarEmail() {
   const location = useLocation();
 
@@ -21,6 +34,7 @@ export default function ConfirmarEmail() {
             <Mail
               size={32}
               className="text-emerald-400"
+              aria-hidden="true"
             />
           </div>
         </div>
@@ -44,7 +58,7 @@ export default function ConfirmarEmail() {
             </p>
 
             <p className="mt-1 break-all font-semibold text-emerald-400">
-              {email}
+              {mascararEmail(email)}
             </p>
           </div>
         )}
@@ -57,6 +71,7 @@ export default function ConfirmarEmail() {
             <CheckCircle2
               size={21}
               className="mt-0.5 shrink-0 text-emerald-400"
+              aria-hidden="true"
             />
 
             <div>
@@ -83,7 +98,7 @@ export default function ConfirmarEmail() {
         {/* Login */}
         <Link
           to="/login"
-          className="mt-7 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#00a884] font-bold text-slate-950 transition hover:bg-[#00bd96]"
+          className="mt-7 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#00a884] font-bold text-slate-950 transition hover:bg-[#00bd96] focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"
         >
           Ir para o login
         </Link>

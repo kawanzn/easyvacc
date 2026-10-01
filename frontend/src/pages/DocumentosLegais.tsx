@@ -314,21 +314,59 @@ export function PoliticaPrivacidade() {
         </p>
 
         <h2 className="mt-8 text-xl font-bold text-white">
-          Backup, restauração e incidentes
+          Backup, restauração e continuidade
         </h2>
 
         <p className="mt-3 text-slate-300">
-          A Equipe EasyVacc deve manter procedimentos compatíveis com a
-          infraestrutura utilizada para proteção, recuperação e restauração de
-          informações quando necessário.
+          O banco de dados do EasyVacc está atualmente hospedado no Supabase.
+          Na configuração atual do projeto, o plano utilizado não disponibiliza
+          backups automáticos agendados. Por esse motivo, a Equipe EasyVacc
+          mantém procedimento de backup manual do banco de dados, especialmente
+          antes de alterações estruturais, migrações ou outras operações
+          consideradas críticas.
         </p>
 
         <p className="mt-3 text-slate-300">
-          Em caso de incidente de segurança envolvendo dados pessoais, a
-          situação deverá ser analisada, registrada e tratada pela Equipe
-          EasyVacc. Quando aplicável, serão adotadas as medidas de comunicação
-          e resposta previstas na legislação e nas orientações da autoridade
-          competente.
+          As cópias de segurança devem ser armazenadas fora do repositório
+          público de código, com acesso restrito, pois podem conter dados
+          pessoais e registros relacionados à saúde. Arquivos de backup não
+          devem ser publicados no GitHub nem compartilhados por canais públicos.
+        </p>
+
+        <p className="mt-3 text-slate-300">
+          A restauração de uma cópia de segurança deve ser realizada
+          preferencialmente em ambiente separado do banco de produção. Antes de
+          qualquer recuperação definitiva, devem ser verificados a integridade
+          das tabelas, os vínculos entre usuários e dependentes, os registros de
+          vacinação, as permissões de acesso e o funcionamento das principais
+          funcionalidades da aplicação.
+        </p>
+
+        <h2 className="mt-8 text-xl font-bold text-white">
+          Resposta a incidentes de segurança
+        </h2>
+
+        <p className="mt-3 text-slate-300">
+          Suspeitas de acesso indevido, exposição, alteração, perda ou
+          indisponibilidade de dados devem ser registradas e analisadas pela
+          Equipe EasyVacc. A resposta deve incluir, conforme o caso, contenção
+          do incidente, preservação de evidências e registros de auditoria,
+          correção da causa identificada, recuperação segura do serviço e
+          revisão das medidas de proteção.
+        </p>
+
+        <p className="mt-3 text-slate-300">
+          Quando o incidente envolver dados pessoais, deverão ser avaliados sua
+          natureza, os dados afetados, os titulares potencialmente envolvidos e
+          os riscos decorrentes. Quando aplicável, serão adotadas as medidas de
+          comunicação e resposta previstas na legislação e nas orientações da
+          autoridade competente.
+        </p>
+
+        <p className="mt-3 text-slate-300">
+          Ocorrências e solicitações relacionadas à proteção de dados podem ser
+          encaminhadas para{' '}
+          <strong className="text-white">easyvacc.contato@gmail.com</strong>.
         </p>
 
         <h2 className="mt-8 text-xl font-bold text-white">

@@ -645,16 +645,54 @@ export default function Certificado() {
 
   if (carregando) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center bg-[#090d16]">
-        <div className="text-center">
-          <Loader2
-            size={28}
-            className="mx-auto animate-spin text-emerald-400"
-          />
+      <div className="min-h-[70vh] bg-[#090d16] px-6 py-8 text-slate-100 md:px-10 md:py-10">
+        <div
+          className="mx-auto max-w-7xl"
+          role="status"
+          aria-live="polite"
+          aria-label="Carregando certificado"
+        >
+          <span className="sr-only">Preparando certificado...</span>
 
-          <p className="mt-3 text-sm font-medium text-slate-400">
-            Preparando documento...
-          </p>
+          <div className="mb-7 border-b border-slate-800 pb-7" aria-hidden="true">
+            <div className="h-3 w-40 animate-pulse rounded bg-slate-800/70" />
+            <div className="mt-4 h-9 w-72 max-w-full animate-pulse rounded-lg bg-slate-800" />
+            <div className="mt-3 h-4 w-full max-w-xl animate-pulse rounded bg-slate-800/60" />
+          </div>
+
+          <div className="mb-7" aria-hidden="true">
+            <div className="mb-3 h-4 w-36 animate-pulse rounded bg-slate-800/70" />
+            <div className="flex flex-wrap gap-3">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="h-16 w-48 animate-pulse rounded-xl border border-slate-800 bg-[#111827]"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4" aria-hidden="true">
+            {[1, 2, 3, 4].map((item) => (
+              <div
+                key={item}
+                className="h-24 animate-pulse rounded-xl border border-slate-800 bg-[#111827]"
+              />
+            ))}
+          </div>
+
+          <div
+            className="mt-6 overflow-hidden border border-slate-800 bg-[#111827]"
+            aria-hidden="true"
+          >
+            <div className="h-24 animate-pulse border-b border-slate-800 bg-slate-800/40" />
+            <div className="space-y-5 p-8">
+              <div className="h-5 w-44 animate-pulse rounded bg-slate-800" />
+              <div className="h-20 animate-pulse rounded border border-slate-800 bg-slate-900/40" />
+              <div className="h-5 w-52 animate-pulse rounded bg-slate-800" />
+              <div className="h-40 animate-pulse rounded border border-slate-800 bg-slate-900/40" />
+            </div>
+          </div>
         </div>
       </div>
     );

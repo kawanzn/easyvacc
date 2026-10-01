@@ -6,7 +6,6 @@ import {
   CalendarDays,
   ChevronRight,
   FileText,
-  Loader2,
   MapPin,
   ShieldCheck,
   Syringe,
@@ -171,7 +170,7 @@ useEffect(() => {
         .from('vacinas')
         .select('id, nome, data_aplicacao, lote, fabricante, proxima_dose, posto, profissional')
         .eq('usuario_id', user.id)
-        .eq('status', 'ativo');
+        .in('status', ['ativo', 'corrigido']);
       if (tipoPessoa === 'dependente') {
         queryVacinas = queryVacinas.eq('dependente_id', Number(pessoaId));
       } else {
@@ -427,10 +426,11 @@ useEffect(() => {
           <div className="flex items-center gap-3">
             <Link
               to="/notificacoes"
-              className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300"
+              aria-label="Notificações"
               title="Notificações"
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300"
             >
-              <Bell size={18} />
+              <Bell size={18} aria-hidden="true" />
             </Link>
             <Link
               to="/perfil"
@@ -458,18 +458,59 @@ useEffect(() => {
         {/* CARREGANDO */}
         {/* ===================================== */}
         {carregando && (
-          <div className="flex items-center gap-3 text-slate-300">
-            <Loader2
-              className="animate-spin text-[#00a884]"
-            />
-            Carregando situação vacinal...
+          <div
+            role="status"
+            aria-live="polite"
+            aria-label="Carregando visão geral"
+            className="space-y-6"
+          >
+            <span className="sr-only">
+              Carregando situação vacinal...
+            </span>
+
+            <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+              <div className="grid lg:grid-cols-[1fr_340px]">
+                <div className="animate-pulse p-6 md:p-8">
+                  <div className="mb-5 h-6 w-44 rounded bg-slate-800" />
+                  <div className="mb-3 h-4 w-24 rounded bg-slate-800" />
+                  <div className="mb-4 h-8 w-64 max-w-full rounded bg-slate-800" />
+                  <div className="h-4 w-full max-w-xl rounded bg-slate-800/70" />
+                  <div className="mt-2 h-4 w-4/5 max-w-lg rounded bg-slate-800/70" />
+
+                  <div className="mt-6 flex gap-3">
+                    <div className="h-10 w-36 rounded-lg bg-slate-800" />
+                    <div className="h-10 w-36 rounded-lg bg-slate-800" />
+                  </div>
+                </div>
+
+                <div className="animate-pulse border-t border-slate-800 bg-slate-950/40 p-6 md:p-8 lg:border-l lg:border-t-0">
+                  <div className="h-4 w-28 rounded bg-slate-800" />
+                  <div className="mt-6 h-10 w-48 rounded bg-slate-800" />
+                  <div className="my-6 h-px bg-slate-800" />
+                  <div className="h-4 w-36 rounded bg-slate-800" />
+                  <div className="mt-3 h-8 w-24 rounded bg-slate-800" />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="h-28 animate-pulse rounded-xl border border-slate-800 bg-slate-900"
+                />
+              ))}
+            </div>
           </div>
         )}
         {/* ===================================== */}
         {/* ERRO */}
         {/* ===================================== */}
         {erro && !carregando && (
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+          <div
+            role="alert"
+            className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200"
+          >
             {erro}
           </div>
         )}

@@ -787,41 +787,68 @@ export default function Perfil() {
   // CARREGANDO
   // =====================================================
   if (carregando) {
-    return (
+  return (
+    <div className="mx-auto min-h-screen max-w-5xl bg-slate-950 p-4 pb-20 text-slate-100 sm:p-8">
       <div
-        className="
-          flex min-h-[70vh]
-          items-center justify-center
-          bg-slate-950
-          text-slate-100
-        "
+        role="status"
+        aria-live="polite"
+        aria-label="Carregando perfil"
       >
-        <div
-          role="status"
-          aria-live="polite"
-          className="text-center"
-        >
-          <Loader2
-            size={34}
-            aria-hidden="true"
-            className="
-              mx-auto animate-spin
-              text-[#00a884]
-            "
-          />
-          <p
-            className="
-              mt-4 text-sm
-              font-semibold
-              text-slate-300
-            "
-          >
-            Carregando seu perfil...
-          </p>
+        <span className="sr-only">
+          Carregando seu perfil...
+        </span>
+
+        {/* Cabeçalho */}
+        <div className="mb-8 border-b border-slate-800 pb-4">
+          <div className="h-9 w-40 animate-pulse rounded-lg bg-slate-800" />
+          <div className="mt-3 h-4 w-full max-w-md animate-pulse rounded bg-slate-800/70" />
+          <div className="mt-2 h-3 w-56 animate-pulse rounded bg-slate-800/50" />
+        </div>
+
+        {/* Card principal */}
+        <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90">
+          <div className="h-32 animate-pulse border-b border-slate-800 bg-slate-800/60" />
+
+          <div className="relative px-5 pb-8 sm:px-8">
+            {/* Avatar */}
+            <div className="absolute -top-12 left-5 h-24 w-24 animate-pulse rounded-full border-4 border-slate-900 bg-slate-800 sm:left-8" />
+
+            {/* Nome */}
+            <div className="pt-16">
+              <div className="h-7 w-52 animate-pulse rounded bg-slate-800" />
+              <div className="mt-3 h-4 w-32 animate-pulse rounded bg-slate-800/60" />
+            </div>
+
+            {/* Informações */}
+            <div className="mt-10 grid grid-cols-1 gap-10 border-t border-slate-800 pt-8 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((grupo) => (
+                <div
+                  key={grupo}
+                  className="space-y-6"
+                >
+                  <div className="h-4 w-32 animate-pulse rounded bg-slate-800" />
+
+                  {[1, 2, 3].map((item) => (
+                    <div key={item}>
+                      <div className="h-3 w-24 animate-pulse rounded bg-slate-800/60" />
+                      <div className="mt-2 h-5 w-full max-w-[180px] animate-pulse rounded bg-slate-800" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Ações */}
+            <div className="mt-10 flex gap-3 border-t border-slate-800 pt-6">
+              <div className="h-10 w-28 animate-pulse rounded-xl bg-slate-800" />
+              <div className="h-10 w-28 animate-pulse rounded-xl bg-slate-800" />
+            </div>
+          </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
   // =====================================================
   // TELA
   // =====================================================

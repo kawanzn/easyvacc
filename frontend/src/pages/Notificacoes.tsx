@@ -123,7 +123,7 @@ export default function Notificacoes() {
         .from('vacinas')
         .select('id, nome, proxima_dose')
         .eq('usuario_id', user.id)
-        .eq('status', 'ativo')
+        .in('status', ['ativo', 'corrigido'])
         .not('proxima_dose', 'is', null);
 
       if (dependenteId !== null) {
@@ -502,22 +502,22 @@ export default function Notificacoes() {
     notificacao: Notificacao
   ) => {
     if (notificacao.lida) {
-      return <CheckCircle2 size={18} />;
+      return <CheckCircle2 size={18} aria-hidden="true" />;
     }
 
     if (notificacao.tipo === 'dose_atrasada') {
-      return <Syringe size={18} />;
+      return <Syringe size={18} aria-hidden="true" />;
     }
 
     if (notificacao.tipo === 'proxima_dose') {
-      return <CalendarClock size={18} />;
+      return <CalendarClock size={18} aria-hidden="true" />;
     }
 
     if (notificacao.tipo === 'campanha') {
-      return <Megaphone size={18} />;
+      return <Megaphone size={18} aria-hidden="true" />;
     }
 
-    return <Bell size={18} />;
+    return <Bell size={18} aria-hidden="true" />;
   };
 
   const fonteNotificacao = (
@@ -569,11 +569,12 @@ export default function Notificacoes() {
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
               <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-[#00a884]">
-                <Sparkles size={13} />
+                <Sparkles size={13} aria-hidden="true" />
                 <span>Central de Avisos</span>
                 <ChevronRight
                   size={12}
                   className="opacity-50"
+                  aria-hidden="true"
                 />
                 <span>EasyVacc</span>
               </div>
@@ -614,15 +615,16 @@ export default function Notificacoes() {
                       onClick={() =>
                         void marcarTodasComoLidas()
                       }
-                      className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 text-xs font-bold text-[#00a884] transition hover:bg-emerald-500/20 disabled:opacity-50"
+                      className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 text-xs font-bold text-[#00a884] transition hover:bg-emerald-500/20 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"
                     >
                       {marcandoTodas ? (
                         <Loader2
                           size={15}
                           className="animate-spin"
+                          aria-hidden="true"
                         />
                       ) : (
-                        <Check size={15} />
+                        <Check size={15} aria-hidden="true" />
                       )}
 
                       Marcar todas como lidas
@@ -643,7 +645,15 @@ export default function Notificacoes() {
         )}
 
         {carregando ? (
-          <div className="space-y-4">
+          <div
+            className="space-y-4"
+            role="status"
+            aria-live="polite"
+            aria-label="Carregando notificações"
+          >
+            <span className="sr-only">
+              Carregando notificações...
+            </span>
             {[1, 2, 3].map((item) => (
               <div
                 key={item}
@@ -676,7 +686,7 @@ export default function Notificacoes() {
                     notif.lida
                       ? 'border-slate-800/80 bg-slate-950/40 text-slate-400 hover:border-slate-700'
                       : 'border-emerald-500/30 bg-slate-900/90 text-white shadow-xl shadow-[#00a884]/5 backdrop-blur-xl hover:border-emerald-500/50'
-                  } disabled:cursor-wait disabled:opacity-70`}
+                  } disabled:cursor-wait disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950`}
                 >
                   {!notif.lida && (
                     <div className="absolute bottom-0 left-0 top-0 w-1.5 bg-[#00a884]" />
@@ -694,6 +704,7 @@ export default function Notificacoes() {
                         <Loader2
                           size={18}
                           className="animate-spin"
+                          aria-hidden="true"
                         />
                       ) : (
                         iconeNotificacao(notif)
@@ -731,7 +742,7 @@ export default function Notificacoes() {
 
                       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
                         <span className="inline-flex items-center gap-1.5">
-                          <Clock3 size={13} />
+                          <Clock3 size={13} aria-hidden="true" />
                           {formatarDataHora(
                             notif.created_at
                           )}
@@ -750,9 +761,9 @@ export default function Notificacoes() {
 
                       <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[#00a884]">
                         {notif.tipo === 'campanha' ? (
-                          <ExternalLink size={13} />
+                          <ExternalLink size={13} aria-hidden="true" />
                         ) : (
-                          <ChevronRight size={13} />
+                          <ChevronRight size={13} aria-hidden="true" />
                         )}
 
                         {acaoNotificacao(notif)}
@@ -764,7 +775,7 @@ export default function Notificacoes() {
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/60 p-12 text-center shadow-2xl backdrop-blur-xl">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#00a884]/20 bg-[#00a884]/10 text-[#00a884]">
-                  <Inbox size={24} />
+                  <Inbox size={24} aria-hidden="true" />
                 </div>
 
                 <h3 className="mt-4 text-base font-bold text-white">

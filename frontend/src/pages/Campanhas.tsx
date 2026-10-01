@@ -4,7 +4,6 @@ import {
   AlertCircle,
   Calendar,
   ExternalLink,
-  Loader2,
   MapPin,
   Megaphone,
   RefreshCw,
@@ -337,7 +336,7 @@ export default function Campanhas() {
       <div className="mx-auto max-w-5xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
         <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
           <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-[#00a884]">
-            <Sparkles size={13} />
+            <Sparkles size={13}  aria-hidden="true" />
             <span>
               Informativo EasyVacc
             </span>
@@ -359,7 +358,7 @@ export default function Campanhas() {
           <ShieldCheck
             size={18}
             className="mt-0.5 shrink-0 text-cyan-400"
-          />
+           aria-hidden="true" />
 
           <div className="min-w-0">
             <p className="text-sm font-semibold text-cyan-200">
@@ -411,25 +410,61 @@ export default function Campanhas() {
         </div>
 
         {carregando && (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-            <Loader2
-              size={32}
-              className="animate-spin text-[#00a884]"
-            />
-
-            <p className="mt-3 text-sm font-medium">
+          <div
+            role="status"
+            aria-live="polite"
+            aria-label="Carregando campanhas"
+          >
+            <span className="sr-only">
               Carregando campanhas...
-            </p>
+            </span>
+
+            <div
+              className="grid grid-cols-1 gap-6 md:grid-cols-2"
+              aria-hidden="true"
+            >
+              {[1, 2, 3, 4].map((item) => (
+                <div
+                  key={item}
+                  className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60"
+                >
+                  <div className="h-40 animate-pulse bg-slate-800/70" />
+
+                  <div className="p-6">
+                    <div className="h-5 w-3/4 animate-pulse rounded bg-slate-800" />
+
+                    <div className="mt-4 space-y-2">
+                      <div className="h-3 w-full animate-pulse rounded bg-slate-800/70" />
+                      <div className="h-3 w-11/12 animate-pulse rounded bg-slate-800/70" />
+                      <div className="h-3 w-2/3 animate-pulse rounded bg-slate-800/70" />
+                    </div>
+
+                    <div className="mt-6 space-y-3">
+                      <div className="h-4 w-1/2 animate-pulse rounded bg-slate-800/60" />
+                      <div className="h-4 w-2/3 animate-pulse rounded bg-slate-800/60" />
+                      <div className="h-4 w-3/5 animate-pulse rounded bg-slate-800/60" />
+                    </div>
+
+                    <div className="mt-6 border-t border-slate-800 pt-4">
+                      <div className="h-9 w-32 animate-pulse rounded-xl bg-slate-800" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {!carregando && erro && (
-          <div className="rounded-2xl border border-rose-900 bg-rose-950/40 p-6">
+          <div
+            role="alert"
+            className="rounded-2xl border border-rose-900 bg-rose-950/40 p-6"
+          >
             <div className="flex items-start gap-3">
               <AlertCircle
                 size={22}
                 className="mt-0.5 shrink-0 text-rose-400"
-              />
+               aria-hidden="true" />
 
               <div>
                 <h2 className="font-bold text-rose-300">
@@ -445,11 +480,11 @@ export default function Campanhas() {
                   onClick={() =>
                     void carregarDados()
                   }
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-rose-800 bg-rose-950 px-4 py-2 text-xs font-bold text-rose-300 transition hover:bg-rose-900"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-rose-800 bg-rose-950 px-4 py-2 text-xs font-bold text-rose-300 transition hover:bg-rose-900 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 focus:ring-offset-slate-950"
                 >
                   <RefreshCw
                     size={14}
-                  />
+                   aria-hidden="true" />
                   Tentar novamente
                 </button>
               </div>
@@ -564,7 +599,7 @@ export default function Campanhas() {
                                   21
                                 }
                                 className="text-[#00a884]"
-                              />
+                               aria-hidden="true" />
                             </div>
 
                             <h2 className="z-10 text-xl font-bold tracking-tight text-white">
@@ -583,7 +618,7 @@ export default function Campanhas() {
                                   size={
                                     11
                                   }
-                                />
+                                 aria-hidden="true" />
                                 Destaque
                               </span>
                             </div>
@@ -611,7 +646,7 @@ export default function Campanhas() {
                                     16
                                   }
                                   className="mt-0.5 shrink-0 text-[#00a884]"
-                                />
+                                 aria-hidden="true" />
 
                                 <div>
                                   <span className="text-slate-500">
@@ -634,7 +669,7 @@ export default function Campanhas() {
                                     16
                                   }
                                   className="mt-0.5 shrink-0 text-[#00a884]"
-                                />
+                                 aria-hidden="true" />
 
                                 <div>
                                   <span className="text-slate-500">
@@ -656,7 +691,7 @@ export default function Campanhas() {
                                   16
                                 }
                                 className="mt-0.5 shrink-0 text-[#00a884]"
-                              />
+                               aria-hidden="true" />
 
                               <div>
                                 <span className="text-slate-500">
@@ -716,13 +751,13 @@ export default function Campanhas() {
                                   }
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-2 rounded-xl border border-emerald-800/60 bg-emerald-950/30 px-4 py-2.5 text-xs font-bold text-emerald-400 transition hover:border-emerald-700 hover:bg-emerald-950/60"
+                                  className="inline-flex items-center gap-2 rounded-xl border border-emerald-800/60 bg-emerald-950/30 px-4 py-2.5 text-xs font-bold text-emerald-400 transition hover:border-emerald-700 hover:bg-emerald-950/60 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"
                                 >
                                   <ExternalLink
                                     size={
                                       14
                                     }
-                                  />
+                                   aria-hidden="true" />
                                   Ver fonte
                                   oficial
                                 </a>
@@ -739,7 +774,7 @@ export default function Campanhas() {
                   <Megaphone
                     size={32}
                     className="mx-auto text-slate-600"
-                  />
+                   aria-hidden="true" />
 
                   <h2 className="mt-4 font-bold text-slate-300">
                     Nenhuma campanha

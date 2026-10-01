@@ -391,9 +391,9 @@ export default function Cadastro() {
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100">
       <Link
         to="/login"
-        className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-slate-200 hover:text-white"
+        className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"
       >
-        <ArrowLeft size={16} />
+        <ArrowLeft size={16} aria-hidden="true" />
         Voltar ao login
       </Link>
 
@@ -407,7 +407,7 @@ export default function Cadastro() {
             Ou{' '}
             <Link
               to="/login"
-              className="font-bold text-emerald-400"
+              className="rounded font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900"
             >
               já tenho uma conta
             </Link>
@@ -626,6 +626,7 @@ export default function Cadastro() {
                 className={`${campo} pr-12`}
                 placeholder="Mínimo 8 caracteres, letras e números"
                 autoComplete="new-password"
+                aria-describedby="senha-requisitos"
               />
 
               <button
@@ -636,7 +637,7 @@ export default function Cadastro() {
                       !valor
                   )
                 }
-                className="absolute inset-y-0 right-0 min-w-11 text-slate-300"
+                className="absolute inset-y-0 right-0 min-w-11 rounded-r-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-400"
                 aria-label={
                   mostrarSenha
                     ? 'Ocultar senha'
@@ -647,15 +648,24 @@ export default function Cadastro() {
                   <EyeOff
                     size={18}
                     className="mx-auto"
+                    aria-hidden="true"
                   />
                 ) : (
                   <Eye
                     size={18}
                     className="mx-auto"
+                    aria-hidden="true"
                   />
                 )}
               </button>
             </div>
+
+            <p
+              id="senha-requisitos"
+              className="mt-2 text-xs leading-5 text-slate-300"
+            >
+              Use no mínimo 8 caracteres, incluindo letras e números.
+            </p>
           </div>
 
           <div>
@@ -692,7 +702,9 @@ export default function Cadastro() {
             <label className="flex items-start gap-3">
               <input
                 type="checkbox"
-                className="mt-1 h-5 w-5"
+                required
+                aria-required="true"
+                className="mt-1 h-5 w-5 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 checked={
                   aceiteTermos
                 }
@@ -709,7 +721,7 @@ export default function Cadastro() {
                   to="/termos"
                   target="_blank"
                   rel="noreferrer"
-                  className="font-bold text-[#00a884] underline"
+                  className="rounded font-bold text-[#00a884] underline focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 >
                   Termos de uso
                 </Link>{' '}
@@ -722,7 +734,9 @@ export default function Cadastro() {
             <label className="flex items-start gap-3">
               <input
                 type="checkbox"
-                className="mt-1 h-5 w-5"
+                required
+                aria-required="true"
+                className="mt-1 h-5 w-5 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 checked={
                   aceitePrivacidade
                 }
@@ -739,7 +753,7 @@ export default function Cadastro() {
                   to="/privacidade"
                   target="_blank"
                   rel="noreferrer"
-                  className="font-bold text-[#00a884] underline"
+                  className="rounded font-bold text-[#00a884] underline focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 >
                   Política de privacidade
                 </Link>{' '}
@@ -765,12 +779,14 @@ export default function Cadastro() {
           <button
             type="submit"
             disabled={carregando}
-            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-base font-bold text-white hover:from-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+            aria-busy={carregando}
+            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-base font-bold text-white hover:from-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {carregando && (
               <Loader2
                 className="animate-spin"
                 size={18}
+                aria-hidden="true"
               />
             )}
 

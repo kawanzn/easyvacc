@@ -112,6 +112,9 @@ export default function Perfil() {
   const [gerandoAutorizacao, setGerandoAutorizacao] = useState(false);
   const [codigoAutorizacao, setCodigoAutorizacao] = useState('');
   const [expiraAutorizacao, setExpiraAutorizacao] = useState('');
+  const [modalExclusao, setModalExclusao] = useState(false);
+  const [solicitandoExclusao, setSolicitandoExclusao] = useState(false);
+  const [statusExclusao, setStatusExclusao] = useState('');
   // =====================================================
   // CARREGAR PERFIL
   // =====================================================
@@ -206,6 +209,17 @@ export default function Perfil() {
             ),
         };
         setUsuario(perfil);
+        const { data: solicitacaoExclusao, error: erroSolicitacaoExclusao } = await supabase
+          .from('solicitacoes_exclusao')
+          .select('status')
+          .eq('usuario_id', user.id)
+          .in('status', ['pendente', 'em_analise'])
+          .maybeSingle();
+        if (erroSolicitacaoExclusao) {
+          console.error('Erro ao consultar solicitação de exclusão:', erroSolicitacaoExclusao);
+        } else {
+          setStatusExclusao(solicitacaoExclusao?.status || '');
+        }
         if (perfil.avatarPath) {
           const { data: signedData, error: signedError } =
             await supabase.storage
@@ -780,6 +794,56 @@ export default function Perfil() {
       setErro('Não foi possível gerar o código de atendimento. Tente novamente.');
     } finally {
       setGerandoAutorizacao(false);
+    }
+  };
+
+  // =====================================================
+  // SOLICITAÇÃO DE EXCLUSÃO DA CONTA
+  // =====================================================
+  const abrirModalExclusao = () => {
+    setErro('');
+    setSucesso('');
+    setModalExclusao(true);
+  };
+
+  const fecharModalExclusao = () => {
+    if (solicitandoExclusao) return;
+    setModalExclusao(false);
+  };
+
+  const confirmarSolicitacaoExclusao = async () => {
+    if (solicitandoExclusao || statusExclusao) return;
+    setSolicitandoExclusao(true);
+    setErro('');
+    setSucesso('');
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error('Sua sessão expirou. Entre novamente para continuar.');
+      }
+
+      const { error } = await supabase
+        .from('solicitacoes_exclusao')
+        .insert({ usuario_id: user.id, status: 'pendente' });
+
+      if (error) {
+        if (error.code === '23505') {
+          setStatusExclusao('pendente');
+          setModalExclusao(false);
+          setSucesso('Sua solicitação de exclusão já está registrada e aguardando análise.');
+          return;
+        }
+        throw error;
+      }
+
+      setStatusExclusao('pendente');
+      setModalExclusao(false);
+      setSucesso('Solicitação de exclusão enviada com sucesso. Ela ficará registrada para análise.');
+    } catch (error) {
+      console.error('Erro ao solicitar exclusão da conta:', error);
+      setErro(error instanceof Error ? error.message : 'Não foi possível enviar a solicitação de exclusão. Tente novamente.');
+    } finally {
+      setSolicitandoExclusao(false);
     }
   };
 
@@ -1843,12 +1907,8 @@ export default function Perfil() {
               </button>
               <button
                 type="button"
-                disabled={salvando}
-                onClick={() =>
-                  alert(
-                    'Para exclusão total de dados e encerramento de conta, solicite o atendimento responsável.'
-                  )
-                }
+                disabled={salvando || solicitandoExclusao || Boolean(statusExclusao)}
+                onClick={abrirModalExclusao}
                 className="
                   px-3 py-2
                   text-xs
@@ -1857,13 +1917,17 @@ export default function Perfil() {
                   transition
                   hover:text-rose-300
                   disabled:cursor-not-allowed
-                  disabled:opacity-50
+                  disabled:opacity-60
                   focus:outline-none
                   focus:ring-2
                   focus:ring-rose-400
                 "
               >
-                Solicitar Exclusão
+                {statusExclusao === 'em_analise'
+                  ? 'Exclusão em análise'
+                  : statusExclusao === 'pendente'
+                    ? 'Exclusão solicitada'
+                    : 'Solicitar Exclusão'}
               </button>
             </div>
             {/* BOTÕES DE EDIÇÃO */}
@@ -1983,6 +2047,35 @@ export default function Perfil() {
           </div>
         </div>
       </div>
+      {modalExclusao && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-exclusao">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-rose-500/30 bg-slate-900 p-5 shadow-2xl sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="titulo-exclusao" className="text-lg font-extrabold text-white">Solicitar exclusão da conta</h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Sua conta não será apagada imediatamente. A solicitação será registrada para análise e tratamento seguro dos seus dados.
+                </p>
+              </div>
+              <button type="button" onClick={fecharModalExclusao} disabled={solicitandoExclusao} aria-label="Fechar solicitação de exclusão" className="shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50">
+                <X size={18} aria-hidden="true" />
+              </button>
+            </div>
+            <div className="mt-5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-4">
+              <p className="text-xs leading-5 text-rose-200">
+                Registros que precisem ser preservados por obrigação legal, segurança ou auditoria poderão receber tratamento específico antes do encerramento definitivo.
+              </p>
+            </div>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button type="button" onClick={fecharModalExclusao} disabled={solicitandoExclusao} className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50">Cancelar</button>
+              <button type="button" onClick={() => void confirmarSolicitacaoExclusao()} disabled={solicitandoExclusao} className="flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:cursor-not-allowed disabled:opacity-60">
+                {solicitandoExclusao && <Loader2 size={15} aria-hidden="true" className="animate-spin" />}
+                {solicitandoExclusao ? 'Enviando...' : 'Confirmar solicitação'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {modalReautenticacao && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-reauth">
           <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">

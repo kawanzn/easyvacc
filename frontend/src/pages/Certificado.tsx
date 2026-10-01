@@ -737,7 +737,52 @@ export default function Certificado() {
   }
 
   return (
-    <div className="min-h-full bg-[#090d16] text-slate-100 print:bg-white print:text-slate-900">
+    <>
+      <style>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: 12mm;
+          }
+
+          html,
+          body,
+          #root {
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+          }
+
+          body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          table {
+            page-break-inside: auto !important;
+          }
+
+          thead {
+            display: table-header-group !important;
+          }
+
+          tbody {
+            page-break-inside: auto !important;
+          }
+
+          tr {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+
+          footer {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+        }
+      `}</style>
+
+      <div className="min-h-full bg-[#090d16] text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900">
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10 print:max-w-none print:p-0">
 
         {/* CABEÇALHO */}
@@ -1078,7 +1123,7 @@ export default function Certificado() {
 
               {/* DOCUMENTO */}
 
-              <section className="mx-auto max-w-5xl overflow-hidden border border-slate-800 bg-[#111827] shadow-2xl print:max-w-none print:border-0 print:bg-white print:shadow-none">
+              <section className="mx-auto max-w-5xl overflow-hidden border border-slate-800 bg-[#111827] shadow-2xl print:max-w-none print:overflow-visible print:border-0 print:bg-white print:shadow-none">
                 <div className="border-b border-slate-800 px-8 py-7 md:px-10 print:border-slate-200 print:px-0 print:pt-0">
                   <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-4">
@@ -1192,7 +1237,7 @@ export default function Certificado() {
                       </span>
                     </div>
 
-                    <div className="overflow-x-auto border border-slate-800 print:border-slate-200">
+                    <div className="overflow-x-auto border border-slate-800 print:overflow-visible print:border-slate-200">
                       <table className="w-full border-collapse text-left">
                         <thead>
                           <tr className="border-b border-slate-800 bg-[#090d16] text-[10px] font-semibold uppercase tracking-wider text-slate-400 print:border-slate-200 print:bg-white">
@@ -1224,6 +1269,7 @@ export default function Certificado() {
                               vacina
                             ) => (
                               <tr
+                                className="print:break-inside-avoid"
                                 key={
                                   vacina.id
                                 }
@@ -1263,7 +1309,7 @@ export default function Certificado() {
 
                   {/* VALIDAÇÃO */}
 
-                  <footer className="mt-10 flex flex-col justify-between gap-6 border-t border-slate-800 pt-6 sm:flex-row sm:items-end print:break-inside-avoid print:flex-row print:border-slate-200">
+                  <footer className="mt-10 flex flex-col justify-between gap-6 border-t border-slate-800 pt-6 sm:flex-row sm:items-end print:break-inside-avoid print:flex-row print:border-slate-200 print:pt-5">
                     <div className="max-w-2xl">
                       <div className="flex items-center gap-2">
                         <ShieldCheck
@@ -1359,5 +1405,6 @@ export default function Certificado() {
           )}
       </div>
     </div>
+    </>
   );
 }

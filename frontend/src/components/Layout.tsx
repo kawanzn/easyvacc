@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 import { supabase } from '../services/supabase';
-import { salvarPessoaAtiva } from '../lib/brasil';
+import { lerPessoaAtiva, salvarPessoaAtiva } from '../lib/brasil';
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -185,10 +185,13 @@ export default function Layout() {
         }
 
         // NOTIFICAÇÕES
-        const {
-          count,
-          error: notificacoesError,
-        } = await supabase
+        const pessoaAtiva = lerPessoaAtiva();
+        const dependenteId =
+          pessoaAtiva?.tipo === 'dependente'
+            ? Number(pessoaAtiva.id)
+            : null;
+
+        let queryNotificacoes = supabase
           .from('notificacoes')
           .select('*', {
             count: 'exact',
@@ -196,6 +199,23 @@ export default function Layout() {
           })
           .eq('usuario_id', user.id)
           .eq('lida', false);
+
+        if (dependenteId !== null) {
+          queryNotificacoes = queryNotificacoes.eq(
+            'dependente_id',
+            dependenteId
+          );
+        } else {
+          queryNotificacoes = queryNotificacoes.is(
+            'dependente_id',
+            null
+          );
+        }
+
+        const {
+          count,
+          error: notificacoesError,
+        } = await queryNotificacoes;
 
         if (notificacoesError) {
           console.error(
@@ -231,6 +251,11 @@ export default function Layout() {
       atualizarDados
     );
 
+    window.addEventListener(
+      'pessoaAtivaAtualizada',
+      atualizarDados
+    );
+
     return () => {
       ativo = false;
 
@@ -241,6 +266,11 @@ export default function Layout() {
 
       window.removeEventListener(
         'notificacaoAtualizada',
+        atualizarDados
+      );
+
+      window.removeEventListener(
+        'pessoaAtivaAtualizada',
         atualizarDados
       );
     };

@@ -384,6 +384,8 @@ export default function Notificacoes() {
         )
       );
 
+      window.dispatchEvent(new Event('notificacaoAtualizada'));
+
       return true;
     } catch (error) {
       console.error(
@@ -484,6 +486,8 @@ export default function Notificacoes() {
           lida: true,
         }))
       );
+
+      window.dispatchEvent(new Event('notificacaoAtualizada'));
     } catch (error) {
       console.error(
         'Erro ao marcar todas como lidas:',

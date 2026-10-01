@@ -134,18 +134,13 @@ export default function Cadastro() {
     }
 
     if (!cpfValido(cpf)) {
-      setErro(
-        'Informe um CPF válido. O cadastro não foi enviado.'
-      );
+      setErro('O CPF informado é inválido. Confira os números e tente novamente.');
       return;
     }
 
-    if (
-      cns.trim() &&
-      !cnsValido(cns)
-    ) {
+    if (cns.trim() && !cnsValido(cns)) {
       setErro(
-        'O Cartão Nacional de Saúde informado não é válido. Confira os 15 dígitos ou deixe o campo em branco para cadastrá-lo posteriormente.'
+        'O Cartão Nacional de Saúde (CNS) informado é inválido. Confira os 15 dígitos ou deixe o campo em branco.'
       );
       return;
     }
@@ -168,6 +163,22 @@ export default function Cadastro() {
       return;
     }
 
+    if (dataNascimento) {
+      const nascimento = new Date(`${dataNascimento}T00:00:00`);
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      if (Number.isNaN(nascimento.getTime())) {
+        setErro('A data de nascimento informada é inválida.');
+        return;
+      }
+
+      if (nascimento > hoje) {
+        setErro('A data de nascimento não pode ser uma data futura.');
+        return;
+      }
+    }
+
     if (senha !== senhaConfirmacao) {
       setErro('As senhas precisam ser idênticas.');
       return;
@@ -180,10 +191,7 @@ export default function Cadastro() {
       return;
     }
 
-    if (
-      !aceiteTermos ||
-      !aceitePrivacidade
-    ) {
+    if (!aceiteTermos || !aceitePrivacidade) {
       setErro(
         'Aceite os termos de uso e a política de privacidade para continuar.'
       );
@@ -193,196 +201,75 @@ export default function Cadastro() {
     setCarregando(true);
 
     try {
-      const emailNormalizado =
-        email.trim().toLowerCase();
+      const emailNormalizado = email.trim().toLowerCase();
+      const cpfNormalizado = soDigitos(cpf);
+      const cnsNormalizado = soDigitos(cns);
 
-      const cpfNormalizado =
-        soDigitos(cpf);
-
-      const cnsNormalizado =
-        soDigitos(cns);
-
-      const {
-        data: usuarioCpf,
-        error: erroCpf,
-      } = await supabase
-        .from('users')
-        .select('id')
-        .eq('cpf', cpfNormalizado)
-        .maybeSingle();
-
-      if (erroCpf) {
-        console.error(
-          'Erro ao verificar CPF:',
-          erroCpf
-        );
-
-        setErro(
-          mensagemErroCadastro(erroCpf)
-        );
-
-        return;
-      }
-
-      if (usuarioCpf) {
-        setErro(
-          'Este CPF já está cadastrado.'
-        );
-
-        return;
-      }
-
-      if (cnsNormalizado) {
-        const {
-          data: usuarioCns,
-          error: erroCns,
-        } = await supabase
-          .from('users')
-          .select('id')
-          .eq('cns', cnsNormalizado)
-          .maybeSingle();
-
-        if (erroCns) {
-          console.error(
-            'Erro ao verificar CNS:',
-            erroCns
-          );
-
-          setErro(
-            mensagemErroCadastro(
-              erroCns
-            )
-          );
-
-          return;
-        }
-
-        if (usuarioCns) {
-          setErro(
-            'Este Cartão Nacional de Saúde já está cadastrado.'
-          );
-
-          return;
-        }
-      }
-
-      const {
-        data: authData,
-        error: authError,
-      } = await supabase.auth.signUp({
-        email: emailNormalizado,
-        password: senha,
-        options: {
-          emailRedirectTo:
-            `${window.location.origin}/login`,
-          data: {
-            nome: nome.trim(),
-          },
-        },
-      });
-
-      if (authError) {
-        console.error(
-          'Erro no Supabase Auth:',
-          authError
-        );
-
-        setErro(
-          mensagemErroCadastro(
-            authError
-          )
-        );
-
-        return;
-      }
-
-      if (!authData.user) {
-        console.error(
-          'Cadastro concluído sem usuário retornado pelo Supabase Auth.'
-        );
-
-        setErro(
-          'Não foi possível concluir o cadastro. Tente novamente.'
-        );
-
-        return;
-      }
-
-      const agora =
-        new Date().toISOString();
-
-      const {
-        error: profileError,
-      } = await supabase
-        .from('users')
-        .insert([
-          {
-            id: authData.user.id,
+      const { data, error: functionError } =
+        await supabase.functions.invoke('cadastro-cidadao', {
+          body: {
             nome: nome.trim(),
             cpf: cpfNormalizado,
-            cns:
-              cnsNormalizado ||
-              null,
+            cns: cnsNormalizado || null,
             email: emailNormalizado,
             cidade: cidade.trim(),
-            data_nascimento:
-              dataNascimento !== ''
-                ? dataNascimento
-                : null,
-            termos_aceitos_em:
-              agora,
-            privacidade_aceita_em:
-              agora,
-            termos_versao:
-              TERMOS_VERSAO,
-            privacidade_versao:
-              PRIVACIDADE_VERSAO,
+            data_nascimento: dataNascimento || null,
+            senha,
+            termos_versao: TERMOS_VERSAO,
+            privacidade_versao: PRIVACIDADE_VERSAO,
           },
-        ]);
+        });
 
-      if (profileError) {
+      if (functionError) {
         console.error(
-          'Erro ao criar perfil:',
-          profileError
+          'Erro ao chamar cadastro-cidadao:',
+          functionError
         );
 
-        setErro(
-          mensagemErroCadastro(
-            profileError
-          )
-        );
+        const contexto =
+          (functionError as {
+            context?: Response;
+          }).context;
 
-        return;
-      }
+        if (contexto) {
+          try {
+            const resposta = await contexto.clone().json();
 
-      if (!authData.session) {
-        navigate(
-          '/confirmar-email',
-          {
-            state: {
-              email:
-                emailNormalizado,
-              mensagem:
-                'Cadastro realizado. Verifique seu e-mail para confirmar sua conta.',
-            },
+            if (resposta?.mensagem) {
+              setErro(String(resposta.mensagem));
+              return;
+            }
+          } catch (erroResposta) {
+            console.error(
+              'Não foi possível ler a resposta da função:',
+              erroResposta
+            );
           }
-        );
+        }
 
+        setErro(mensagemErroCadastro(functionError));
         return;
       }
 
-      navigate('/login');
-    } catch (error) {
-      console.error(
-        'Erro no cadastro:',
-        error
-      );
+      if (!data?.sucesso) {
+        setErro(
+          data?.mensagem ||
+            'Não foi possível concluir o cadastro. Tente novamente.'
+        );
+        return;
+      }
 
-      setErro(
-        mensagemErroCadastro(
-          error
-        )
-      );
+      navigate('/confirmar-email', {
+        state: {
+          email: emailNormalizado,
+          mensagem:
+            data.mensagem ||
+            'Cadastro realizado. Verifique seu e-mail para confirmar sua conta.',
+        },
+      });
+    } catch (error) {
+      console.error('Erro no cadastro:', error);
+      setErro(mensagemErroCadastro(error));
     } finally {
       setCarregando(false);
     }

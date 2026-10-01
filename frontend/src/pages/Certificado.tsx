@@ -703,8 +703,8 @@ export default function Certificado() {
       <style>{`
         @media print {
           @page {
-            size: A4;
-            margin: 12mm;
+            size: A4 portrait;
+            margin: 8mm;
           }
 
           html,
@@ -712,32 +712,12 @@ export default function Certificado() {
           #root {
             height: auto !important;
             min-height: 0 !important;
-            max-height: none !important;
             overflow: visible !important;
           }
 
           body {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-          }
-
-          table,
-          tbody {
-            page-break-inside: auto !important;
-          }
-
-          thead {
-            display: table-header-group !important;
-          }
-
-          tr {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-          }
-
-          footer {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
           }
         }
       `}</style>
@@ -969,7 +949,7 @@ export default function Certificado() {
           possuiVacinas &&
           certificadoEmitido && (
             <>
-              <div className="mb-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 print:border-slate-300 print:bg-white">
+              <div className="mb-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 print:mb-2 print:border-slate-300 print:bg-white print:p-2">
                 <div className="flex items-start gap-3">
                   <ShieldCheck
                     size={19}
@@ -1084,7 +1064,7 @@ export default function Certificado() {
               {/* DOCUMENTO */}
 
               <section className="mx-auto max-w-5xl overflow-hidden border border-slate-800 bg-[#111827] shadow-2xl print:max-w-none print:overflow-visible print:border-0 print:bg-white print:shadow-none">
-                <div className="border-b border-slate-800 px-8 py-7 md:px-10 print:border-slate-200 print:px-0 print:pt-0">
+                <div className="border-b border-slate-800 px-8 py-7 md:px-10 print:border-slate-200 print:px-0 print:py-2">
                   <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-4">
                       <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-slate-800 bg-white p-1.5 print:border-slate-200">
@@ -1132,12 +1112,12 @@ export default function Certificado() {
                   </div>
                 </div>
 
-                <div className="px-8 py-8 md:px-10 print:px-0">
+                <div className="px-8 py-8 md:px-10 print:px-0 print:py-2">
 
                   {/* IDENTIFICAÇÃO */}
 
-                  <section className="mb-9">
-                    <div className="mb-4 flex items-center gap-2">
+                  <section className="mb-9 print:mb-3">
+                    <div className="mb-4 flex items-center gap-2 print:mb-2">
                       <div className="h-4 w-1 rounded-full bg-emerald-500" />
 
                       <h3 className="text-xs font-bold uppercase tracking-[0.12em] text-slate-300 print:text-slate-700">
@@ -1149,7 +1129,7 @@ export default function Certificado() {
                     </div>
 
                     <div className="grid grid-cols-1 border border-slate-800 md:grid-cols-[2fr_1fr] print:border-slate-200">
-                      <div className="border-b border-slate-800 p-4 md:border-b-0 md:border-r print:border-slate-200">
+                      <div className="border-b border-slate-800 p-4 md:border-b-0 md:border-r print:border-slate-200 print:p-2">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                           Nome completo
                         </p>
@@ -1159,7 +1139,7 @@ export default function Certificado() {
                         </p>
                       </div>
 
-                      <div className="p-4">
+                      <div className="p-4 print:p-2">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                           {pessoaAtiva?.tipo ===
                           'dependente'
@@ -1182,7 +1162,7 @@ export default function Certificado() {
                   {/* VACINAS */}
 
                   <section>
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="mb-4 flex items-center justify-between print:mb-2">
                       <div className="flex items-center gap-2">
                         <div className="h-4 w-1 rounded-full bg-emerald-500" />
 
@@ -1201,23 +1181,23 @@ export default function Certificado() {
                       <table className="w-full border-collapse text-left">
                         <thead>
                           <tr className="border-b border-slate-800 bg-[#090d16] text-[10px] font-semibold uppercase tracking-wider text-slate-400 print:border-slate-200 print:bg-white">
-                            <th className="px-4 py-3">
+                            <th className="px-4 py-3 print:px-2 print:py-1.5">
                               Imunizante
                             </th>
 
-                            <th className="px-4 py-3">
+                            <th className="px-4 py-3 print:px-2 print:py-1.5">
                               Dose
                             </th>
 
-                            <th className="px-4 py-3">
+                            <th className="px-4 py-3 print:px-2 print:py-1.5">
                               Fabricante
                             </th>
 
-                            <th className="px-4 py-3">
+                            <th className="px-4 py-3 print:px-2 print:py-1.5">
                               Aplicação
                             </th>
 
-                            <th className="px-4 py-3">
+                            <th className="px-4 py-3 print:px-2 print:py-1.5">
                               Lote
                             </th>
                           </tr>
@@ -1233,28 +1213,28 @@ export default function Certificado() {
                                   vacina.id
                                 }
                               >
-                                <td className="px-4 py-4 text-xs font-semibold text-white print:text-slate-900">
+                                <td className="px-4 py-4 text-xs font-semibold text-white print:px-2 print:py-2 print:text-[10px] print:text-slate-900">
                                   {
                                     vacina.nome
                                   }
                                 </td>
 
-                                <td className="px-4 py-4 text-xs font-semibold text-slate-300 print:text-slate-600">
+                                <td className="px-4 py-4 text-xs font-semibold text-slate-300 print:px-2 print:py-2 print:text-[10px] print:text-slate-600">
                                   {vacina.dose || '—'}
                                 </td>
 
-                                <td className="px-4 py-4 text-xs text-slate-300 print:text-slate-600">
+                                <td className="px-4 py-4 text-xs text-slate-300 print:px-2 print:py-2 print:text-[10px] print:text-slate-600">
                                   {vacina.fabricante ||
                                     'Não informado'}
                                 </td>
 
-                                <td className="whitespace-nowrap px-4 py-4 text-xs text-slate-300 print:text-slate-600">
+                                <td className="whitespace-nowrap px-4 py-4 text-xs text-slate-300 print:px-2 print:py-2 print:text-[10px] print:text-slate-600">
                                   {formatarData(
                                     vacina.data_aplicacao
                                   )}
                                 </td>
 
-                                <td className="px-4 py-4 font-mono text-[11px] text-slate-400">
+                                <td className="px-4 py-4 font-mono text-[11px] text-slate-400 print:px-2 print:py-2 print:text-[9px]">
                                   {vacina.lote ||
                                     '—'}
                                 </td>
@@ -1268,7 +1248,7 @@ export default function Certificado() {
 
                   {/* VALIDAÇÃO */}
 
-                  <footer className="mt-10 flex flex-col justify-between gap-6 border-t border-slate-800 pt-6 sm:flex-row sm:items-end print:break-inside-avoid print:flex-row print:border-slate-200">
+                  <footer className="mt-10 flex flex-col justify-between gap-6 border-t border-slate-800 pt-6 sm:flex-row sm:items-end print:mt-3 print:flex-row print:gap-3 print:border-slate-200 print:pt-3">
                     <div className="max-w-2xl">
                       <div className="flex items-center gap-2">
                         <ShieldCheck
@@ -1339,7 +1319,7 @@ export default function Certificado() {
                 </div>
               </section>
 
-              <p className="mx-auto mt-5 max-w-5xl text-center text-[11px] leading-5 text-slate-500 print:text-slate-600">
+              <p className="mx-auto mt-5 max-w-5xl text-center text-[11px] leading-5 text-slate-500 print:mt-2 print:text-[9px] print:leading-3 print:text-slate-600">
                 EasyVacc — documento informativo gerado a partir dos dados registrados na plataforma. Não é um documento oficial do Ministério da Saúde ou do SUS.
               </p>
             </>

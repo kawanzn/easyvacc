@@ -1,20 +1,61 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Moon, Sun } from 'lucide-react';
 import { PRIVACIDADE_VERSAO, TERMOS_VERSAO } from '../lib/brasil';
 
-function CabecalhoLegal() {
+
+function useTemaEasyVacc() {
+  const [temaClaro, setTemaClaro] = useState(
+    () => localStorage.getItem('easyvacc-tema') === 'claro'
+  );
+
+  const alternarTema = () => {
+    setTemaClaro((atual) => {
+      const novoTemaClaro = !atual;
+      localStorage.setItem(
+        'easyvacc-tema',
+        novoTemaClaro ? 'claro' : 'escuro'
+      );
+      return novoTemaClaro;
+    });
+  };
+
+  return { temaClaro, alternarTema };
+}
+
+function BotaoTema({
+  temaClaro,
+  alternarTema,
+}: {
+  temaClaro: boolean;
+  alternarTema: () => void;
+}) {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl">
+    <button
+      type="button"
+      onClick={alternarTema}
+      aria-label={temaClaro ? 'Ativar tema escuro' : 'Ativar tema claro'}
+      title={temaClaro ? 'Tema escuro' : 'Tema claro'}
+      className="fixed right-4 top-20 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-teal-500 hover:text-teal-400"
+    >
+      {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
+    </button>
+  );
+}
+
+function CabecalhoLegal({ temaClaro }: { temaClaro: boolean }) {
+  return (
+    <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${temaClaro ? 'border-slate-200 bg-white/95' : 'border-slate-800 bg-slate-950/95'}`}>
       <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
         <Link
           to="/"
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-800 px-4 text-sm font-semibold text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00a884]"
+          className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#00a884] ${temaClaro ? 'border-slate-300 text-slate-700 hover:bg-slate-100' : 'border-slate-800 text-slate-200 hover:bg-slate-900'}`}
         >
           <ArrowLeft size={18} aria-hidden="true" />
           Voltar
         </Link>
 
-        <Link to="/" className="text-base font-bold text-white">
+        <Link to="/" className={`text-base font-bold ${temaClaro ? 'text-slate-950' : 'text-white'}`}>
           Easy<span className="text-[#00a884]">Vacc</span>
         </Link>
       </div>
@@ -23,9 +64,64 @@ function CabecalhoLegal() {
 }
 
 export function PoliticaPrivacidade() {
+  const { temaClaro, alternarTema } = useTemaEasyVacc();
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200">
-      <CabecalhoLegal />
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-slate-950 text-slate-200`}>
+
+      <style>{`
+        .easyvacc-light {
+          background: #f8fafc !important;
+          color: #0f172a !important;
+        }
+        .easyvacc-light [class~="bg-slate-950"] {
+          background-color: #f8fafc !important;
+        }
+        .easyvacc-light [class~="bg-slate-900"],
+        .easyvacc-light [class~="bg-slate-900/60"],
+        .easyvacc-light [class~="bg-slate-900/80"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-light [class~="bg-slate-800"],
+        .easyvacc-light [class~="bg-slate-800/80"] {
+          background-color: #f1f5f9 !important;
+        }
+        .easyvacc-light [class~="text-white"],
+        .easyvacc-light [class~="text-slate-100"],
+        .easyvacc-light [class~="text-slate-200"] {
+          color: #0f172a !important;
+        }
+        .easyvacc-light [class~="text-slate-300"] {
+          color: #334155 !important;
+        }
+        .easyvacc-light [class~="text-slate-400"],
+        .easyvacc-light [class~="text-slate-500"] {
+          color: #475569 !important;
+        }
+        .easyvacc-light [class~="border-slate-800"],
+        .easyvacc-light [class~="border-slate-700"],
+        .easyvacc-light [class~="border-slate-700/80"] {
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-light input,
+        .easyvacc-light select,
+        .easyvacc-light textarea {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-light input::placeholder,
+        .easyvacc-light textarea::placeholder {
+          color: #64748b !important;
+        }
+        .easyvacc-light input:disabled,
+        .easyvacc-light select:disabled,
+        .easyvacc-light textarea:disabled {
+          background-color: #f1f5f9 !important;
+        }
+      `}</style>
+
+      <BotaoTema temaClaro={temaClaro} alternarTema={alternarTema} />
+      <CabecalhoLegal temaClaro={temaClaro} />
 
       <article className="mx-auto max-w-3xl px-4 py-10 text-base leading-7">
         <p className="text-sm font-semibold text-[#00a884]">
@@ -413,9 +509,64 @@ export function PoliticaPrivacidade() {
 }
 
 export function TermosUso() {
+  const { temaClaro, alternarTema } = useTemaEasyVacc();
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200">
-      <CabecalhoLegal />
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-slate-950 text-slate-200`}>
+
+      <style>{`
+        .easyvacc-light {
+          background: #f8fafc !important;
+          color: #0f172a !important;
+        }
+        .easyvacc-light [class~="bg-slate-950"] {
+          background-color: #f8fafc !important;
+        }
+        .easyvacc-light [class~="bg-slate-900"],
+        .easyvacc-light [class~="bg-slate-900/60"],
+        .easyvacc-light [class~="bg-slate-900/80"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-light [class~="bg-slate-800"],
+        .easyvacc-light [class~="bg-slate-800/80"] {
+          background-color: #f1f5f9 !important;
+        }
+        .easyvacc-light [class~="text-white"],
+        .easyvacc-light [class~="text-slate-100"],
+        .easyvacc-light [class~="text-slate-200"] {
+          color: #0f172a !important;
+        }
+        .easyvacc-light [class~="text-slate-300"] {
+          color: #334155 !important;
+        }
+        .easyvacc-light [class~="text-slate-400"],
+        .easyvacc-light [class~="text-slate-500"] {
+          color: #475569 !important;
+        }
+        .easyvacc-light [class~="border-slate-800"],
+        .easyvacc-light [class~="border-slate-700"],
+        .easyvacc-light [class~="border-slate-700/80"] {
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-light input,
+        .easyvacc-light select,
+        .easyvacc-light textarea {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-light input::placeholder,
+        .easyvacc-light textarea::placeholder {
+          color: #64748b !important;
+        }
+        .easyvacc-light input:disabled,
+        .easyvacc-light select:disabled,
+        .easyvacc-light textarea:disabled {
+          background-color: #f1f5f9 !important;
+        }
+      `}</style>
+
+      <BotaoTema temaClaro={temaClaro} alternarTema={alternarTema} />
+      <CabecalhoLegal temaClaro={temaClaro} />
 
       <article className="mx-auto max-w-3xl px-4 py-10 text-base leading-7">
         <p className="text-sm font-semibold text-[#00a884]">

@@ -90,6 +90,10 @@ function nomeVacina(vacina: VacinaBanco) {
   );
 }
 export default function Dashboard() {
+  const [temaClaro] = useState(() => {
+    return localStorage.getItem('easyvacc-tema') === 'claro';
+  });
+
   const [situacao, setSituacao] =
     useState<Situacao | null>(null);
   const [carregando, setCarregando] =
@@ -401,7 +405,59 @@ useEffect(() => {
       ? `${situacao.coberturaPercentual}%`
       : 'Indisponível';
   return (
-    <div className="min-h-full bg-slate-950 text-slate-100">
+    <div className={`min-h-full bg-slate-950 text-slate-100 ${temaClaro ? 'easyvacc-light' : ''}`}>
+      <style>{`
+        .easyvacc-light {
+          background: #f8fafc !important;
+          color: #0f172a !important;
+        }
+        .easyvacc-light .text-white,
+        .easyvacc-light .text-slate-100 {
+          color: #0f172a !important;
+        }
+        .easyvacc-light .text-slate-200,
+        .easyvacc-light .text-slate-300 {
+          color: #334155 !important;
+        }
+        .easyvacc-light .text-slate-400 {
+          color: #475569 !important;
+        }
+        .easyvacc-light .text-slate-500 {
+          color: #64748b !important;
+        }
+        .easyvacc-light [class~="bg-slate-950"],
+        .easyvacc-light [class~="bg-slate-950/30"],
+        .easyvacc-light [class~="bg-slate-950/40"],
+        .easyvacc-light [class~="bg-slate-950/50"],
+        .easyvacc-light [class~="bg-slate-950/60"] {
+          background-color: #f8fafc !important;
+        }
+        .easyvacc-light [class~="bg-slate-900"],
+        .easyvacc-light [class~="bg-slate-900/60"],
+        .easyvacc-light [class~="bg-slate-900/70"],
+        .easyvacc-light [class~="bg-slate-900/80"],
+        .easyvacc-light [class~="bg-slate-900/90"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-light [class~="bg-slate-800"],
+        .easyvacc-light [class~="bg-slate-800/50"],
+        .easyvacc-light [class~="bg-slate-800/60"] {
+          background-color: #f1f5f9 !important;
+        }
+        .easyvacc-light [class~="border-slate-800"],
+        .easyvacc-light [class~="border-slate-800/80"],
+        .easyvacc-light [class~="border-slate-700"] {
+          border-color: #e2e8f0 !important;
+        }
+        .easyvacc-light [class~="hover:text-white"]:hover {
+          color: #0f172a !important;
+        }
+        .easyvacc-light [class~="hover:bg-slate-800"]:hover,
+        .easyvacc-light [class~="hover:bg-slate-900"]:hover {
+          background-color: #f1f5f9 !important;
+        }
+      `}</style>
+
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10">
         {/* ===================================== */}
         {/* CABEÇALHO */}

@@ -20,6 +20,8 @@ import {
   ChevronRight,
   Menu,
   X,
+  Moon,
+  Sun,
 } from 'lucide-react';
 
 import { supabase } from '../services/supabase';
@@ -30,6 +32,21 @@ export default function Layout() {
 
   const [isOpen, setIsOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const [temaClaro, setTemaClaro] = useState(() => {
+    return localStorage.getItem('easyvacc-tema') === 'claro';
+  });
+
+  const alternarTema = () => {
+    setTemaClaro((anterior) => {
+      const novoTemaClaro = !anterior;
+      localStorage.setItem(
+        'easyvacc-tema',
+        novoTemaClaro ? 'claro' : 'escuro'
+      );
+      return novoTemaClaro;
+    });
+  };
 
   const [dependentes, setDependentes] = useState<any[]>([]);
   const [notificacoesNaoLidas, setNotificacoesNaoLidas] =
@@ -291,8 +308,12 @@ export default function Layout() {
     }
     ${
       isActive
-        ? 'bg-white/10 text-white'
-        : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-100'
+        ? temaClaro
+          ? 'bg-emerald-50 text-emerald-700'
+          : 'bg-white/10 text-white'
+        : temaClaro
+          ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+          : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-100'
     }
   `;
 
@@ -302,7 +323,160 @@ export default function Layout() {
       : 'lg:hidden';
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-950 font-sans text-slate-100">
+    <div
+      className={`easyvacc-app flex h-screen overflow-hidden font-sans ${
+        temaClaro
+          ? 'easyvacc-light bg-slate-50 text-slate-900'
+          : 'bg-slate-950 text-slate-100'
+      }`}
+    >
+
+      <style>{`
+
+        .easyvacc-light aside {
+          background: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #e2e8f0 !important;
+        }
+
+        .easyvacc-light aside .text-white,
+        .easyvacc-light aside .text-slate-100,
+        .easyvacc-light aside .text-slate-200,
+        .easyvacc-light aside .text-slate-300 {
+          color: #334155 !important;
+        }
+
+        .easyvacc-light aside .text-slate-400 {
+          color: #475569 !important;
+        }
+
+        .easyvacc-light aside .text-slate-500,
+        .easyvacc-light aside .text-slate-600 {
+          color: #64748b !important;
+        }
+
+        .easyvacc-light aside [class~="border-white/[0.08]"] {
+          border-color: #e2e8f0 !important;
+        }
+
+        .easyvacc-light aside [class~="bg-white/[0.08]"] {
+          background-color: #f1f5f9 !important;
+        }
+
+        .easyvacc-light aside [class~="hover:bg-white/[0.05]"]:hover,
+        .easyvacc-light aside [class~="hover:bg-white/[0.06]"]:hover,
+        .easyvacc-light aside [class~="hover:bg-white/10"]:hover {
+          background-color: #f1f5f9 !important;
+        }
+
+        .easyvacc-light aside .text-emerald-400 {
+          color: #059669 !important;
+        }
+
+        .easyvacc-light main {
+          background: #f8fafc !important;
+          color: #0f172a;
+        }
+
+        .easyvacc-light main .bg-slate-950,
+        .easyvacc-light main [class~="bg-slate-950"],
+        .easyvacc-light main [class~="bg-slate-950/40"],
+        .easyvacc-light main [class~="bg-slate-950/50"],
+        .easyvacc-light main [class~="bg-slate-950/60"],
+        .easyvacc-light main [class~="bg-slate-950/70"],
+        .easyvacc-light main [class~="bg-slate-950/80"],
+        .easyvacc-light main [class~="bg-slate-950/90"] {
+          background-color: #f8fafc !important;
+        }
+
+        .easyvacc-light main [class~="bg-[#090d16]"] {
+          background-color: #f8fafc !important;
+        }
+
+        .easyvacc-light main [class~="bg-slate-900"],
+        .easyvacc-light main [class~="bg-slate-900/40"],
+        .easyvacc-light main [class~="bg-slate-900/50"],
+        .easyvacc-light main [class~="bg-slate-900/60"],
+        .easyvacc-light main [class~="bg-slate-900/70"],
+        .easyvacc-light main [class~="bg-slate-900/80"],
+        .easyvacc-light main [class~="bg-slate-900/90"],
+        .easyvacc-light main [class~="bg-[#0f172a]"],
+        .easyvacc-light main [class~="bg-[#111827]"] {
+          background-color: #ffffff !important;
+        }
+
+        .easyvacc-light main [class~="bg-slate-800"],
+        .easyvacc-light main [class~="bg-slate-800/40"],
+        .easyvacc-light main [class~="bg-slate-800/50"],
+        .easyvacc-light main [class~="bg-slate-800/60"] {
+          background-color: #f1f5f9 !important;
+        }
+
+        .easyvacc-light main .text-white,
+        .easyvacc-light main .text-slate-100 {
+          color: #0f172a !important;
+        }
+
+        .easyvacc-light main .text-slate-200,
+        .easyvacc-light main .text-slate-300 {
+          color: #334155 !important;
+        }
+
+        .easyvacc-light main .text-slate-400 {
+          color: #475569 !important;
+        }
+
+        .easyvacc-light main .text-slate-500 {
+          color: #64748b !important;
+        }
+
+        .easyvacc-light main .text-slate-600 {
+          color: #475569 !important;
+        }
+
+        .easyvacc-light main [class~="border-slate-900"],
+        .easyvacc-light main [class~="border-slate-800"],
+        .easyvacc-light main [class~="border-slate-800/80"],
+        .easyvacc-light main [class~="border-slate-700"],
+        .easyvacc-light main [class~="border-slate-600"] {
+          border-color: #cbd5e1 !important;
+        }
+
+        .easyvacc-light main input,
+        .easyvacc-light main select,
+        .easyvacc-light main textarea {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+
+        .easyvacc-light main input::placeholder,
+        .easyvacc-light main textarea::placeholder {
+          color: #64748b !important;
+        }
+
+        .easyvacc-light main table {
+          color: #0f172a;
+        }
+
+        .easyvacc-light main [class~="divide-slate-800"] > :not([hidden]) ~ :not([hidden]),
+        .easyvacc-light main [class~="divide-slate-700"] > :not([hidden]) ~ :not([hidden]) {
+          border-color: #e2e8f0 !important;
+        }
+
+        .easyvacc-light main [class~="hover:bg-slate-900"]:hover,
+        .easyvacc-light main [class~="hover:bg-slate-800"]:hover {
+          background-color: #f1f5f9 !important;
+        }
+
+        /* O documento do certificado mantém seu próprio desenho e impressão. */
+        @media print {
+          .easyvacc-app main {
+            background: #ffffff !important;
+            color: #0f172a !important;
+          }
+        }
+      `}</style>
       {/* OVERLAY MOBILE */}
       {mobileOpen && (
         <button
@@ -322,8 +496,12 @@ export default function Layout() {
         aria-label="Menu principal"
         className={`
           fixed inset-y-0 left-0 z-50 flex flex-col
-          border-r border-[#18344d]
-          bg-[#0b2239] text-white
+          border-r
+          ${
+            temaClaro
+              ? 'border-slate-200 bg-white text-slate-900'
+              : 'border-[#18344d] bg-[#0b2239] text-white'
+          }
           shadow-2xl
           transition-all duration-300 ease-out
           print:hidden
@@ -751,6 +929,33 @@ export default function Layout() {
 
           <button
             type="button"
+            onClick={alternarTema}
+            title={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
+            aria-label={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
+            className={`
+              mb-1 flex h-10 w-full items-center rounded-md
+              text-slate-400 transition-colors
+              hover:bg-white/[0.06] hover:text-slate-100
+              ${
+                isOpen
+                  ? 'gap-3 px-3'
+                  : 'gap-3 px-3 lg:justify-center lg:px-0'
+              }
+            `}
+          >
+            {temaClaro ? (
+              <Moon size={17} strokeWidth={1.8} className="shrink-0" />
+            ) : (
+              <Sun size={17} strokeWidth={1.8} className="shrink-0" />
+            )}
+
+            <span className={`text-xs font-medium ${mostrarTexto}`}>
+              {temaClaro ? 'Modo escuro' : 'Modo claro'}
+            </span>
+          </button>
+
+          <button
+            type="button"
             onClick={handleLogout}
             title="Sair da conta"
             className={`
@@ -889,7 +1094,11 @@ export default function Layout() {
           />
         </header>
 
-        <main className="relative min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-slate-950 print:overflow-visible print:bg-white">
+        <main
+          className={`relative min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden print:overflow-visible print:bg-white ${
+            temaClaro ? 'bg-slate-50' : 'bg-slate-950'
+          }`}
+        >
   <Outlet />
 </main>
       </div>

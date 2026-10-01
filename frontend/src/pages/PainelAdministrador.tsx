@@ -7,6 +7,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
+  Moon,
+  Sun,
 } from 'lucide-react';
 
 import { supabase } from '../services/supabase';
@@ -18,6 +20,22 @@ type StatusSincronizacao = {
 
 export default function PainelAdministrador() {
   const navigate = useNavigate();
+
+  const [temaClaro, setTemaClaro] = useState(
+    () => localStorage.getItem('easyvacc-tema') === 'claro'
+  );
+
+  const alternarTema = () => {
+    setTemaClaro((atual) => {
+      const novoTemaClaro = !atual;
+      localStorage.setItem(
+        'easyvacc-tema',
+        novoTemaClaro ? 'claro' : 'escuro'
+      );
+      return novoTemaClaro;
+    });
+  };
+
 
   const [nome, setNome] =
     useState('Administrador');
@@ -174,7 +192,70 @@ export default function PainelAdministrador() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-slate-950 text-slate-100`}>
+
+      <style>{`
+        .easyvacc-light {
+          background: #f8fafc !important;
+          color: #0f172a !important;
+        }
+        .easyvacc-light [class~="bg-slate-950"] {
+          background-color: #f8fafc !important;
+        }
+        .easyvacc-light [class~="bg-slate-900"],
+        .easyvacc-light [class~="bg-slate-900/60"],
+        .easyvacc-light [class~="bg-slate-900/80"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-light [class~="bg-slate-800"],
+        .easyvacc-light [class~="bg-slate-800/80"] {
+          background-color: #f1f5f9 !important;
+        }
+        .easyvacc-light [class~="text-white"],
+        .easyvacc-light [class~="text-slate-100"],
+        .easyvacc-light [class~="text-slate-200"] {
+          color: #0f172a !important;
+        }
+        .easyvacc-light [class~="text-slate-300"] {
+          color: #334155 !important;
+        }
+        .easyvacc-light [class~="text-slate-400"],
+        .easyvacc-light [class~="text-slate-500"] {
+          color: #475569 !important;
+        }
+        .easyvacc-light [class~="border-slate-800"],
+        .easyvacc-light [class~="border-slate-700"],
+        .easyvacc-light [class~="border-slate-700/80"] {
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-light input,
+        .easyvacc-light select,
+        .easyvacc-light textarea {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-light input::placeholder,
+        .easyvacc-light textarea::placeholder {
+          color: #64748b !important;
+        }
+        .easyvacc-light input:disabled,
+        .easyvacc-light select:disabled,
+        .easyvacc-light textarea:disabled {
+          background-color: #f1f5f9 !important;
+        }
+      `}</style>
+
+      <button
+        type="button"
+        onClick={alternarTema}
+        aria-label={temaClaro ? 'Ativar tema escuro' : 'Ativar tema claro'}
+        title={temaClaro ? 'Tema escuro' : 'Tema claro'}
+        className="fixed right-4 top-4 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-teal-500 hover:text-teal-400"
+      >
+        {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
+      </button>
+
       <header className="border-b border-slate-800 bg-slate-900">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <div className="flex items-center gap-3">

@@ -103,6 +103,10 @@ function mensagemErroCadastro(error: unknown): string {
 }
 
 export default function Cadastro() {
+  const [temaClaro] = useState(() => {
+    return localStorage.getItem('easyvacc-tema') === 'claro';
+  });
+
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
   const [cns, setCns] = useState('');
@@ -388,7 +392,59 @@ export default function Cadastro() {
     'w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3.5 text-base text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none';
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100">
+    <div className={`relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100 ${temaClaro ? 'easyvacc-cadastro-light' : ''}`}>
+      <style>{`
+        .easyvacc-cadastro-light {
+          background: #f8fafc !important;
+          color: #0f172a !important;
+        }
+        .easyvacc-cadastro-light .text-white,
+        .easyvacc-cadastro-light .text-slate-100 {
+          color: #0f172a !important;
+        }
+        .easyvacc-cadastro-light .text-slate-200,
+        .easyvacc-cadastro-light .text-slate-300 {
+          color: #334155 !important;
+        }
+        .easyvacc-cadastro-light .text-slate-400 {
+          color: #475569 !important;
+        }
+        .easyvacc-cadastro-light .text-slate-500 {
+          color: #64748b !important;
+        }
+        .easyvacc-cadastro-light [class~="bg-slate-900"],
+        .easyvacc-cadastro-light [class~="bg-slate-900/80"],
+        .easyvacc-cadastro-light [class~="bg-slate-900/90"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-cadastro-light [class~="bg-slate-950"],
+        .easyvacc-cadastro-light [class~="bg-slate-950/80"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-cadastro-light [class~="border-slate-800"],
+        .easyvacc-cadastro-light [class~="border-slate-700"] {
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-cadastro-light input,
+        .easyvacc-cadastro-light select,
+        .easyvacc-cadastro-light textarea {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-cadastro-light input::placeholder,
+        .easyvacc-cadastro-light textarea::placeholder {
+          color: #64748b !important;
+        }
+        .easyvacc-cadastro-light [class~="hover:text-white"]:hover {
+          color: #0f172a !important;
+        }
+        .easyvacc-cadastro-light [class~="hover:bg-slate-800"]:hover,
+        .easyvacc-cadastro-light [class~="hover:bg-slate-900"]:hover {
+          background-color: #f1f5f9 !important;
+        }
+      `}</style>
+
       <Link
         to="/login"
         className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"

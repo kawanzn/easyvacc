@@ -60,6 +60,10 @@ function mascararCns(cns: string) {
 }
 
 export default function AdicionarDependente() {
+  const [temaClaro] = useState(() => {
+    return localStorage.getItem('easyvacc-tema') === 'claro';
+  });
+
   const navigate = useNavigate();
 
   const [dependentes, setDependentes] = useState<Dependente[]>([]);
@@ -305,7 +309,68 @@ export default function AdicionarDependente() {
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-950 p-6 text-slate-100 antialiased md:p-10">
+    <div className={`relative min-h-screen bg-slate-950 p-6 text-slate-100 antialiased md:p-10 ${temaClaro ? 'easyvacc-dependente-light' : ''}`}>
+      <style>{`
+        .easyvacc-dependente-light {
+          background: #f8fafc !important;
+          color: #0f172a !important;
+        }
+        .easyvacc-dependente-light .text-white,
+        .easyvacc-dependente-light .text-slate-100 {
+          color: #0f172a !important;
+        }
+        .easyvacc-dependente-light .text-slate-200,
+        .easyvacc-dependente-light .text-slate-300 {
+          color: #334155 !important;
+        }
+        .easyvacc-dependente-light .text-slate-400 {
+          color: #475569 !important;
+        }
+        .easyvacc-dependente-light .text-slate-500 {
+          color: #64748b !important;
+        }
+        .easyvacc-dependente-light [class~="bg-slate-900"],
+        .easyvacc-dependente-light [class~="bg-slate-900/60"],
+        .easyvacc-dependente-light [class~="bg-slate-900/70"],
+        .easyvacc-dependente-light [class~="bg-slate-900/80"],
+        .easyvacc-dependente-light [class~="bg-slate-900/90"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-dependente-light [class~="bg-slate-950"],
+        .easyvacc-dependente-light [class~="bg-slate-950/50"],
+        .easyvacc-dependente-light [class~="bg-slate-950/60"],
+        .easyvacc-dependente-light [class~="bg-slate-950/80"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-dependente-light [class~="bg-slate-800"],
+        .easyvacc-dependente-light [class~="bg-slate-800/50"] {
+          background-color: #f1f5f9 !important;
+        }
+        .easyvacc-dependente-light [class~="border-slate-800"],
+        .easyvacc-dependente-light [class~="border-slate-800/80"],
+        .easyvacc-dependente-light [class~="border-slate-700"] {
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-dependente-light input,
+        .easyvacc-dependente-light select,
+        .easyvacc-dependente-light textarea {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-dependente-light input::placeholder,
+        .easyvacc-dependente-light textarea::placeholder {
+          color: #64748b !important;
+        }
+        .easyvacc-dependente-light [class~="hover:text-white"]:hover {
+          color: #0f172a !important;
+        }
+        .easyvacc-dependente-light [class~="hover:bg-slate-800"]:hover,
+        .easyvacc-dependente-light [class~="hover:bg-slate-900"]:hover {
+          background-color: #f1f5f9 !important;
+        }
+      `}</style>
+
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/15 via-[#00a884]/20 to-cyan-500/10 blur-3xl" />
       </div>

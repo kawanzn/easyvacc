@@ -18,6 +18,10 @@ import {
 } from '../lib/brasil';
 
 export default function Login() {
+  const [temaClaro] = useState(() => {
+    return localStorage.getItem('easyvacc-tema') === 'claro';
+  });
+
   const [cpf, setCpf] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -193,7 +197,54 @@ export default function Login() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100 antialiased">
+    <div className={`relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100 antialiased ${temaClaro ? 'easyvacc-login-light' : ''}`}>
+      <style>{`
+        .easyvacc-login-light {
+          background: #f8fafc !important;
+          color: #0f172a !important;
+        }
+        .easyvacc-login-light .text-white,
+        .easyvacc-login-light .text-slate-100 {
+          color: #0f172a !important;
+        }
+        .easyvacc-login-light .text-slate-200,
+        .easyvacc-login-light .text-slate-300 {
+          color: #334155 !important;
+        }
+        .easyvacc-login-light .text-slate-400 {
+          color: #475569 !important;
+        }
+        .easyvacc-login-light .text-slate-500 {
+          color: #64748b !important;
+        }
+        .easyvacc-login-light [class~="bg-slate-900/80"],
+        .easyvacc-login-light [class~="bg-slate-900/90"] {
+          background-color: rgba(255, 255, 255, 0.96) !important;
+        }
+        .easyvacc-login-light [class~="bg-slate-950/80"],
+        .easyvacc-login-light [class~="bg-slate-950"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-login-light [class~="border-slate-800"],
+        .easyvacc-login-light [class~="border-slate-700"] {
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-login-light input {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+        }
+        .easyvacc-login-light input::placeholder {
+          color: #64748b !important;
+        }
+        .easyvacc-login-light [class~="hover:text-white"]:hover {
+          color: #0f172a !important;
+        }
+        .easyvacc-login-light [class~="hover:bg-slate-800"]:hover,
+        .easyvacc-login-light [class~="hover:bg-slate-900"]:hover {
+          background-color: #f1f5f9 !important;
+        }
+      `}</style>
+
 
       {/* FUNDO */}
 
@@ -432,10 +483,10 @@ export default function Login() {
           </div>
 
           <Link
-            to="/admin"
+            to="/profissional/painel"
             className="inline-flex min-h-11 items-center text-sm font-semibold text-slate-400 hover:text-[#00a884]"
           >
-            Acesso restrito: profissionais / posto
+            Acesso restrito: Profissionais / Posto
           </Link>
 
         </div>

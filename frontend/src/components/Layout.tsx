@@ -399,8 +399,20 @@ export default function Layout() {
           background-color: #f1f5f9 !important;
         }
 
-        .easyvacc-light aside .text-emerald-400 {
-          color: #059669 !important;
+        .easyvacc-light aside .text-emerald-400,
+        .easyvacc-light aside .text-emerald-500,
+        .easyvacc-light aside .text-emerald-600 {
+          color: #047857 !important;
+        }
+
+        .easyvacc-light aside .bg-emerald-500,
+        .easyvacc-light aside .bg-emerald-600 {
+          background-color: #047857 !important;
+        }
+
+        .easyvacc-light aside .bg-emerald-500.text-white,
+        .easyvacc-light aside .bg-emerald-600.text-white {
+          color: #ffffff !important;
         }
 
         .easyvacc-light main {
@@ -462,6 +474,22 @@ export default function Layout() {
 
         .easyvacc-light main .text-slate-600 {
           color: #475569 !important;
+        }
+
+        .easyvacc-light main .text-emerald-400,
+        .easyvacc-light main .text-emerald-500,
+        .easyvacc-light main .text-emerald-600 {
+          color: #047857 !important;
+        }
+
+        .easyvacc-light main .bg-emerald-500,
+        .easyvacc-light main .bg-emerald-600 {
+          background-color: #047857 !important;
+        }
+
+        .easyvacc-light main .bg-emerald-500.text-white,
+        .easyvacc-light main .bg-emerald-600.text-white {
+          color: #ffffff !important;
         }
 
         .easyvacc-light main [class~="border-slate-900"],

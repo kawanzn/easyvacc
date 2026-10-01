@@ -456,6 +456,21 @@ useEffect(() => {
         .easyvacc-light [class~="hover:bg-slate-900"]:hover {
           background-color: #f1f5f9 !important;
         }
+
+        /* Contraste WCAG no tema claro */
+        .easyvacc-light .text-emerald-400,
+        .easyvacc-light .text-emerald-500,
+        .easyvacc-light .text-emerald-600 {
+          color: #047857 !important;
+        }
+
+        .easyvacc-light .bg-emerald-600 {
+          background-color: #047857 !important;
+        }
+
+        .easyvacc-light .bg-emerald-600.text-white {
+          color: #ffffff !important;
+        }
       `}</style>
 
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10">

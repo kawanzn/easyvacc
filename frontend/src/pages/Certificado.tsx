@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -11,7 +11,7 @@ import {
   User,
   Users,
 } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../services/supabase';
 import {
   lerPessoaAtiva,
@@ -118,8 +118,6 @@ export default function Certificado() {
   const [statusCertificado, setStatusCertificado] =
     useState<StatusCertificado | ''>('');
   const [emitindoNovaVersao, setEmitindoNovaVersao] = useState(false);
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
-  const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const possuiVacinas = vacinas.length > 0;
 
@@ -135,31 +133,6 @@ export default function Certificado() {
   const urlValidacao = codigoCertificado
     ? `${window.location.origin}/validar/${codigoCertificado}`
     : '';
-
-  useEffect(() => {
-    if (!urlValidacao) {
-      setQrCodeDataUrl('');
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      const canvas = qrCanvasRef.current;
-
-      if (!canvas) {
-        setQrCodeDataUrl('');
-        return;
-      }
-
-      try {
-        setQrCodeDataUrl(canvas.toDataURL('image/png'));
-      } catch (error) {
-        console.error('Erro ao preparar QR Code para impressão:', error);
-        setQrCodeDataUrl('');
-      }
-    }, 100);
-
-    return () => window.clearTimeout(timer);
-  }, [urlValidacao]);
 
   function limparCertificado() {
     setCodigoCertificado('');
@@ -662,21 +635,10 @@ export default function Certificado() {
       }
     };
 
-  const gerarPDF = async () => {
+  const gerarPDF = () => {
     if (!certificadoEmitido) {
       return;
     }
-
-    if (!qrCodeDataUrl) {
-      setErro('Aguarde um instante enquanto o QR Code é preparado para o PDF.');
-      return;
-    }
-
-    setErro('');
-
-    // Em navegadores móveis, aguarda a imagem PNG do QR ser pintada antes
-    // de abrir a interface de impressão/salvamento em PDF.
-    await new Promise((resolve) => window.setTimeout(resolve, 300));
 
     window.print();
   };
@@ -750,6 +712,7 @@ export default function Certificado() {
           #root {
             height: auto !important;
             min-height: 0 !important;
+            max-height: none !important;
             overflow: visible !important;
           }
 
@@ -758,16 +721,13 @@ export default function Certificado() {
             print-color-adjust: exact !important;
           }
 
-          table {
+          table,
+          tbody {
             page-break-inside: auto !important;
           }
 
           thead {
             display: table-header-group !important;
-          }
-
-          tbody {
-            page-break-inside: auto !important;
           }
 
           tr {
@@ -1269,7 +1229,6 @@ export default function Certificado() {
                               vacina
                             ) => (
                               <tr
-                                className="print:break-inside-avoid"
                                 key={
                                   vacina.id
                                 }
@@ -1309,7 +1268,7 @@ export default function Certificado() {
 
                   {/* VALIDAÇÃO */}
 
-                  <footer className="mt-10 flex flex-col justify-between gap-6 border-t border-slate-800 pt-6 sm:flex-row sm:items-end print:break-inside-avoid print:flex-row print:border-slate-200 print:pt-5">
+                  <footer className="mt-10 flex flex-col justify-between gap-6 border-t border-slate-800 pt-6 sm:flex-row sm:items-end print:break-inside-avoid print:flex-row print:border-slate-200">
                     <div className="max-w-2xl">
                       <div className="flex items-center gap-2">
                         <ShieldCheck
@@ -1355,34 +1314,16 @@ export default function Certificado() {
                     </div>
 
                     <div className="flex shrink-0 items-center gap-3 rounded-lg border border-slate-800 bg-white p-3 print:border-slate-300">
-                      <div className="relative h-[82px] w-[82px] shrink-0">
-                        <QRCodeCanvas
-                          ref={qrCanvasRef}
-                          value={urlValidacao}
-                          size={164}
-                          level="M"
-                          includeMargin={false}
-                          className="absolute h-px w-px overflow-hidden opacity-0"
-                          aria-hidden="true"
-                        />
-
-                        {qrCodeDataUrl ? (
-                          <img
-                            src={qrCodeDataUrl}
-                            alt="QR Code para validação pública do certificado"
-                            width={82}
-                            height={82}
-                            className="h-[82px] w-[82px] object-contain"
-                          />
-                        ) : (
-                          <div
-                            className="flex h-[82px] w-[82px] items-center justify-center text-center text-[9px] text-slate-500"
-                            role="status"
-                          >
-                            Preparando QR...
-                          </div>
-                        )}
-                      </div>
+                      <QRCodeSVG
+                        value={
+                          urlValidacao
+                        }
+                        size={82}
+                        level="M"
+                        includeMargin={
+                          false
+                        }
+                      />
 
                       <div className="max-w-[130px]">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-900">

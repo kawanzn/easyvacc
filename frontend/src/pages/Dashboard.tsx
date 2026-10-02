@@ -5,7 +5,6 @@ import {
   Bell,
   CalendarDays,
   CheckCircle2,
-  ChevronRight,
   FileText,
   MapPin,
   Megaphone,

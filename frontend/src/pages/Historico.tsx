@@ -30,6 +30,8 @@ interface VacinaBanco {
   dependente_id: number | null;
   registrado_por: string | null;
   registrado_em: string | null;
+  profissional: string | null;
+  posto: string | null;
   status: string;
 }
 
@@ -46,6 +48,8 @@ interface Vacina {
   situacao: SituacaoVacina;
   registradoPor: string | null;
   registradoEm: string | null;
+  profissional: string | null;
+  posto: string | null;
 }
 
 interface PessoaAtiva {
@@ -59,6 +63,16 @@ function formatarData(data: string | null) {
   const partes = data.substring(0, 10).split('-');
   if (partes.length !== 3) return data;
   return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function formatarDataHora(data: string | null) {
+  if (!data) return '';
+  const valor = new Date(data);
+  if (Number.isNaN(valor.getTime())) return '';
+  return new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(valor);
 }
 
 function dataLocalISO() {
@@ -148,6 +162,8 @@ export default function Historico() {
             proxima_dose,
             registrado_por,
             registrado_em,
+            profissional,
+            posto,
             status
           `)
           .eq('usuario_id', user.id)
@@ -181,6 +197,8 @@ export default function Historico() {
             situacao: calcularSituacao(vacina.proxima_dose),
             registradoPor: vacina.registrado_por,
             registradoEm: vacina.registrado_em,
+            profissional: vacina.profissional,
+            posto: vacina.posto,
           }))
         );
       } catch (error: any) {
@@ -508,9 +526,31 @@ export default function Historico() {
                         </td>
 
                         <td className="px-6 py-5">
-                          <span className="inline-flex rounded-lg border border-slate-700 bg-slate-800/60 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
-                            Registro interno do EasyVacc
-                          </span>
+                          <div className="min-w-[220px] space-y-1.5">
+                            <span className="inline-flex rounded-lg border border-slate-700 bg-slate-800/60 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                              {vacina.registradoPor
+                                ? 'Registrado por profissional de saúde'
+                                : 'Registro interno do EasyVacc'}
+                            </span>
+
+                            {vacina.profissional && (
+                              <p className="text-xs font-semibold text-slate-300">
+                                Profissional: {vacina.profissional}
+                              </p>
+                            )}
+
+                            {vacina.posto && (
+                              <p className="text-xs text-slate-400">
+                                Unidade: {vacina.posto}
+                              </p>
+                            )}
+
+                            {vacina.registradoEm && (
+                              <p className="text-[11px] text-slate-500">
+                                Registrado em: {formatarDataHora(vacina.registradoEm)}
+                              </p>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))

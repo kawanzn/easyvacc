@@ -4,10 +4,13 @@ import {
   ArrowRight,
   Bell,
   CalendarDays,
+  CheckCircle2,
   ChevronRight,
   FileText,
   MapPin,
+  Megaphone,
   ShieldCheck,
+  Sparkles,
   Syringe,
   User,
 } from 'lucide-react';
@@ -26,7 +29,6 @@ type Situacao = {
   };
   origemDados: string;
   origemRotulo: string;
-  sincronizadoEm: string | null;
   totalRegistros: number;
   atrasadas: {
     id: number;
@@ -42,8 +44,6 @@ type Situacao = {
     titulo: string;
     status: string;
   }[];
-  coberturaPercentual: number | null;
-  coberturaDisponivel: boolean;
   status: string;
   statusRotulo: string;
   statusDetalhe: string;
@@ -63,16 +63,6 @@ type CampanhaBanco = {
   id: number;
   titulo: string;
 };
-function formatarSincronizacao(iso: string | null) {
-  if (!iso) {
-    return 'Ainda não houve sincronização';
-  }
-  const data = new Date(iso);
-  if (Number.isNaN(data.getTime())) {
-    return 'Data indisponível';
-  }
-  return data.toLocaleString('pt-BR');
-}
 function formatarData(data?: string | null) {
   if (!data) return '';
   const valor = new Date(`${data.substring(0, 10)}T12:00:00`);
@@ -90,9 +80,41 @@ function nomeVacina(vacina: VacinaBanco) {
   );
 }
 export default function Dashboard() {
-  const [temaClaro] = useState(() => {
+  const [temaClaro, setTemaClaro] = useState(() => {
     return localStorage.getItem('easyvacc-tema') === 'claro';
   });
+
+  useEffect(() => {
+    const atualizarTema = () => {
+      setTemaClaro(localStorage.getItem('easyvacc-tema') === 'claro');
+    };
+
+    atualizarTema();
+
+    window.addEventListener('storage', atualizarTema);
+    window.addEventListener('easyvaccTemaAtualizado', atualizarTema);
+
+    const observador = new MutationObserver(atualizarTema);
+
+    observador.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    });
+
+    observador.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    });
+
+    const intervalo = window.setInterval(atualizarTema, 200);
+
+    return () => {
+      window.removeEventListener('storage', atualizarTema);
+      window.removeEventListener('easyvaccTemaAtualizado', atualizarTema);
+      observador.disconnect();
+      window.clearInterval(intervalo);
+    };
+  }, []);
 
   const [situacao, setSituacao] =
     useState<Situacao | null>(null);
@@ -133,7 +155,7 @@ useEffect(() => {
       } = await supabase
         .from('users')
         .select(
-          'id, nome, data_nascimento, updated_at'
+          'id, nome, data_nascimento'
         )
         .eq('id', user.id)
         .single();
@@ -279,11 +301,6 @@ useEffect(() => {
           }
         : null;
       // ==========================================
-      // 8. COBERTURA
-      // ==========================================
-      const coberturaDisponivel = false;
-      const coberturaPercentual = null;
-      // ==========================================
       // 9. STATUS
       // ==========================================
       let status = 'sem_dados';
@@ -326,13 +343,10 @@ useEffect(() => {
         origemDados: 'supabase',
         origemRotulo:
           'Dados cadastrados no EasyVacc',
-        sincronizadoEm: perfil.updated_at ?? null,
         totalRegistros: vacinas.length,
         atrasadas,
         proximaDose,
         campanhasAplicaveis,
-        coberturaPercentual,
-        coberturaDisponivel,
         status,
         statusRotulo,
         statusDetalhe,
@@ -400,484 +414,462 @@ useEffect(() => {
     }
     return 'slate';
   }, [situacao]);
-  const coberturaTexto =
-    situacao?.coberturaDisponivel
-      ? `${situacao.coberturaPercentual}%`
-      : 'Indisponível';
   return (
-    <div className={`min-h-full bg-slate-950 text-slate-100 ${temaClaro ? 'easyvacc-light' : ''}`}>
+    <div
+      className={`min-h-full bg-slate-950 text-slate-100 transition-colors duration-300 ${
+        temaClaro ? 'easyvacc-light' : ''
+      }`}
+    >
       <style>{`
         .easyvacc-light {
           background: #f8fafc !important;
           color: #0f172a !important;
         }
-        .easyvacc-light .text-white,
-        .easyvacc-light .text-slate-100 {
-          color: #0f172a !important;
-        }
-        .easyvacc-light .text-slate-200,
-        .easyvacc-light .text-slate-300 {
-          color: #334155 !important;
-        }
-        .easyvacc-light .text-slate-400 {
-          color: #475569 !important;
-        }
-        .easyvacc-light .text-slate-500 {
-          color: #64748b !important;
-        }
-        .easyvacc-light [class~="bg-slate-950"],
-        .easyvacc-light [class~="bg-slate-950/30"],
-        .easyvacc-light [class~="bg-slate-950/40"],
-        .easyvacc-light [class~="bg-slate-950/50"],
-        .easyvacc-light [class~="bg-slate-950/60"] {
-          background-color: #f8fafc !important;
-        }
-        .easyvacc-light [class~="bg-slate-900"],
-        .easyvacc-light [class~="bg-slate-900/60"],
-        .easyvacc-light [class~="bg-slate-900/70"],
-        .easyvacc-light [class~="bg-slate-900/80"],
-        .easyvacc-light [class~="bg-slate-900/90"] {
-          background-color: #ffffff !important;
-        }
-        .easyvacc-light [class~="bg-slate-800"],
-        .easyvacc-light [class~="bg-slate-800/50"],
-        .easyvacc-light [class~="bg-slate-800/60"] {
-          background-color: #f1f5f9 !important;
-        }
-        .easyvacc-light [class~="border-slate-800"],
-        .easyvacc-light [class~="border-slate-800/80"],
-        .easyvacc-light [class~="border-slate-700"] {
-          border-color: #e2e8f0 !important;
-        }
-        .easyvacc-light [class~="hover:text-white"]:hover {
-          color: #0f172a !important;
-        }
-        .easyvacc-light [class~="hover:bg-slate-800"]:hover,
-        .easyvacc-light [class~="hover:bg-slate-900"]:hover {
-          background-color: #f1f5f9 !important;
+
+        .easyvacc-light .ev-surface {
+          background: #ffffff !important;
+          border-color: #dbe3ee !important;
+          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06) !important;
         }
 
-        /* Contraste WCAG no tema claro */
-        .easyvacc-light .text-emerald-400,
-        .easyvacc-light .text-emerald-500,
-        .easyvacc-light .text-emerald-600 {
+        .easyvacc-light .ev-title {
+          color: #0f172a !important;
+        }
+
+        .easyvacc-light .ev-text {
+          color: #334155 !important;
+        }
+
+        .easyvacc-light .ev-muted {
+          color: #64748b !important;
+        }
+
+        .easyvacc-light .ev-green {
           color: #047857 !important;
         }
 
-        .easyvacc-light .bg-emerald-600 {
-          background-color: #047857 !important;
+        .easyvacc-light .ev-hero {
+          background:
+            radial-gradient(circle at 88% 18%, rgba(16, 185, 129, 0.12), transparent 30%),
+            linear-gradient(135deg, #ffffff 0%, #f8fafc 58%, #ecfdf5 100%) !important;
+          border-color: #cbd5e1 !important;
         }
 
-        .easyvacc-light .bg-emerald-600.text-white {
+        .easyvacc-light .ev-status {
+          background: #ecfdf5 !important;
+          border-color: #bbf7d0 !important;
+        }
+
+        .easyvacc-light .ev-status-warn {
+          background: #fffbeb !important;
+          border-color: #fde68a !important;
+        }
+
+        .easyvacc-light .ev-secondary {
+          background: #ffffff !important;
+          color: #334155 !important;
+          border-color: #cbd5e1 !important;
+        }
+
+        .easyvacc-light .ev-badge {
+          background: #5b6474 !important;
           color: #ffffff !important;
+        }
+
+        .easyvacc-light .ev-campaign {
+          background: linear-gradient(135deg, #ecfeff 0%, #f0fdf4 100%) !important;
+          border-color: #a5f3fc !important;
+        }
+
+        .easyvacc-light .ev-service:hover {
+          background: #f0fdf4 !important;
+          border-color: #a7f3d0 !important;
         }
       `}</style>
 
-      <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10">
-        {/* ===================================== */}
-        {/* CABEÇALHO */}
-        {/* ===================================== */}
-        <header className="mb-8 flex flex-col justify-between gap-5 border-b border-slate-800 pb-7 lg:flex-row lg:items-end">
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-              <span>EasyVacc</span>
-              <ChevronRight size={13} />
-              <span className="text-slate-200">
-                Visão geral
-              </span>
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight text-white md:text-[34px]">
-              Visão geral
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-              Indicadores calculados com os registros
-              cadastrados no EasyVacc.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/notificacoes"
-              aria-label="Notificações"
-              title="Notificações"
-              className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 text-slate-300"
-            >
-              <Bell size={18} aria-hidden="true" />
-            </Link>
-            <Link
-              to="/perfil"
-              className="flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-md border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
-                <User size={16} />
-              </div>
-              <div className="hidden text-left sm:block">
-                <p className="text-xs font-semibold text-slate-200">
-                  {pessoa?.nome ||
-                    'Minha conta'}
-                </p>
-                <p className="text-[10px] text-slate-400">
-                  {pessoa?.tipo ===
-                  'dependente'
-                    ? 'Dependente'
-                    : 'Titular'}
-                </p>
-              </div>
-            </Link>
-          </div>
-        </header>
-        {/* ===================================== */}
-        {/* CARREGANDO */}
-        {/* ===================================== */}
-        {carregando && (
-          <div
-            role="status"
-            aria-live="polite"
-            aria-label="Carregando visão geral"
-            className="space-y-6"
-          >
-            <span className="sr-only">
-              Carregando situação vacinal...
-            </span>
+      <div className="relative isolate overflow-hidden">
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_36%)]" />
 
-            <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-              <div className="grid lg:grid-cols-[1fr_340px]">
-                <div className="animate-pulse p-6 md:p-8">
-                  <div className="mb-5 h-6 w-44 rounded bg-slate-800" />
-                  <div className="mb-3 h-4 w-24 rounded bg-slate-800" />
-                  <div className="mb-4 h-8 w-64 max-w-full rounded bg-slate-800" />
-                  <div className="h-4 w-full max-w-xl rounded bg-slate-800/70" />
-                  <div className="mt-2 h-4 w-4/5 max-w-lg rounded bg-slate-800/70" />
-
-                  <div className="mt-6 flex gap-3">
-                    <div className="h-10 w-36 rounded-lg bg-slate-800" />
-                    <div className="h-10 w-36 rounded-lg bg-slate-800" />
-                  </div>
-                </div>
-
-                <div className="animate-pulse border-t border-slate-800 bg-slate-950/40 p-6 md:p-8 lg:border-l lg:border-t-0">
-                  <div className="h-4 w-28 rounded bg-slate-800" />
-                  <div className="mt-6 h-10 w-48 rounded bg-slate-800" />
-                  <div className="my-6 h-px bg-slate-800" />
-                  <div className="h-4 w-36 rounded bg-slate-800" />
-                  <div className="mt-3 h-8 w-24 rounded bg-slate-800" />
-                </div>
+        <div className="mx-auto max-w-7xl px-5 py-7 sm:px-6 md:px-10 md:py-10">
+          <header className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-400 ev-green">
+                <Sparkles size={15} />
+                <span>Minha saúde</span>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {[1, 2, 3].map((item) => (
-                <div
-                  key={item}
-                  className="h-28 animate-pulse rounded-xl border border-slate-800 bg-slate-900"
-                />
-              ))}
-            </div>
-          </div>
-        )}
-        {/* ===================================== */}
-        {/* ERRO */}
-        {/* ===================================== */}
-        {erro && !carregando && (
-          <div
-            role="alert"
-            className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200"
-          >
-            {erro}
-          </div>
-        )}
-        {/* ===================================== */}
-        {/* DASHBOARD */}
-        {/* ===================================== */}
-        {situacao && !carregando && (
-          <>
-            <section className="mb-7 overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-              <div className="grid lg:grid-cols-[1fr_340px]">
-                <div className="p-6 md:p-8">
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs font-semibold text-slate-200">
-                    Consultando:{' '}
-                    {pessoa?.tipo ===
-                    'dependente'
-                      ? 'dependente'
-                      : 'titular'}
-                    {' — '}
-                    {pessoa?.nome ||
-                      situacao.pessoa.nome}
-                  </div>
-                  <p className="text-sm font-medium text-slate-400">
-                    Caderneta de
-                  </p>
-                  <h2 className="mt-1 text-2xl font-bold tracking-tight text-white md:text-3xl">
-                    {pessoa?.nome ||
-                      situacao.pessoa.nome}
-                  </h2>
-                  <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
-                    {situacao.statusDetalhe}
-                  </p>
-                  <p className="mt-3 text-xs leading-5 text-slate-400">
-                    Última sincronização:{' '}
-                    {formatarSincronizacao(
-                      situacao.sincronizadoEm
-                    )}
-                    {' · '}
-                    {situacao.origemRotulo}
-                  </p>
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <Link
-                      to="/historico"
-                      className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500"
-                    >
-                      <Syringe size={16} />
-                      Consultar vacinas
-                    </Link>
-                    <Link
-                      to="/certificado"
-                      className="inline-flex items-center gap-2 rounded-lg border border-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:text-white"
-                    >
-                      <FileText size={16} />
-                      Emitir certificado
-                    </Link>
-                  </div>
-                </div>
-                <div className="border-t border-slate-800 bg-slate-950/40 p-6 md:p-8 lg:border-l lg:border-t-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-                    Situação vacinal
-                  </p>
-                  <div className="mt-5 flex items-center gap-4">
-                    <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-lg border ${
-                        tomStatus ===
-                        'emerald'
-                          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-                          : tomStatus ===
-                              'amber'
-                            ? 'border-amber-500/20 bg-amber-500/10 text-amber-300'
-                            : 'border-slate-700 bg-slate-800 text-slate-300'
-                      }`}
-                    >
-                      {tomStatus === 'amber'
-                        ? (
-                          <AlertTriangle
-                            size={22}
-                          />
-                        )
-                        : (
-                          <ShieldCheck
-                            size={22}
-                          />
-                        )}
-                    </div>
-                    <div>
-                      <p className="text-lg font-bold text-white">
-                        {situacao.statusRotulo}
-                      </p>
-                      <p className="mt-0.5 text-xs text-slate-400">
-                        Regra:{' '}
-                        {situacao.regra.replaceAll(
-                          '_',
-                          ' '
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="my-6 h-px bg-slate-800" />
-                  <div>
-                    <p className="text-xs font-medium text-slate-400">
-                      Cobertura calculada
-                    </p>
-                    <p className="mt-1 text-3xl font-bold tracking-tight text-white">
-                      {coberturaTexto}
-                    </p>
-                    {!situacao.coberturaDisponivel && (
-                      <p className="mt-2 text-xs leading-5 text-slate-400">
-                        Ainda não há dados suficientes
-                        para calcular um percentual.
-                      </p>
-                    )}
-                  </div>
-                  {situacao.coberturaDisponivel && (
-                    <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-800">
-                      <div
-                        className="h-full rounded-full bg-emerald-500"
-                        style={{
-                          width: `${situacao.coberturaPercentual}%`,
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </section>
-            {/* ================================= */}
-            {/* INDICADORES */}
-            {/* ================================= */}
-            <section className="mb-8">
-              <h2 className="text-base font-semibold text-white">
-                Pendências e campanhas
-              </h2>
-              <p className="mt-1 text-xs text-slate-400">
-                Informações calculadas diretamente
-                dos registros no Supabase.
+              <h1 className="text-3xl font-extrabold tracking-tight text-white ev-title md:text-4xl">
+                Olá, {pessoa?.nome?.split(' ')[0] || 'usuário'}
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400 ev-muted">
+                Aqui está um resumo dos registros de vacinação e próximos cuidados cadastrados no EasyVacc.
               </p>
-              <div className="mt-4 grid grid-cols-1 overflow-hidden rounded-xl border border-slate-800 bg-slate-900 md:grid-cols-3">
-                <div className="border-b border-slate-800 p-5 md:border-b-0 md:border-r">
-                  <p className="text-xs font-medium text-slate-400">
-                    Registros cadastrados
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Link
+                to="/notificacoes"
+                aria-label="Notificações"
+                title="Notificações"
+                className="ev-surface flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-300 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/30"
+              >
+                <Bell size={18} aria-hidden="true" />
+              </Link>
+
+              <Link
+                to="/perfil"
+                className="ev-surface flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900 px-3 py-2 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/30"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 ev-green">
+                  <User size={16} />
+                </div>
+                <div className="hidden text-left sm:block">
+                  <p className="text-xs font-bold text-slate-100 ev-title">
+                    {pessoa?.nome || 'Minha conta'}
                   </p>
-                  <p className="mt-1 text-xl font-bold text-white">
+                  <p className="text-[10px] text-slate-500 ev-muted">
+                    {pessoa?.tipo === 'dependente' ? 'Dependente' : 'Titular'}
+                  </p>
+                </div>
+              </Link>
+            </div>
+          </header>
+
+          {carregando && (
+            <div role="status" aria-live="polite" className="space-y-5">
+              <span className="sr-only">Carregando registros...</span>
+              <div className="ev-surface h-72 animate-pulse rounded-[28px] border border-slate-800 bg-slate-900" />
+              <div className="grid gap-4 md:grid-cols-3">
+                {[1, 2, 3].map((item) => (
+                  <div
+                    key={item}
+                    className="ev-surface h-40 animate-pulse rounded-2xl border border-slate-800 bg-slate-900"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {erro && !carregando && (
+            <div
+              role="alert"
+              className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200"
+            >
+              {erro}
+            </div>
+          )}
+
+          {situacao && !carregando && (
+            <>
+              <section className="ev-hero ev-surface relative mb-6 overflow-hidden rounded-[30px] border border-slate-800 bg-[radial-gradient(circle_at_88%_18%,rgba(16,185,129,0.16),transparent_28%),linear-gradient(135deg,#0f172a_0%,#111827_55%,#052e2b_100%)] shadow-2xl">
+                <div className="grid lg:grid-cols-[1fr_390px]">
+                  <div className="relative p-6 sm:p-8 lg:p-10">
+                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-300 ev-green">
+                      <User size={14} />
+                      {pessoa?.tipo === 'dependente'
+                        ? 'Caderneta do dependente'
+                        : 'Minha caderneta'}
+                    </div>
+
+                    <p className="text-sm font-medium text-slate-400 ev-muted">
+                      Registros de
+                    </p>
+                    <h2 className="mt-1 text-3xl font-black tracking-tight text-white ev-title sm:text-4xl">
+                      {pessoa?.nome || situacao.pessoa.nome}
+                    </h2>
+                    <p className="mt-4 max-w-xl text-sm leading-6 text-slate-300 ev-text">
+                      {situacao.statusDetalhe}
+                    </p>
+                    <p className="mt-3 text-xs text-slate-500 ev-muted">
+                      Fonte dos registros: {situacao.origemRotulo}
+                    </p>
+
+                    <div className="mt-7 flex flex-wrap gap-3">
+                      <Link
+                        to="/historico"
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-emerald-500"
+                      >
+                        <Syringe size={16} />
+                        Ver carteira
+                        <ArrowRight size={15} />
+                      </Link>
+
+                      <Link
+                        to="/certificado"
+                        className="ev-secondary inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-950/30 px-4 py-2.5 text-sm font-bold text-slate-200 transition hover:-translate-y-0.5 hover:border-slate-500"
+                      >
+                        <FileText size={16} />
+                        Certificado
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`${
+                      tomStatus === 'amber' ? 'ev-status-warn' : 'ev-status'
+                    } border-t border-slate-800 bg-slate-950/35 p-6 sm:p-8 lg:border-l lg:border-t-0`}
+                  >
+                    <div className="flex h-full flex-col justify-between">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400 ev-muted">
+                          Situação dos registros
+                        </p>
+
+                        <div className="mt-5 flex items-start gap-4">
+                          <div
+                            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border ${
+                              tomStatus === 'emerald'
+                                ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                : tomStatus === 'amber'
+                                  ? 'border-amber-500/20 bg-amber-500/10 text-amber-300'
+                                  : 'border-slate-700 bg-slate-800 text-slate-300'
+                            }`}
+                          >
+                            {tomStatus === 'amber' ? (
+                              <AlertTriangle size={25} />
+                            ) : tomStatus === 'emerald' ? (
+                              <CheckCircle2 size={25} />
+                            ) : (
+                              <ShieldCheck size={25} />
+                            )}
+                          </div>
+
+                          <div>
+                            <p className="text-xl font-extrabold text-white ev-title">
+                              {situacao.statusRotulo}
+                            </p>
+                            <p className="mt-1 text-xs leading-5 text-slate-400 ev-muted">
+                              {situacao.totalRegistros === 0
+                                ? 'Não há registros para avaliar retornos.'
+                                : situacao.atrasadas.length > 0
+                                  ? `${situacao.atrasadas.length} ${
+                                      situacao.atrasadas.length === 1
+                                        ? 'retorno cadastrado está vencido.'
+                                        : 'retornos cadastrados estão vencidos.'
+                                    }`
+                                  : 'Não há próxima dose vencida entre os registros cadastrados.'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-7 border-t border-slate-700/70 pt-5">
+                        <p className="text-xs leading-5 text-slate-500 ev-muted">
+                          A análise considera somente as próximas doses registradas no EasyVacc e não confirma, por si só, que o calendário vacinal esteja completo.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="mb-8 grid gap-4 md:grid-cols-3">
+                <div className="ev-surface rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition hover:-translate-y-1 hover:border-emerald-500/20">
+                  <div className="mb-5 flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 ev-green">
+                      <Syringe size={20} />
+                    </div>
+                    <span className="ev-badge rounded-full bg-slate-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-200">
+                      Carteira
+                    </span>
+                  </div>
+                  <p className="text-3xl font-black text-white ev-title">
                     {situacao.totalRegistros}
                   </p>
-                  <p className="mt-1 text-[11px] text-slate-500">
+                  <p className="mt-1 text-sm font-bold text-slate-200 ev-text">
+                    {situacao.totalRegistros === 1
+                      ? 'Registro cadastrado'
+                      : 'Registros cadastrados'}
+                  </p>
+                  <p className="mt-2 text-xs text-slate-500 ev-muted">
                     {situacao.totalRegistros === 0
-                      ? 'Nenhuma dose na base'
-                      : 'Doses encontradas neste perfil'}
+                      ? 'Nenhuma dose cadastrada neste perfil.'
+                      : 'Doses disponíveis na carteira selecionada.'}
                   </p>
                 </div>
-                <div className="border-b border-slate-800 p-5 md:border-b-0 md:border-r">
-                  <p className="text-xs font-medium text-slate-400">
-                    Vacinas atrasadas
-                  </p>
-                  <p className="mt-1 text-xl font-bold text-white">
+
+                <div className="ev-surface rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition hover:-translate-y-1 hover:border-amber-500/20">
+                  <div className="mb-5 flex items-start justify-between">
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+                        situacao.atrasadas.length > 0
+                          ? 'bg-amber-500/10 text-amber-300'
+                          : 'bg-emerald-500/10 text-emerald-400 ev-green'
+                      }`}
+                    >
+                      {situacao.atrasadas.length > 0 ? (
+                        <AlertTriangle size={20} />
+                      ) : (
+                        <CheckCircle2 size={20} />
+                      )}
+                    </div>
+                    <span className="ev-badge rounded-full bg-slate-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-200">
+                      Atenção
+                    </span>
+                  </div>
+                  <p className="text-3xl font-black text-white ev-title">
                     {situacao.atrasadas.length}
                   </p>
-                  {situacao.atrasadas[0] && (
-                    <p className="mt-1 text-[11px] text-amber-300">
-                      {
-                        situacao.atrasadas[0]
-                          .nome
-                      }
-                      {' · retorno '}
-                      {
-                        situacao.atrasadas[0]
-                          .proximaDose
-                      }
-                    </p>
-                  )}
-                </div>
-                <div className="p-5">
-                  <p className="text-xs font-medium text-slate-400">
-                    Próxima dose
+                  <p className="mt-1 text-sm font-bold text-slate-200 ev-text">
+                    {situacao.atrasadas.length === 1
+                      ? 'Retorno atrasado'
+                      : 'Retornos atrasados'}
                   </p>
-                  <p className="mt-1 text-base font-bold text-white">
+                  <p className="mt-2 text-xs text-slate-500 ev-muted">
+                    {situacao.atrasadas[0]
+                      ? `${situacao.atrasadas[0].nome} · ${situacao.atrasadas[0].proximaDose}`
+                      : 'Nenhum retorno vencido cadastrado.'}
+                  </p>
+                </div>
+
+                <div className="ev-surface rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition hover:-translate-y-1 hover:border-cyan-500/20">
+                  <div className="mb-5 flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-300">
+                      <CalendarDays size={20} />
+                    </div>
+                    <span className="ev-badge rounded-full bg-slate-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-200">
+                      Agenda
+                    </span>
+                  </div>
+                  <p className="text-lg font-black leading-tight text-white ev-title">
                     {situacao.proximaDose
-                      ? `${situacao.proximaDose.nome} em ${situacao.proximaDose.data}`
-                      : 'Nenhum retorno futuro cadastrado'}
+                      ? situacao.proximaDose.nome
+                      : 'Nenhum retorno futuro'}
+                  </p>
+                  <p className="mt-2 text-sm font-bold text-slate-200 ev-text">
+                    {situacao.proximaDose
+                      ? `Prevista para ${situacao.proximaDose.data}`
+                      : 'Sem próxima dose cadastrada'}
+                  </p>
+                  <p className="mt-2 text-xs text-slate-500 ev-muted">
+                    Próximo retorno informado nos registros.
                   </p>
                 </div>
-              </div>
-            </section>
-            {/* ================================= */}
-            {/* CAMPANHAS */}
-            {/* ================================= */}
-            {situacao.campanhasAplicaveis
-              .length > 0 && (
-              <section className="mb-8 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-5">
-                <div className="flex items-center gap-2 text-sm font-semibold text-cyan-200">
-                  <CalendarDays size={16} />
-                  Campanhas disponíveis
+              </section>
+
+              {situacao.campanhasAplicaveis.length > 0 && (
+                <section className="ev-campaign mb-8 overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/[0.08] to-emerald-500/[0.06] p-5 sm:p-6">
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex gap-4">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-300">
+                        <Megaphone size={20} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-300">
+                          Campanhas ativas
+                        </p>
+                        <h2 className="mt-1 text-base font-extrabold text-white ev-title">
+                          {situacao.campanhasAplicaveis[0].titulo}
+                        </h2>
+                        {situacao.campanhasAplicaveis.length > 1 && (
+                          <p className="mt-1 text-xs text-slate-400 ev-muted">
+                            + {situacao.campanhasAplicaveis.length - 1}{' '}
+                            {situacao.campanhasAplicaveis.length - 1 === 1
+                              ? 'outra campanha ativa'
+                              : 'outras campanhas ativas'}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <Link
+                      to="/campanhas"
+                      className="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-cyan-300"
+                    >
+                      Ver campanhas
+                      <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </section>
+              )}
+
+              <section className="mb-8">
+                <div className="mb-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500 ev-muted">
+                    Acesso rápido
+                  </p>
+                  <h2 className="mt-1 text-xl font-extrabold text-white ev-title">
+                    O que você precisa?
+                  </h2>
                 </div>
-                <ul className="mt-3 space-y-1 text-sm text-slate-200">
-                  {situacao.campanhasAplicaveis.map(
-                    (campanha) => (
-                      <li key={campanha.id}>
-                        {campanha.titulo}
-                        {' — '}
-                        {campanha.status}
-                      </li>
-                    )
-                  )}
-                </ul>
+
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  {[
+                    {
+                      to: '/historico',
+                      icon: Syringe,
+                      titulo: 'Vacinação',
+                      descricao: 'Consulte doses, lotes e próximos retornos.',
+                    },
+                    {
+                      to: '/certificado',
+                      icon: FileText,
+                      titulo: 'Certificado',
+                      descricao: 'Emita o comprovante dos registros da carteira.',
+                    },
+                    {
+                      to: '/postos',
+                      icon: MapPin,
+                      titulo: 'Postos de saúde',
+                      descricao: 'Encontre unidades cadastradas próximas de você.',
+                    },
+                    {
+                      to: '/perfil',
+                      icon: User,
+                      titulo: 'Meu perfil',
+                      descricao: 'Consulte e atualize seus dados pessoais.',
+                    },
+                  ].map((servico) => (
+                    <Link
+                      key={servico.to}
+                      to={servico.to}
+                      className="ev-service ev-surface group rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg transition hover:-translate-y-1 hover:border-emerald-500/20"
+                    >
+                      <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800/70 text-slate-300 transition group-hover:bg-emerald-500/10 group-hover:text-emerald-400">
+                        <servico.icon size={19} />
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-sm font-extrabold text-white ev-title">
+                          {servico.titulo}
+                        </h3>
+                        <ArrowRight
+                          size={15}
+                          className="text-slate-600 transition group-hover:translate-x-1 group-hover:text-emerald-400"
+                        />
+                      </div>
+                      <p className="mt-2 text-xs leading-5 text-slate-400 ev-muted">
+                        {servico.descricao}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              <section className="ev-surface flex flex-col justify-between gap-5 rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg sm:flex-row sm:items-center">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300">
+                    <User size={19} />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-extrabold text-white ev-title">
+                      Dependentes
+                    </h2>
+                    <p className="mt-1 text-xs text-slate-400 ev-muted">
+                      Gerencie as pessoas vinculadas à sua conta.
+                    </p>
+                  </div>
+                </div>
+
                 <Link
-                  to="/campanhas"
-                  className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-cyan-300"
+                  to="/dependentes"
+                  className="ev-secondary inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:border-emerald-500/30"
                 >
-                  Ver campanhas
+                  Gerenciar dependentes
                   <ArrowRight size={14} />
                 </Link>
               </section>
-            )}
-            {/* ================================= */}
-            {/* SERVIÇOS */}
-            {/* ================================= */}
-            <section className="mb-8">
-              <h2 className="text-base font-semibold text-white">
-                Serviços
-              </h2>
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {[
-                  {
-                    to: '/historico',
-                    icon: Syringe,
-                    titulo:
-                      'Histórico de vacinação',
-                    descricao:
-                      'Aplicações, lotes e próximas doses.',
-                  },
-                  {
-                    to: '/certificado',
-                    icon: FileText,
-                    titulo: 'Certificado',
-                    descricao:
-                      'Comprovante com os registros desta base.',
-                  },
-                  {
-                    to: '/postos',
-                    icon: MapPin,
-                    titulo:
-                      'Postos de saúde',
-                    descricao:
-                      'Unidades cadastradas na plataforma.',
-                  },
-                  {
-                    to: '/perfil',
-                    icon: User,
-                    titulo:
-                      'Dados pessoais',
-                    descricao:
-                      'Consulte e atualize seus dados.',
-                  },
-                ].map((servico) => (
-                  <Link
-                    key={servico.to}
-                    to={servico.to}
-                    className="group rounded-xl border border-slate-800 bg-slate-900 p-5 hover:border-slate-700"
-                  >
-                    <servico.icon
-                      className="mb-4 text-slate-300"
-                      size={19}
-                    />
-                    <h3 className="text-sm font-semibold text-white">
-                      {servico.titulo}
-                    </h3>
-                    <p className="mt-2 text-xs leading-5 text-slate-400">
-                      {servico.descricao}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            </section>
-            {/* ================================= */}
-            {/* DEPENDENTES */}
-            {/* ================================= */}
-            <section className="flex flex-col justify-between gap-5 rounded-xl border border-slate-800 bg-slate-900 p-5 md:flex-row md:items-center">
-              <div>
-                <h2 className="text-sm font-semibold text-white">
-                  Dependentes
-                </h2>
-                <p className="mt-1 text-xs text-slate-400">
-                  Gerencie as pessoas vinculadas à
-                  sua conta.
-                </p>
-              </div>
-              <Link
-                to="/dependentes"
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-800 px-4 py-2 text-xs font-semibold text-slate-300"
-              >
-                Gerenciar dependentes
-                <ArrowRight size={14} />
-              </Link>
-            </section>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

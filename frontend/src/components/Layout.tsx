@@ -15,8 +15,7 @@ import {
   Bell,
   CalendarDays,
   MapPin,
-  PanelLeftClose,
-  PanelLeftOpen,
+  ChevronLeft,
   ChevronRight,
   Menu,
   X,
@@ -328,22 +327,22 @@ export default function Layout() {
   }: {
     isActive: boolean;
   }) => `
-    relative flex h-10 items-center rounded-md
+    relative flex h-11 items-center rounded-xl
     text-[13px] font-medium
     transition-colors duration-150
     ${
       isOpen
-        ? 'gap-3 px-3'
+        ? 'gap-3.5 px-3'
         : 'gap-3 px-3 lg:justify-center lg:px-0'
     }
     ${
       isActive
         ? temaClaro
-          ? 'bg-emerald-50 text-emerald-700'
-          : 'bg-white/10 text-white'
+          ? 'bg-emerald-50 text-emerald-800 shadow-sm ring-1 ring-emerald-100'
+          : 'bg-white/[0.09] text-white shadow-sm ring-1 ring-white/[0.06]'
         : temaClaro
-          ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
-          : 'text-slate-400 hover:bg-white/[0.06] hover:text-slate-100'
+          ? 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-950'
+          : 'text-slate-400 hover:bg-white/[0.07] hover:text-white'
     }
   `;
 
@@ -362,6 +361,82 @@ export default function Layout() {
     >
 
       <style>{`
+
+        /* Acabamento moderno do sidebar */
+        #menu-principal {
+          backdrop-filter: saturate(120%);
+        }
+
+        #menu-principal nav a,
+        #menu-principal nav button {
+          position: relative;
+        }
+
+        #menu-principal nav a[aria-current="page"]::before {
+          content: '';
+          position: absolute;
+          left: -12px;
+          top: 9px;
+          bottom: 9px;
+          width: 3px;
+          border-radius: 0 999px 999px 0;
+          background: #34d399;
+        }
+
+        .easyvacc-light #menu-principal nav a[aria-current="page"]::before {
+          background: #059669;
+        }
+
+        #menu-principal nav a svg,
+        #menu-principal nav button svg {
+          transition: transform 160ms ease, color 160ms ease;
+        }
+
+        #menu-principal nav a:hover svg,
+        #menu-principal nav button:hover svg {
+          transform: translateX(1px);
+        }
+
+        /* Scrollbar discreta do menu lateral */
+        .easyvacc-sidebar-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.34) transparent;
+        }
+
+        .easyvacc-sidebar-scroll::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        .easyvacc-sidebar-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .easyvacc-sidebar-scroll::-webkit-scrollbar-thumb {
+          background: rgba(148, 163, 184, 0.30);
+          border-radius: 999px;
+        }
+
+        .easyvacc-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(148, 163, 184, 0.50);
+        }
+
+        .easyvacc-sidebar-scroll::-webkit-scrollbar-button {
+          display: none;
+          width: 0;
+          height: 0;
+        }
+
+        .easyvacc-light .easyvacc-sidebar-scroll {
+          scrollbar-color: rgba(100, 116, 139, 0.28) transparent;
+        }
+
+        .easyvacc-light .easyvacc-sidebar-scroll::-webkit-scrollbar-thumb {
+          background: rgba(100, 116, 139, 0.25);
+        }
+
+        .easyvacc-light .easyvacc-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(100, 116, 139, 0.42);
+        }
 
         .easyvacc-light aside {
           background: #ffffff !important;
@@ -587,11 +662,11 @@ export default function Layout() {
         {/* LOGO */}
         <div
           className={`
-            flex h-[76px] shrink-0 items-center
+            flex h-[84px] shrink-0 items-center
             border-b border-white/[0.08]
             ${
               isOpen
-                ? 'justify-between px-5'
+                ? 'justify-between px-4'
                 : 'justify-between px-5 lg:justify-center lg:px-0'
             }
           `}
@@ -602,13 +677,13 @@ export default function Layout() {
               e.preventDefault();
               void abrirTitular();
             }}
-            className="flex min-w-0 items-center gap-3"
+            className="flex min-w-0 items-center gap-3.5"
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-200/60">
               <img
                 src="/logo.png"
                 alt="EasyVacc"
-                className="h-7 w-7 object-contain"
+                className="h-8 w-8 object-contain"
               />
             </div>
 
@@ -619,7 +694,7 @@ export default function Layout() {
                   : 'lg:hidden'
               }
             >
-              <div className="whitespace-nowrap text-[17px] font-bold tracking-tight text-white">
+              <div className="whitespace-nowrap text-[18px] font-extrabold tracking-tight text-white">
                 Easy{' '}
                 <span className="text-emerald-400">
                   Vacc
@@ -645,7 +720,7 @@ export default function Layout() {
         </div>
 
         {/* MENU */}
-        <nav className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-5">
+        <nav className="easyvacc-sidebar-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-4">
           {/* VISÃO GERAL */}
           <p
             className={`mb-2 px-3 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${mostrarTexto}`}
@@ -678,7 +753,7 @@ export default function Layout() {
           </div>
 
           {/* CADERNETA */}
-          <div className="mt-6">
+          <div className="mt-5">
             <p
               className={`mb-2 px-3 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${mostrarTexto}`}
             >
@@ -727,7 +802,7 @@ export default function Layout() {
           </div>
 
           {/* SERVIÇOS */}
-          <div className="mt-6">
+          <div className="mt-5">
             <p
               className={`mb-2 px-3 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${mostrarTexto}`}
             >
@@ -835,7 +910,7 @@ export default function Layout() {
           </div>
 
           {/* DEPENDENTES */}
-          <div className="mt-6">
+          <div className="mt-5">
             <div
               className={`mb-2 items-center justify-between px-3 ${
                 isOpen
@@ -883,19 +958,19 @@ export default function Layout() {
                       );
                     }}
                     className={`
-                      flex h-11 w-full items-center rounded-md
+                      flex h-11 w-full items-center rounded-xl
                       text-left text-slate-400
                       transition-colors
                       hover:bg-white/[0.06]
                       hover:text-slate-100
                       ${
                         isOpen
-                          ? 'gap-3 px-3'
+                          ? 'gap-3.5 px-3'
                           : 'gap-3 px-3 lg:justify-center lg:px-0'
                       }
                     `}
                   >
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-[11px] font-semibold text-slate-200">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/[0.08] text-[11px] font-semibold text-slate-200">
                       {dependente.nome
                         ?.charAt(0)
                         .toUpperCase()}
@@ -955,17 +1030,17 @@ export default function Layout() {
         </nav>
 
         {/* RODAPÉ */}
-        <div className="shrink-0 border-t border-white/[0.08] p-3">
+        <div className="shrink-0 border-t border-white/[0.08] bg-black/[0.04] p-3">
           <Link
             to="/perfil"
             onClick={fecharMenuMobile}
-            className={`mb-2 items-center gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-white/[0.05] ${
+            className={`mb-2 items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.05] ${
               isOpen
                 ? 'flex'
                 : 'flex lg:hidden'
             }`}
           >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white text-xs font-bold text-[#0b2239]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-xs font-bold shadow-sm text-[#0b2239]">
               JV
             </div>
 
@@ -991,12 +1066,12 @@ export default function Layout() {
             title={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
             aria-label={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
             className={`
-              mb-1 flex h-10 w-full items-center rounded-md
+              mb-1 flex h-10 w-full items-center rounded-xl
               text-slate-400 transition-colors
               hover:bg-white/[0.06] hover:text-slate-100
               ${
                 isOpen
-                  ? 'gap-3 px-3'
+                  ? 'gap-3.5 px-3'
                   : 'gap-3 px-3 lg:justify-center lg:px-0'
               }
             `}
@@ -1017,13 +1092,13 @@ export default function Layout() {
             onClick={handleLogout}
             title="Sair da conta"
             className={`
-              flex h-10 w-full items-center rounded-md
+              flex h-10 w-full items-center rounded-xl
               text-slate-500 transition-colors
               hover:bg-red-500/10
               hover:text-red-300
               ${
                 isOpen
-                  ? 'gap-3 px-3'
+                  ? 'gap-3.5 px-3'
                   : 'gap-3 px-3 lg:justify-center lg:px-0'
               }
             `}
@@ -1060,27 +1135,24 @@ export default function Layout() {
               ? 'Recolher menu lateral'
               : 'Expandir menu lateral'
           }
-          className="
-            absolute -right-3.5 top-[30px] z-50
-            hidden h-7 w-7 items-center
-            justify-center rounded-full
-            border border-slate-200 bg-white
-            text-slate-500 shadow-sm
-            transition-colors
-            hover:bg-slate-50
-            hover:text-slate-900
-            lg:flex
-          "
+          className={`
+  absolute -right-3 top-[32px] z-50
+  hidden h-6 w-6 items-center justify-center
+  rounded-full border
+  shadow-sm transition-all duration-200
+  lg:flex
+  ${
+    temaClaro
+      ? 'border-slate-200 bg-white text-slate-500 hover:border-emerald-300 hover:text-emerald-600'
+      : 'border-slate-600 bg-slate-800 text-slate-300 hover:border-emerald-500 hover:text-emerald-400'
+  }
+`}
         >
           {isOpen ? (
-            <PanelLeftClose
-              size={14}
-            />
-          ) : (
-            <PanelLeftOpen
-              size={14}
-            />
-          )}
+  <ChevronLeft size={13} strokeWidth={2.5} />
+) : (
+  <ChevronRight size={13} strokeWidth={2.5} />
+)}
         </button>
       </aside>
 
@@ -1128,7 +1200,7 @@ export default function Layout() {
               <img
                 src="/logo.png"
                 alt=""
-                className="h-7 w-7 object-contain"
+                className="h-8 w-8 object-contain"
               />
             </div>
 

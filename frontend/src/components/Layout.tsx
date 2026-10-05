@@ -790,11 +790,45 @@ html::-webkit-scrollbar-button {
 
             <div className="space-y-1">
               <NavLink
-                to="/historico"
-                title="Vacinação"
-                className={estiloLink}
-                onClick={fecharMenuMobile}
-              >
+  to="/historico"
+  title="Vacinação"
+  className={estiloLink}
+  onClick={async (e) => {
+    e.preventDefault();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      navigate('/login');
+      return;
+    }
+
+    const { data: perfil } = await supabase
+      .from('users')
+      .select('nome')
+      .eq('id', user.id)
+      .single();
+
+    salvarPessoaAtiva({
+      tipo: 'titular',
+      id: user.id,
+      nome:
+        perfil?.nome ||
+        user.user_metadata?.nome ||
+        'Titular',
+    });
+
+    window.dispatchEvent(
+      new Event('pessoaAtivaAtualizada')
+    );
+
+    fecharMenuMobile();
+    navigate('/historico');
+  }}
+>
                 <Syringe
                   size={18}
                   strokeWidth={1.8}

@@ -1,5 +1,5 @@
-export const TERMOS_VERSAO = '2026-10-21';
-export const PRIVACIDADE_VERSAO = '2026-10-21';
+export const TERMOS_VERSAO = '21/10/2026';
+export const PRIVACIDADE_VERSAO = '21/10/2026';
 
 export function soDigitos(valor: string): string {
   return valor.replace(/\D/g, '');

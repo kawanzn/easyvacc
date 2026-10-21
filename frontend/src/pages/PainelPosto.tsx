@@ -1439,25 +1439,25 @@ const [proximaDose, setProximaDose] =
                 </div>
                 <div>
                   <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
-                    <div>
-  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
-    Dose
-  </label>
-  <select
-    required
-    value={editDose}
-    onChange={(e) => setEditDose(e.target.value)}
-    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
-  >
-    <option value="">Selecione a dose</option>
-    <option value="1ª dose">1ª dose</option>
-    <option value="2ª dose">2ª dose</option>
-    <option value="3ª dose">3ª dose</option>
-    <option value="Dose única">Dose única</option>
-    <option value="Reforço">Reforço</option>
-    <option value="Dose adicional">Dose adicional</option>
-  </select>
-</div>
+                    Dose
+                  </label>
+                  <select
+                    required
+                    value={editDose}
+                    onChange={(e) => setEditDose(e.target.value)}
+                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
+                  >
+                    <option value="">Selecione a dose</option>
+                    <option value="1ª dose">1ª dose</option>
+                    <option value="2ª dose">2ª dose</option>
+                    <option value="3ª dose">3ª dose</option>
+                    <option value="Dose única">Dose única</option>
+                    <option value="Reforço">Reforço</option>
+                    <option value="Dose adicional">Dose adicional</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
                     Próxima dose
                   </label>
                   <input

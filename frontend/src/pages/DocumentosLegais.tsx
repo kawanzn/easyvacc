@@ -179,14 +179,6 @@ export function PoliticaPrivacidade() {
           Cadastro Nacional de Estabelecimentos de Saúde (CNES).
         </p>
 
-        <p className="mt-3 text-slate-300">
-          Essas integrações são utilizadas para disponibilizar informações
-          sobre campanhas e unidades de saúde e não representam integração com
-          o histórico individual de vacinação do cidadão. O EasyVacc não
-          importa automaticamente doses registradas na carteira oficial do SUS
-          ou no SI-PNI.
-        </p>
-
         <h2 className="mt-8 text-xl font-bold text-white">
           Dados que coletamos e para que servem
         </h2>
@@ -338,13 +330,6 @@ export function PoliticaPrivacidade() {
           necessários para a prestação de seus respectivos serviços.
         </p>
 
-        <p className="mt-3 text-slate-300">
-          Informações provenientes do Ministério da Saúde e do CNES são
-          utilizadas como fontes externas para apresentar campanhas e
-          estabelecimentos de saúde. Essas fontes não fornecem ao EasyVacc o
-          histórico individual de vacinação dos usuários.
-        </p>
-
         <h2 className="mt-8 text-xl font-bold text-white">
           Segurança das informações
         </h2>
@@ -387,9 +372,9 @@ export function PoliticaPrivacidade() {
         </h2>
 
         <p className="mt-3 text-slate-300">
-          O titular pode solicitar o encerramento da conta e a exclusão dos
-          dados pessoais por meio dos recursos disponibilizados no perfil ou
-          pelo canal de contato do EasyVacc.
+          O titular pode solicitar o encerramento da conta e, quando aplicável,
+          a exclusão de seus dados pessoais por meio dos recursos disponibilizados
+          pela plataforma ou pelo canal de contato do EasyVacc.
         </p>
 
         <p className="mt-3 text-slate-300">
@@ -410,32 +395,15 @@ export function PoliticaPrivacidade() {
         </p>
 
         <h2 className="mt-8 text-xl font-bold text-white">
-          Backup, restauração e continuidade
+          Continuidade e proteção das informações
         </h2>
 
         <p className="mt-3 text-slate-300">
-          O banco de dados do EasyVacc está atualmente hospedado no Supabase.
-          Na configuração atual do projeto, o plano utilizado não disponibiliza
-          backups automáticos agendados. Por esse motivo, a Equipe EasyVacc
-          mantém procedimento de backup manual do banco de dados, especialmente
-          antes de alterações estruturais, migrações ou outras operações
-          consideradas críticas.
-        </p>
-
-        <p className="mt-3 text-slate-300">
-          As cópias de segurança devem ser armazenadas fora do repositório
-          público de código, com acesso restrito, pois podem conter dados
-          pessoais e registros relacionados à saúde. Arquivos de backup não
-          devem ser publicados no GitHub nem compartilhados por canais públicos.
-        </p>
-
-        <p className="mt-3 text-slate-300">
-          A restauração de uma cópia de segurança deve ser realizada
-          preferencialmente em ambiente separado do banco de produção. Antes de
-          qualquer recuperação definitiva, devem ser verificados a integridade
-          das tabelas, os vínculos entre usuários e dependentes, os registros de
-          vacinação, as permissões de acesso e o funcionamento das principais
-          funcionalidades da aplicação.
+          O EasyVacc adota procedimentos técnicos e organizacionais compatíveis
+          com a evolução do projeto para reduzir riscos de perda, indisponibilidade
+          ou acesso indevido às informações. Medidas de recuperação e continuidade
+          podem ser adotadas quando necessárias, observadas as características da
+          infraestrutura utilizada pela plataforma.
         </p>
 
         <h2 className="mt-8 text-xl font-bold text-white">
@@ -477,9 +445,9 @@ export function PoliticaPrivacidade() {
         </p>
 
         <p className="mt-3 text-slate-300">
-          O EasyVacc também disponibiliza recursos para obtenção de uma cópia
-          dos dados da conta em formatos destinados à visualização e ao
-          processamento eletrônico.
+          O titular pode solicitar informações e, quando aplicável, uma cópia
+          de seus dados pessoais, observadas as possibilidades técnicas da
+          plataforma e os direitos previstos na legislação.
         </p>
 
         <p className="mt-3 text-slate-300">
@@ -500,8 +468,9 @@ export function PoliticaPrivacidade() {
         </p>
 
         <p className="mt-8 text-sm text-slate-400">
-          O aceite desta Política de Privacidade é registrado com data, hora,
-          usuário e número de versão no momento do cadastro.
+          A versão vigente desta Política de Privacidade é apresentada ao usuário
+          no processo de cadastro e poderá ser atualizada conforme a evolução da
+          plataforma.
         </p>
       </article>
     </div>
@@ -619,26 +588,6 @@ export function TermosUso() {
           ou por profissionais autorizados. O sistema não importa
           automaticamente o histórico individual de vacinação da carteira
           oficial do SUS ou do SI-PNI.
-        </p>
-
-        <h2 className="mt-8 text-xl font-bold text-white">
-          Informações provenientes de fontes oficiais
-        </h2>
-
-        <p className="mt-3 text-slate-300">
-          O EasyVacc utiliza informações de fontes oficiais para complementar
-          algumas funcionalidades da plataforma. As campanhas de vacinação são
-          sincronizadas a partir de informações disponibilizadas pelo
-          Ministério da Saúde, e os dados de postos e estabelecimentos de saúde
-          são obtidos a partir do Cadastro Nacional de Estabelecimentos de
-          Saúde (CNES).
-        </p>
-
-        <p className="mt-3 text-slate-300">
-          A utilização dessas fontes não significa que o EasyVacc tenha acesso
-          ao histórico individual de vacinação mantido pelo SUS. Campanhas,
-          estabelecimentos de saúde e registros pessoais de vacinação são
-          informações distintas dentro da plataforma.
         </p>
 
         <h2 className="mt-8 text-xl font-bold text-white">
@@ -761,8 +710,9 @@ export function TermosUso() {
         </p>
 
         <p className="mt-8 text-sm text-slate-400">
-          O aceite destes Termos de Uso é registrado com data, hora, usuário e
-          número de versão no momento do cadastro.
+          A versão vigente destes Termos de Uso é apresentada ao usuário no
+          processo de cadastro e poderá ser atualizada conforme a evolução da
+          plataforma.
         </p>
       </article>
     </div>

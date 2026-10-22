@@ -16,6 +16,7 @@ import Login from './pages/Login';
 import RecuperarSenha from './pages/RecuperarSenha';
 import RedefinirSenha from './pages/RedefinirSenha';
 import ConfirmarEmail from './pages/ConfirmarEmail';
+import NotFound from './pages/NotFound';
 
 import {
   PoliticaPrivacidade,
@@ -199,6 +200,11 @@ function App() {
               element={<Postos />}
             />
           </Route>
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
+
         </Routes>
       </DependentesProvider>
     </BrowserRouter>

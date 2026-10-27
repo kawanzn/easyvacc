@@ -25,6 +25,19 @@ interface CertificadoValidado {
 }
 
 export default function ValidarCertificado() {
+  const [temaClaro, setTemaClaro] = useState(() => localStorage.getItem('easyvacc-tema') === 'claro');
+  useEffect(() => {
+    const atualizarTema = () => setTemaClaro(localStorage.getItem('easyvacc-tema') === 'claro');
+    window.addEventListener('storage', atualizarTema);
+    window.addEventListener('easyvacc-tema-atualizado', atualizarTema);
+    window.addEventListener('easyvaccTemaAtualizado', atualizarTema);
+    return () => {
+      window.removeEventListener('storage', atualizarTema);
+      window.removeEventListener('easyvacc-tema-atualizado', atualizarTema);
+      window.removeEventListener('easyvaccTemaAtualizado', atualizarTema);
+    };
+  }, []);
+
   const { codigo } = useParams<{ codigo: string }>();
   const [certificado, setCertificado] =
     useState<CertificadoValidado | null>(null);
@@ -90,11 +103,40 @@ export default function ValidarCertificado() {
 
   if (carregando) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#090d16] text-white">
+      <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] text-white`}>
+      <style>{`
+        .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
+        .ev-public-light [class~="bg-[#020817]"],
+        .ev-public-light [class~="bg-[#090d16]"] {background:#f5f9ff !important;}
+        .ev-public-light [class~="bg-[#081629]"],
+        .ev-public-light [class~="bg-[#111827]"],
+        .ev-public-light [class~="bg-[#0d1420]"] {background:#fff !important;}
+        .ev-public-light [class~="text-white"],
+        .ev-public-light [class~="text-slate-100"],
+        .ev-public-light [class~="text-slate-200"] {color:#102b49 !important;}
+        .ev-public-light [class~="text-slate-300"] {color:#34516e !important;}
+        .ev-public-light [class~="text-slate-400"],
+        .ev-public-light [class~="text-slate-500"],
+        .ev-public-light [class~="text-slate-600"] {color:#526d87 !important;}
+        .ev-public-light [class~="border-slate-800"],
+        .ev-public-light [class~="border-slate-700"] {border-color:#d1e0ef !important;}
+        .ev-public-light input {background:#fff !important; color:#102b49 !important; border-color:#b8ccdf !important;}
+        .ev-public-light input::placeholder {color:#647e98 !important;}
+        .ev-public-light .text-blue-300,
+        .ev-public-light .text-blue-500 {color:#126ca8 !important;}
+        .ev-public-light .bg-blue-600\\/10 {background:#e8f3ff !important;}
+        .ev-public-light .text-red-300 {color:#b42336 !important;}
+        .ev-public-light .text-amber-300 {color:#9b6000 !important;}
+        .ev-public-light [class~="bg-[#126ca8]"] {color:white !important;}
+        @media(max-width:640px) {
+          .ev-public-page > div {max-width:100%;}
+          .ev-public-page input {font-size:16px;}
+        }
+`}</style>
         <div className="text-center">
           <Loader2
             size={32}
-            className="mx-auto animate-spin text-emerald-400"
+            className="mx-auto animate-spin text-blue-500"
           />
           <p className="mt-4 text-sm text-slate-400">
             Validando certificado...
@@ -106,8 +148,37 @@ export default function ValidarCertificado() {
 
   if (erro) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#090d16] px-6">
-        <div className="w-full max-w-md rounded-2xl border border-red-900/50 bg-[#111827] p-8 text-center">
+      <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] px-6`}>
+      <style>{`
+        .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
+        .ev-public-light [class~="bg-[#020817]"],
+        .ev-public-light [class~="bg-[#090d16]"] {background:#f5f9ff !important;}
+        .ev-public-light [class~="bg-[#081629]"],
+        .ev-public-light [class~="bg-[#111827]"],
+        .ev-public-light [class~="bg-[#0d1420]"] {background:#fff !important;}
+        .ev-public-light [class~="text-white"],
+        .ev-public-light [class~="text-slate-100"],
+        .ev-public-light [class~="text-slate-200"] {color:#102b49 !important;}
+        .ev-public-light [class~="text-slate-300"] {color:#34516e !important;}
+        .ev-public-light [class~="text-slate-400"],
+        .ev-public-light [class~="text-slate-500"],
+        .ev-public-light [class~="text-slate-600"] {color:#526d87 !important;}
+        .ev-public-light [class~="border-slate-800"],
+        .ev-public-light [class~="border-slate-700"] {border-color:#d1e0ef !important;}
+        .ev-public-light input {background:#fff !important; color:#102b49 !important; border-color:#b8ccdf !important;}
+        .ev-public-light input::placeholder {color:#647e98 !important;}
+        .ev-public-light .text-blue-300,
+        .ev-public-light .text-blue-500 {color:#126ca8 !important;}
+        .ev-public-light .bg-blue-600\\/10 {background:#e8f3ff !important;}
+        .ev-public-light .text-red-300 {color:#b42336 !important;}
+        .ev-public-light .text-amber-300 {color:#9b6000 !important;}
+        .ev-public-light [class~="bg-[#126ca8]"] {color:white !important;}
+        @media(max-width:640px) {
+          .ev-public-page > div {max-width:100%;}
+          .ev-public-page input {font-size:16px;}
+        }
+`}</style>
+        <div className="w-full max-w-md rounded-2xl border border-red-900/50 bg-[#111827] p-5 sm:p-8 text-center">
           <XCircle
             size={45}
             className="mx-auto text-red-400"
@@ -125,8 +196,37 @@ export default function ValidarCertificado() {
 
   if (!certificado) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#090d16] px-6">
-        <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-[#111827] p-8 text-center">
+      <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] px-6`}>
+      <style>{`
+        .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
+        .ev-public-light [class~="bg-[#020817]"],
+        .ev-public-light [class~="bg-[#090d16]"] {background:#f5f9ff !important;}
+        .ev-public-light [class~="bg-[#081629]"],
+        .ev-public-light [class~="bg-[#111827]"],
+        .ev-public-light [class~="bg-[#0d1420]"] {background:#fff !important;}
+        .ev-public-light [class~="text-white"],
+        .ev-public-light [class~="text-slate-100"],
+        .ev-public-light [class~="text-slate-200"] {color:#102b49 !important;}
+        .ev-public-light [class~="text-slate-300"] {color:#34516e !important;}
+        .ev-public-light [class~="text-slate-400"],
+        .ev-public-light [class~="text-slate-500"],
+        .ev-public-light [class~="text-slate-600"] {color:#526d87 !important;}
+        .ev-public-light [class~="border-slate-800"],
+        .ev-public-light [class~="border-slate-700"] {border-color:#d1e0ef !important;}
+        .ev-public-light input {background:#fff !important; color:#102b49 !important; border-color:#b8ccdf !important;}
+        .ev-public-light input::placeholder {color:#647e98 !important;}
+        .ev-public-light .text-blue-300,
+        .ev-public-light .text-blue-500 {color:#126ca8 !important;}
+        .ev-public-light .bg-blue-600\\/10 {background:#e8f3ff !important;}
+        .ev-public-light .text-red-300 {color:#b42336 !important;}
+        .ev-public-light .text-amber-300 {color:#9b6000 !important;}
+        .ev-public-light [class~="bg-[#126ca8]"] {color:white !important;}
+        @media(max-width:640px) {
+          .ev-public-page > div {max-width:100%;}
+          .ev-public-page input {font-size:16px;}
+        }
+`}</style>
+        <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-[#111827] p-5 sm:p-8 text-center">
           <XCircle
             size={45}
             className="mx-auto text-red-400"
@@ -157,7 +257,36 @@ export default function ValidarCertificado() {
     status === 'revogado';
 
   return (
-    <div className="min-h-screen bg-[#090d16] px-5 py-10 text-slate-100">
+    <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} min-h-screen bg-[#090d16] px-5 py-10 text-slate-100`}>
+      <style>{`
+        .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
+        .ev-public-light [class~="bg-[#020817]"],
+        .ev-public-light [class~="bg-[#090d16]"] {background:#f5f9ff !important;}
+        .ev-public-light [class~="bg-[#081629]"],
+        .ev-public-light [class~="bg-[#111827]"],
+        .ev-public-light [class~="bg-[#0d1420]"] {background:#fff !important;}
+        .ev-public-light [class~="text-white"],
+        .ev-public-light [class~="text-slate-100"],
+        .ev-public-light [class~="text-slate-200"] {color:#102b49 !important;}
+        .ev-public-light [class~="text-slate-300"] {color:#34516e !important;}
+        .ev-public-light [class~="text-slate-400"],
+        .ev-public-light [class~="text-slate-500"],
+        .ev-public-light [class~="text-slate-600"] {color:#526d87 !important;}
+        .ev-public-light [class~="border-slate-800"],
+        .ev-public-light [class~="border-slate-700"] {border-color:#d1e0ef !important;}
+        .ev-public-light input {background:#fff !important; color:#102b49 !important; border-color:#b8ccdf !important;}
+        .ev-public-light input::placeholder {color:#647e98 !important;}
+        .ev-public-light .text-blue-300,
+        .ev-public-light .text-blue-500 {color:#126ca8 !important;}
+        .ev-public-light .bg-blue-600\\/10 {background:#e8f3ff !important;}
+        .ev-public-light .text-red-300 {color:#b42336 !important;}
+        .ev-public-light .text-amber-300 {color:#9b6000 !important;}
+        .ev-public-light [class~="bg-[#126ca8]"] {color:white !important;}
+        @media(max-width:640px) {
+          .ev-public-page > div {max-width:100%;}
+          .ev-public-page input {font-size:16px;}
+        }
+`}</style>
       <div className="mx-auto max-w-xl">
         <div className="mb-8 flex justify-center">
           <div className="flex items-center gap-3">
@@ -169,7 +298,7 @@ export default function ValidarCertificado() {
             <div>
               <h1 className="text-xl font-bold text-white">
                 Easy
-                <span className="text-emerald-400">
+                <span className="text-blue-500">
                   Vacc
                 </span>
               </h1>
@@ -181,13 +310,13 @@ export default function ValidarCertificado() {
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-slate-800 bg-[#111827] shadow-2xl">
-          <div className="border-b border-slate-800 p-8 text-center">
+          <div className="border-b border-slate-800 p-5 sm:p-8 text-center">
             {valido && (
               <>
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-950/70">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-950/70">
                   <CheckCircle2
                     size={36}
-                    className="text-emerald-400"
+                    className="text-blue-500"
                   />
                 </div>
                 <h2 className="mt-5 text-2xl font-bold text-white">
@@ -276,7 +405,7 @@ export default function ValidarCertificado() {
                 <p
                   className={`mt-1 text-sm font-semibold ${
                     valido
-                      ? 'text-emerald-400'
+                      ? 'text-blue-500'
                       : substituido
                         ? 'text-amber-400'
                         : 'text-red-400'
@@ -327,7 +456,7 @@ export default function ValidarCertificado() {
                       </p>
                       <Link
                         to={`/validar/${certificado.substituido_por_codigo}`}
-                        className="mt-3 inline-flex text-xs font-semibold text-emerald-400 transition hover:text-emerald-300"
+                        className="mt-3 inline-flex text-xs font-semibold text-blue-500 transition hover:text-blue-300"
                       >
                         Validar versão mais recente
                       </Link>
@@ -340,7 +469,7 @@ export default function ValidarCertificado() {
               <div className="flex items-start gap-3">
                 <FileCheck2
                   size={18}
-                  className="mt-0.5 shrink-0 text-emerald-400"
+                  className="mt-0.5 shrink-0 text-blue-500"
                 />
                 <div className="min-w-0">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
@@ -358,7 +487,7 @@ export default function ValidarCertificado() {
             <div className="flex items-start gap-3">
               <ShieldCheck
                 size={18}
-                className="mt-0.5 shrink-0 text-emerald-400"
+                className="mt-0.5 shrink-0 text-blue-500"
               />
               <p className="text-xs leading-5 text-slate-400">
                 Esta página confirma a existência, versão e

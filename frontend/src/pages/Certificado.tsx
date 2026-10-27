@@ -96,6 +96,7 @@ function nomeStatus(status: StatusCertificado | '') {
 }
 
 export default function Certificado() {
+  const [temaClaro] = useState(() => localStorage.getItem('easyvacc-tema') === 'claro');
   const [titular, setTitular] = useState<Usuario>({
     nome: '',
     cpf: '',
@@ -645,7 +646,35 @@ export default function Certificado() {
 
   if (carregando) {
     return (
-      <div className="min-h-[70vh] bg-[#090d16] px-6 py-8 text-slate-100 md:px-10 md:py-10">
+      <>
+      <style>{`
+        .easyvacc-certificado.easyvacc-light { background-color: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-certificado.easyvacc-light .text-white,
+        .easyvacc-certificado.easyvacc-light .text-slate-100 { color: #10243e !important; }
+        .easyvacc-certificado.easyvacc-light .text-slate-200,
+        .easyvacc-certificado.easyvacc-light .text-slate-300 { color: #29435f !important; }
+        .easyvacc-certificado.easyvacc-light .text-slate-400,
+        .easyvacc-certificado.easyvacc-light .text-slate-500 { color: #526780 !important; }
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-900/80"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-900/60"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-900"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-[#111827]"] { background-color: #fff !important; }
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-950"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-[#090d16]"] { background-color: #edf3f9 !important; }
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-800"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-800/70"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-800/60"] { background-color: #e4edf7 !important; }
+        .easyvacc-certificado.easyvacc-light [class~="border-slate-800"],
+        .easyvacc-certificado.easyvacc-light [class~="border-slate-700"] { border-color: #c7d5e5 !important; }
+        .easyvacc-certificado.easyvacc-light .text-blue-400 { color: #1769aa !important; }
+        .easyvacc-certificado.easyvacc-light .text-blue-300 { color: #175b96 !important; }
+        .easyvacc-certificado.easyvacc-light .text-blue-200 { color: #164f83 !important; }
+        @media print {
+          .easyvacc-certificado.easyvacc-light .print\:text-slate-900 { color: #0f172a !important; }
+          .easyvacc-certificado.easyvacc-light .print\:bg-white { background-color: #fff !important; }
+        }
+      `}</style>
+      <div className={`min-h-[70vh] bg-[#090d16] px-6 py-8 text-slate-100 md:px-10 md:py-10 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
         <div
           className="mx-auto max-w-7xl"
           role="status"
@@ -695,12 +724,39 @@ export default function Certificado() {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
     <>
       <style>{`
+        .easyvacc-certificado.easyvacc-light { background-color: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-certificado.easyvacc-light .text-white,
+        .easyvacc-certificado.easyvacc-light .text-slate-100 { color: #10243e !important; }
+        .easyvacc-certificado.easyvacc-light .text-slate-200,
+        .easyvacc-certificado.easyvacc-light .text-slate-300 { color: #29435f !important; }
+        .easyvacc-certificado.easyvacc-light .text-slate-400,
+        .easyvacc-certificado.easyvacc-light .text-slate-500 { color: #526780 !important; }
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-900/80"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-900/60"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-900"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-[#111827]"] { background-color: #fff !important; }
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-950"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-[#090d16]"] { background-color: #edf3f9 !important; }
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-800"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-800/70"],
+        .easyvacc-certificado.easyvacc-light [class~="bg-slate-800/60"] { background-color: #e4edf7 !important; }
+        .easyvacc-certificado.easyvacc-light [class~="border-slate-800"],
+        .easyvacc-certificado.easyvacc-light [class~="border-slate-700"] { border-color: #c7d5e5 !important; }
+        .easyvacc-certificado.easyvacc-light .text-blue-400 { color: #1769aa !important; }
+        .easyvacc-certificado.easyvacc-light .text-blue-300 { color: #175b96 !important; }
+        .easyvacc-certificado.easyvacc-light .text-blue-200 { color: #164f83 !important; }
+        @media print {
+          .easyvacc-certificado.easyvacc-light .print\:text-slate-900 { color: #0f172a !important; }
+          .easyvacc-certificado.easyvacc-light .print\:bg-white { background-color: #fff !important; }
+        }
+
         @media print {
           @page {
             size: A4 portrait;
@@ -722,7 +778,7 @@ export default function Certificado() {
         }
       `}</style>
 
-      <div className="min-h-full bg-[#090d16] text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900">
+      <div className={`min-h-full bg-[#090d16] text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10 print:max-w-none print:p-0">
 
         {/* CABEÇALHO */}
@@ -737,7 +793,7 @@ export default function Certificado() {
               size={13}
             />
 
-            <span className="text-emerald-400">
+            <span className="text-blue-400">
               Certificado
             </span>
           </div>
@@ -763,7 +819,7 @@ export default function Certificado() {
                   disabled={
                     emitindoNovaVersao
                   }
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm font-semibold text-white transition hover:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm font-semibold text-white transition hover:border-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {emitindoNovaVersao ? (
                     <Loader2
@@ -784,7 +840,7 @@ export default function Certificado() {
                 <button
                   type="button"
                   onClick={gerarPDF}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-blue-400"
                 >
                   <Download
                     size={17}
@@ -803,7 +859,7 @@ export default function Certificado() {
           <div className="mb-3 flex items-center gap-2">
             <Users
               size={17}
-              className="text-emerald-400"
+              className="text-blue-400"
             />
 
             <h2 className="text-sm font-bold text-white">
@@ -820,7 +876,7 @@ export default function Certificado() {
               className={`flex min-w-[190px] items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
                 pessoaAtiva?.tipo ===
                 'titular'
-                  ? 'border-emerald-500 bg-emerald-500/10'
+                  ? 'border-blue-500 bg-blue-500/10'
                   : 'border-slate-800 bg-[#111827] hover:border-slate-700'
               }`}
             >
@@ -830,7 +886,7 @@ export default function Certificado() {
                   className={
                     pessoaAtiva?.tipo ===
                     'titular'
-                      ? 'text-emerald-400'
+                      ? 'text-blue-400'
                       : 'text-slate-400'
                   }
                 />
@@ -870,7 +926,7 @@ export default function Certificado() {
                     }
                     className={`flex min-w-[190px] items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
                       selecionado
-                        ? 'border-emerald-500 bg-emerald-500/10'
+                        ? 'border-blue-500 bg-blue-500/10'
                         : 'border-slate-800 bg-[#111827] hover:border-slate-700'
                     }`}
                   >
@@ -879,7 +935,7 @@ export default function Certificado() {
                         size={18}
                         className={
                           selecionado
-                            ? 'text-emerald-400'
+                            ? 'text-blue-400'
                             : 'text-slate-400'
                         }
                       />
@@ -994,7 +1050,7 @@ export default function Certificado() {
                   <div className="flex items-center gap-3">
                     <Syringe
                       size={19}
-                      className="text-emerald-400"
+                      className="text-blue-400"
                     />
 
                     <div>
@@ -1017,7 +1073,7 @@ export default function Certificado() {
                   <div className="flex items-center gap-3">
                     <CheckCircle2
                       size={19}
-                      className="text-cyan-400"
+                      className="text-blue-400"
                     />
 
                     <div>
@@ -1039,7 +1095,7 @@ export default function Certificado() {
                   <div className="flex items-center gap-3">
                     <ShieldCheck
                       size={19}
-                      className="text-emerald-400"
+                      className="text-blue-400"
                     />
 
                     <div>
@@ -1047,7 +1103,7 @@ export default function Certificado() {
                         Situação
                       </p>
 
-                      <p className="text-sm font-semibold text-emerald-400">
+                      <p className="text-sm font-semibold text-blue-400">
                         {nomeStatus(
                           statusCertificado
                         )}{' '}
@@ -1078,7 +1134,7 @@ export default function Certificado() {
                       <div>
                         <h2 className="text-xl font-bold text-white print:text-[#0b2239]">
                           Easy
-                          <span className="text-emerald-400 print:text-emerald-600">
+                          <span className="text-blue-400 print:text-blue-600">
                             Vacc
                           </span>
                         </h2>
@@ -1098,7 +1154,7 @@ export default function Certificado() {
                         Registro de vacinação EasyVacc
                       </p>
 
-                      <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-400 print:text-slate-700">
+                      <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-blue-400 print:text-slate-700">
                         Versão{' '}
                         {
                           versaoCertificado
@@ -1118,7 +1174,7 @@ export default function Certificado() {
 
                   <section className="mb-9 print:mb-3">
                     <div className="mb-4 flex items-center gap-2 print:mb-2">
-                      <div className="h-4 w-1 rounded-full bg-emerald-500" />
+                      <div className="h-4 w-1 rounded-full bg-blue-500" />
 
                       <h3 className="text-xs font-bold uppercase tracking-[0.12em] text-slate-300 print:text-slate-700">
                         {pessoaAtiva?.tipo ===
@@ -1164,7 +1220,7 @@ export default function Certificado() {
                   <section>
                     <div className="mb-4 flex items-center justify-between print:mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="h-4 w-1 rounded-full bg-emerald-500" />
+                        <div className="h-4 w-1 rounded-full bg-blue-500" />
 
                         <h3 className="text-xs font-bold uppercase tracking-[0.12em] text-slate-300 print:text-slate-700">
                           Registros de imunização
@@ -1253,7 +1309,7 @@ export default function Certificado() {
                       <div className="flex items-center gap-2">
                         <ShieldCheck
                           size={16}
-                          className="text-emerald-400"
+                          className="text-blue-400"
                         />
 
                         <p className="text-xs font-semibold text-slate-300 print:text-slate-700">

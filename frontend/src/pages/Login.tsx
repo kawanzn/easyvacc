@@ -1,37 +1,27 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-} from 'lucide-react';
-
+import { ArrowLeft, Eye, EyeOff, Loader2, Lock, ShieldCheck, ArrowRight, UserRound, Moon, Sun } from 'lucide-react';
 import { supabase } from '../services/supabase';
-
-import {
-  cpfValido,
-  mascaraCpf,
-  salvarPessoaAtiva,
-  soDigitos,
-} from '../lib/brasil';
+import { cpfValido, mascaraCpf, salvarPessoaAtiva, soDigitos } from '../lib/brasil';
 
 export default function Login() {
-  const [temaClaro] = useState(() => {
-    return localStorage.getItem('easyvacc-tema') === 'claro';
-  });
-
+  const [temaClaro, setTemaClaro] = useState(() => localStorage.getItem('easyvacc-tema') === 'claro');
+  const alternarTema = () => {
+    const proximo = !temaClaro;
+    setTemaClaro(proximo);
+    localStorage.setItem('easyvacc-tema', proximo ? 'claro' : 'escuro');
+    window.dispatchEvent(new Event('easyvacc-tema-atualizado'));
+    window.dispatchEvent(new Event('easyvaccTemaAtualizado'));
+  };
   const [cpf, setCpf] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [capsLock, setCapsLock] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
-
   const navigate = useNavigate();
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setErro('');
 
@@ -197,302 +187,93 @@ export default function Login() {
   };
 
   return (
-    <div className={`relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100 antialiased ${temaClaro ? 'easyvacc-login-light' : ''}`}>
-      <style>{`
-        .easyvacc-login-light {
-          background: #f8fafc !important;
-          color: #0f172a !important;
-        }
-        .easyvacc-login-light .text-white,
-        .easyvacc-login-light .text-slate-100 {
-          color: #0f172a !important;
-        }
-        .easyvacc-login-light .text-slate-200,
-        .easyvacc-login-light .text-slate-300 {
-          color: #334155 !important;
-        }
-        .easyvacc-login-light .text-slate-400 {
-          color: #475569 !important;
-        }
-        .easyvacc-login-light .text-slate-500 {
-          color: #64748b !important;
-        }
-        .easyvacc-login-light [class~="bg-slate-900/80"],
-        .easyvacc-login-light [class~="bg-slate-900/90"] {
-          background-color: rgba(255, 255, 255, 0.96) !important;
-        }
-        .easyvacc-login-light [class~="bg-slate-950/80"],
-        .easyvacc-login-light [class~="bg-slate-950"] {
-          background-color: #ffffff !important;
-        }
-        .easyvacc-login-light [class~="border-slate-800"],
-        .easyvacc-login-light [class~="border-slate-700"] {
-          border-color: #cbd5e1 !important;
-        }
-        .easyvacc-login-light input {
-          background-color: #ffffff !important;
-          color: #0f172a !important;
-        }
-        .easyvacc-login-light input::placeholder {
-          color: #64748b !important;
-        }
-        .easyvacc-login-light [class~="hover:text-white"]:hover {
-          color: #0f172a !important;
-        }
-        .easyvacc-login-light [class~="hover:bg-slate-800"]:hover,
-        .easyvacc-login-light [class~="hover:bg-slate-900"]:hover {
-          background-color: #f1f5f9 !important;
-        }
-      `}</style>
+    <main className={`relative isolate h-[100dvh] overflow-hidden font-sans ${temaClaro ? "bg-slate-100 text-slate-900" : "bg-[#020817] text-white"}`}>
+      {/* Coloque uma foto de vacinação em public/login-fundo.jpg */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-20 bg-[url('/login-fundo.jpg')] bg-cover bg-center"
+      />
+      <div aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 ${temaClaro ? "bg-gradient-to-r from-[#163451]/75 via-[#345775]/30 to-[#102a45]/45" : "bg-gradient-to-r from-[#020817]/95 via-[#031626]/75 to-[#020817]/85"}`} />
 
-
-      {/* FUNDO */}
-
-      <div className="absolute top-[-10%] left-[-5%] -z-10 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
-
-      <div className="absolute right-[-5%] bottom-[-10%] -z-10 h-96 w-96 rounded-full bg-[#00a884]/10 blur-3xl" />
-
-      {/* VOLTAR */}
-
-      <Link
-        to="/"
-        className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-4 text-sm font-semibold text-slate-200 hover:text-white"
-      >
-        <ArrowLeft size={16} />
-
-        Voltar ao início
-      </Link>
-
-      {/* CARD */}
-
-      <div className="relative z-10 w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/90 p-8 shadow-2xl md:p-10">
-
-        {/* LOGO */}
-
-        <div className="mb-8 flex flex-col items-center text-center">
-
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-white p-1.5">
-
-            <img
-              src="/logo.png"
-              alt="EasyVacc"
-              className="h-full w-full object-contain"
-            />
-
-          </div>
-
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">
-
-            Entrar no{' '}
-
-            <span className="text-[#00a884]">
-              EasyVacc
+      <div className="mx-auto flex h-full w-full max-w-[1600px] flex-col px-4 py-2 sm:px-7 lg:px-10 lg:py-3">
+        <header className="flex shrink-0 items-center justify-between gap-3">
+          <Link to="/" className="inline-flex items-center gap-3" aria-label="EasyVacc - página inicial">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1 shadow-md">
+              <img src="/logo.png" alt="" className="h-full w-full object-contain" />
             </span>
-
-          </h1>
-
-          <p className="mt-2 text-sm leading-relaxed text-slate-200">
-            Use seu CPF e senha para acessar sua caderneta.
-          </p>
-
-        </div>
-
-        {/* FORMULÁRIO */}
-
-        <form
-          onSubmit={handleLogin}
-          className="space-y-5"
-        >
-
-          {/* CPF */}
-
-          <div>
-
-            <label
-              htmlFor="cpf"
-              className="mb-2 block text-sm font-bold tracking-wide text-slate-200 uppercase"
-            >
-              CPF
-            </label>
-
-            <input
-              id="cpf"
-              type="text"
-              inputMode="numeric"
-              autoComplete="username"
-              placeholder="000.000.000-00"
-              value={cpf}
-              onChange={(e) =>
-                setCpf(
-                  mascaraCpf(
-                    e.target.value
-                  )
-                )
-              }
-              required
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3.5 text-base text-white placeholder-slate-500 focus:border-[#00a884] focus:ring-1 focus:ring-[#00a884] focus:outline-none"
-            />
-
+            <span className="text-2xl font-extrabold tracking-tight text-white">Easy<span className="text-[#1478b8]">Vacc</span></span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={alternarTema} aria-label={temaClaro ? 'Ativar tema escuro' : 'Ativar tema claro'} title={temaClaro ? 'Tema escuro' : 'Tema claro'} className={`flex h-10 w-10 min-h-10 min-w-10 shrink-0 aspect-square items-center justify-center !rounded-full border transition ${temaClaro ? "border-slate-400 bg-white text-slate-900 hover:bg-slate-100" : "border-[#1478b8] bg-[#061426] text-yellow-400 hover:bg-[#0d253b]"}`}>
+              {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
+            </button>
+            <Link to="/" className="inline-flex h-10 items-center gap-2 rounded-full border border-white/30 bg-slate-950/25 px-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-slate-950/45">
+              <ArrowLeft size={16} /><span className="hidden sm:inline">Voltar ao início</span><span className="sm:hidden">Voltar</span>
+            </Link>
           </div>
+        </header>
 
-          {/* SENHA */}
+        <div className="grid min-h-0 flex-1 items-center gap-4 py-1 lg:grid-cols-[minmax(0,1fr)_minmax(340px,460px)] lg:gap-8">
+          <section className={`hidden min-h-0 flex-col justify-center lg:flex text-white`}>
+            <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-[#061d3a]/45 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md">
+              <ShieldCheck size={18} className="text-[#1478b8]" /> Sua saúde, organizada em um só lugar
+            </div>
+            <h1 className="max-w-2xl text-4xl font-black leading-[1.08] tracking-tight xl:text-6xl">
+              Vacinação é <span className="text-[#1478b8]">proteção para toda a vida.</span>
+            </h1>
+            <div className="mt-5 h-1.5 w-16 rounded-full bg-[#1478b8]" />
+            <p className={`mt-4 max-w-xl text-base leading-6 text-slate-100`}>
+              Com o EasyVacc, acompanhe seu histórico de vacinas e mantenha sua saúde e a de sua família em dia.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-5 xl:gap-8">
+              <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#1478b8]"><ShieldCheck size={23} /></span><span className="text-sm font-semibold">Mais<br />segurança</span></div>
+              <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#1478b8]"><Lock size={22} /></span><span className="text-sm font-semibold">Acesso<br />protegido</span></div>
+              <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#1478b8]"><ShieldCheck size={23} /></span><span className="text-sm font-semibold">Caderneta<br />digital</span></div>
+            </div>
+          </section>
 
-          <div>
+          <section aria-labelledby="login-title" className={`mx-auto w-full max-w-[460px] min-h-0 rounded-[24px] border p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-5 lg:p-5 ${temaClaro ? "border-white/85 bg-white/95 text-[#102b49]" : "border-[#304760] bg-[#081629]/95 text-white"}`}>
+            <div className="mb-3 text-center">
+              <div className="mb-2 flex items-center justify-center gap-2.5">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-100"><img src="/logo.png" alt="" className="h-full w-full object-contain" /></span>
+                <span className={`text-2xl font-extrabold tracking-tight ${temaClaro ? "text-[#102b49]" : "text-white"}`}>Easy<span className="text-[#1478b8]">Vacc</span></span>
+              </div>
+              <h2 id="login-title" className={`text-2xl font-extrabold tracking-tight sm:text-3xl ${temaClaro ? "text-[#102b49]" : "text-white"}`}>Bem-vindo(a)!</h2>
+              <p className={`mt-1.5 text-sm leading-5 ${temaClaro ? "text-slate-600" : "text-slate-200"}`}>Entre com seu CPF e senha para acessar sua caderneta de vacinação.</p>
+            </div>
 
-            <label
-              htmlFor="senha"
-              className="mb-2 block text-sm font-bold tracking-wide text-slate-200 uppercase"
-            >
-              Senha
-            </label>
+            <form onSubmit={handleLogin} className="space-y-3">
+              <div>
+                <label htmlFor="cpf" className={`mb-1.5 block text-sm font-bold ${temaClaro ? "text-[#102b49]" : "text-white"}`}>CPF</label>
+                <div className="relative">
+                  <UserRound size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1351a5]" />
+                  <input id="cpf" type="text" inputMode="numeric" autoComplete="username" placeholder="Digite seu CPF" value={cpf} onChange={(e) => setCpf(mascaraCpf(e.target.value))} required className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-11 pr-4 text-base text-slate-900 placeholder-slate-400 outline-none transition focus:border-[#1351a5] focus:ring-4 focus:ring-blue-100" />
+                </div>
+              </div>
 
-            <div className="relative">
+              <div>
+                <div className="mb-1.5 flex items-center justify-between gap-2"><label htmlFor="senha" className={`text-sm font-bold ${temaClaro ? "text-[#102b49]" : "text-white"}`}>Senha</label><Link to="/recuperar-senha" className={`text-xs font-semibold hover:underline sm:text-sm ${temaClaro ? "text-[#126ca8]" : "text-[#83caff]"}`}>Esqueci minha senha</Link></div>
+                <div className="relative">
+                  <Lock size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#1351a5]" />
+                  <input id="senha" type={mostrarSenha ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha" value={senha} onChange={(e) => setSenha(e.target.value)} onKeyUp={(e) => setCapsLock(e.getModifierState('CapsLock'))} required className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-11 pr-12 text-base text-slate-900 placeholder-slate-400 outline-none transition focus:border-[#1351a5] focus:ring-4 focus:ring-blue-100" />
+                  <button type="button" onClick={() => setMostrarSenha((v) => !v)} aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'} className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-500 hover:text-[#1351a5]">{mostrarSenha ? <EyeOff size={19} /> : <Eye size={19} />}</button>
+                </div>
+                {capsLock && <p className="mt-1 text-xs font-semibold text-amber-300">A tecla Caps Lock está ativada.</p>}
+              </div>
 
-              <input
-                id="senha"
-                type={
-                  mostrarSenha
-                    ? 'text'
-                    : 'password'
-                }
-                autoComplete="current-password"
-                placeholder="Sua senha"
-                value={senha}
-                onChange={(e) =>
-                  setSenha(
-                    e.target.value
-                  )
-                }
-                onKeyUp={(e) =>
-                  setCapsLock(
-                    e.getModifierState(
-                      'CapsLock'
-                    )
-                  )
-                }
-                required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3.5 pr-12 text-base text-white placeholder-slate-500 focus:border-[#00a884] focus:ring-1 focus:ring-[#00a884] focus:outline-none"
-              />
-
-              <button
-                type="button"
-                onClick={() =>
-                  setMostrarSenha(
-                    (v) => !v
-                  )
-                }
-                className="absolute inset-y-0 right-0 inline-flex min-w-11 items-center justify-center text-slate-300 hover:text-white"
-                aria-label={
-                  mostrarSenha
-                    ? 'Ocultar senha'
-                    : 'Mostrar senha'
-                }
-              >
-
-                {mostrarSenha ? (
-                  <EyeOff size={20} />
-                ) : (
-                  <Eye size={20} />
-                )}
-
+              {erro && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">{erro}</div>}
+              <button type="submit" disabled={carregando} className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#126ca8] px-4 font-bold text-white transition hover:bg-[#105b90] focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60">
+                {carregando ? <><Loader2 size={18} className="animate-spin" /> Entrando...</> : <>Entrar na caderneta <ArrowRight size={18} /></>}
               </button>
+            </form>
 
-            </div>
-
-            {capsLock && (
-              <p className="mt-2 text-sm font-medium text-amber-300">
-                A tecla Caps Lock está ativada.
-              </p>
-            )}
-
-          </div>
-
-          {/* ERRO */}
-
-          {erro && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-center text-sm font-semibold text-red-300">
-              {erro}
-            </div>
-          )}
-
-          {/* BOTÃO */}
-
-          <button
-            type="submit"
-            disabled={carregando}
-            className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#00a884] to-teal-500 py-3.5 text-base font-bold text-slate-950 shadow-lg shadow-[#00a884]/20 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-
-            {carregando ? (
-              <Loader2
-                size={18}
-                className="animate-spin"
-              />
-            ) : (
-              <Lock size={18} />
-            )}
-
-            {carregando
-              ? 'Entrando...'
-              : 'Entrar na caderneta'}
-
-          </button>
-
-        </form>
-
-        {/* LINKS */}
-
-        <div className="mt-8 space-y-3 border-t border-slate-800 pt-6 text-center">
-
-          <p className="text-sm text-slate-300">
-
-            Ainda não tem caderneta?{' '}
-
-            <Link
-              to="/cadastro"
-              className="font-bold text-[#00a884] hover:text-[#00c49a]"
-            >
-              Cadastre-se
-            </Link>
-
-          </p>
-
-          <Link
-            to="/recuperar-senha"
-            className="inline-flex min-h-11 items-center text-sm font-semibold text-slate-300 hover:text-white"
-          >
-            Esqueci minha senha
-          </Link>
-
-          <div className="flex justify-center gap-4 pt-2 text-sm">
-
-            <Link
-              to="/privacidade"
-              className="text-[#00a884] hover:underline"
-            >
-              Privacidade
-            </Link>
-
-            <Link
-              to="/termos"
-              className="text-[#00a884] hover:underline"
-            >
-              Termos
-            </Link>
-
-          </div>
-
-          <Link
-            to="/profissional/painel"
-            className="inline-flex min-h-11 items-center text-sm font-semibold text-slate-400 hover:text-[#00a884]"
-          >
-            Acesso restrito: Profissionais / Posto
-          </Link>
-
+            <div className={`my-2 flex items-center gap-3 text-[10px] font-semibold tracking-wide ${temaClaro ? "text-slate-500" : "text-slate-300"}`}><span className={`h-px flex-1 ${temaClaro ? "bg-slate-300" : "bg-white/25"}`} />AINDA NÃO TEM CONTA?<span className={`h-px flex-1 ${temaClaro ? "bg-slate-300" : "bg-white/25"}`} /></div>
+            <Link to="/cadastro" className={`flex h-10 w-full items-center justify-center rounded-lg border border-[#126ca8] text-sm font-bold transition ${temaClaro ? "bg-white text-[#105b90] hover:bg-blue-50" : "bg-[#102b49] text-white hover:bg-[#183e65]"}`}>Criar minha conta</Link>
+            <div className={`mt-2 flex flex-wrap justify-center gap-x-5 gap-y-2 border-t pt-3 text-xs font-medium ${temaClaro ? "border-slate-200 text-[#126ca8]" : "border-white/20 text-[#83caff]"}`}><Link to="/privacidade" className="hover:underline">Política de Privacidade</Link><Link to="/termos" className="hover:underline">Termos de Uso</Link></div>
+          </section>
         </div>
-
+        <footer className="hidden shrink-0 pb-1 text-center text-[11px] text-white/80 lg:block">EasyVacc • Caderneta Digital de Vacinação</footer>
       </div>
-
-    </div>
+    </main>
   );
 }

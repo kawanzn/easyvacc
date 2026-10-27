@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import './easyvacc-mobile.css';
+import { useEffect, useState, type MouseEvent } from 'react';
 import {
   NavLink,
   Outlet,
@@ -37,15 +38,27 @@ export default function Layout() {
   });
 
   const alternarTema = () => {
-    setTemaClaro((anterior) => {
-      const novoTemaClaro = !anterior;
-      localStorage.setItem(
-        'easyvacc-tema',
-        novoTemaClaro ? 'claro' : 'escuro'
-      );
-      return novoTemaClaro;
-    });
+    // Uma única fonte de verdade: evita alternância dupla por eventos concorrentes.
+    const proximo = localStorage.getItem('easyvacc-tema') !== 'claro';
+    localStorage.setItem('easyvacc-tema', proximo ? 'claro' : 'escuro');
+    setTemaClaro(proximo);
+    window.dispatchEvent(new Event('easyvacc-tema-atualizado'));
+    window.dispatchEvent(new Event('easyvaccTemaAtualizado'));
   };
+
+  useEffect(() => {
+    const sincronizarTema = () => {
+      setTemaClaro(localStorage.getItem('easyvacc-tema') === 'claro');
+    };
+    window.addEventListener('storage', sincronizarTema);
+    window.addEventListener('easyvacc-tema-atualizado', sincronizarTema);
+    window.addEventListener('easyvaccTemaAtualizado', sincronizarTema);
+    return () => {
+      window.removeEventListener('storage', sincronizarTema);
+      window.removeEventListener('easyvacc-tema-atualizado', sincronizarTema);
+      window.removeEventListener('easyvaccTemaAtualizado', sincronizarTema);
+    };
+  }, []);
 
   const [dependentes, setDependentes] = useState<any[]>([]);
   const [notificacoesNaoLidas, setNotificacoesNaoLidas] =
@@ -318,6 +331,43 @@ export default function Layout() {
     };
   }, [mobileOpen]);
 
+  // Mesma ação de Vacinação usada na sidebar e na barra inferior.
+  const abrirVacinacao = async (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      navigate('/login');
+      return;
+    }
+
+    const { data: perfil } = await supabase
+      .from('users')
+      .select('nome')
+      .eq('id', user.id)
+      .single();
+
+    salvarPessoaAtiva({
+      tipo: 'titular',
+      id: user.id,
+      nome:
+        perfil?.nome ||
+        user.user_metadata?.nome ||
+        'Titular',
+    });
+
+    window.dispatchEvent(
+      new Event('pessoaAtivaAtualizada')
+    );
+
+    fecharMenuMobile();
+    navigate('/historico');
+  };
+
   // ==========================================
   // LINKS
   // ==========================================
@@ -327,7 +377,7 @@ export default function Layout() {
   }: {
     isActive: boolean;
   }) => `
-    relative flex h-11 items-center rounded-xl
+    relative flex min-h-12 items-center rounded-xl
     text-[13px] font-medium
     transition-colors duration-150
     ${
@@ -338,7 +388,7 @@ export default function Layout() {
     ${
       isActive
         ? temaClaro
-          ? 'bg-emerald-50 text-emerald-800 shadow-sm ring-1 ring-emerald-100'
+          ? 'bg-blue-50 text-[#126ca8] shadow-sm ring-1 ring-blue-200'
           : 'bg-white/[0.09] text-white shadow-sm ring-1 ring-white/[0.06]'
         : temaClaro
           ? 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-950'
@@ -356,7 +406,7 @@ export default function Layout() {
       className={`easyvacc-app flex h-screen overflow-hidden font-sans ${
         temaClaro
           ? 'easyvacc-light bg-slate-50 text-slate-900'
-          : 'bg-slate-950 text-slate-100'
+          : 'bg-[#020817] text-slate-100'
       }`}
     >
 
@@ -380,11 +430,11 @@ export default function Layout() {
           bottom: 9px;
           width: 3px;
           border-radius: 0 999px 999px 0;
-          background: #34d399;
+          background: #1478b8;
         }
 
         .easyvacc-light #menu-principal nav a[aria-current="page"]::before {
-          background: #059669;
+          background: #126ca8;
         }
 
         #menu-principal nav a svg,
@@ -502,19 +552,19 @@ html::-webkit-scrollbar-button {
           background-color: #f1f5f9 !important;
         }
 
-        .easyvacc-light aside .text-emerald-400,
-        .easyvacc-light aside .text-emerald-500,
-        .easyvacc-light aside .text-emerald-600 {
-          color: #047857 !important;
+        .easyvacc-light aside .text-blue-400,
+        .easyvacc-light aside .text-blue-500,
+        .easyvacc-light aside .text-blue-600 {
+          color: #126ca8 !important;
         }
 
-        .easyvacc-light aside .bg-emerald-500,
-        .easyvacc-light aside .bg-emerald-600 {
-          background-color: #047857 !important;
+        .easyvacc-light aside .bg-blue-500,
+        .easyvacc-light aside .bg-blue-600 {
+          background-color: #126ca8 !important;
         }
 
-        .easyvacc-light aside .bg-emerald-500.text-white,
-        .easyvacc-light aside .bg-emerald-600.text-white {
+        .easyvacc-light aside .bg-blue-500.text-white,
+        .easyvacc-light aside .bg-blue-600.text-white {
           color: #ffffff !important;
         }
 
@@ -579,19 +629,19 @@ html::-webkit-scrollbar-button {
           color: #475569 !important;
         }
 
-        .easyvacc-light main .text-emerald-400,
-        .easyvacc-light main .text-emerald-500,
-        .easyvacc-light main .text-emerald-600 {
-          color: #047857 !important;
+        .easyvacc-light main .text-blue-400,
+        .easyvacc-light main .text-blue-500,
+        .easyvacc-light main .text-blue-600 {
+          color: #126ca8 !important;
         }
 
-        .easyvacc-light main .bg-emerald-500,
-        .easyvacc-light main .bg-emerald-600 {
-          background-color: #047857 !important;
+        .easyvacc-light main .bg-blue-500,
+        .easyvacc-light main .bg-blue-600 {
+          background-color: #126ca8 !important;
         }
 
-        .easyvacc-light main .bg-emerald-500.text-white,
-        .easyvacc-light main .bg-emerald-600.text-white {
+        .easyvacc-light main .bg-blue-500.text-white,
+        .easyvacc-light main .bg-blue-600.text-white {
           color: #ffffff !important;
         }
 
@@ -630,6 +680,133 @@ html::-webkit-scrollbar-button {
           background-color: #f1f5f9 !important;
         }
 
+
+        /* EasyVacc: compatibilidade com as novas cores das telas. */
+        .easyvacc-light main [class~="bg-[#020817]"],
+        .easyvacc-light main [class~="bg-[#020817]/40"],
+        .easyvacc-light main [class~="bg-[#020817]/50"],
+        .easyvacc-light main [class~="bg-[#020817]/60"],
+        .easyvacc-light main [class~="bg-[#020817]/70"],
+        .easyvacc-light main [class~="bg-[#020817]/80"],
+        .easyvacc-light main [class~="bg-[#020817]/90"],
+        .easyvacc-light main [class~="bg-[#090d16]"],
+        .easyvacc-light main [class~="bg-[#0b1220]"] {
+          background-color: #f8fafc !important;
+        }
+        .easyvacc-light main [class~="bg-[#081629]"],
+        .easyvacc-light main [class~="bg-[#081629]/40"],
+        .easyvacc-light main [class~="bg-[#081629]/50"],
+        .easyvacc-light main [class~="bg-[#081629]/60"],
+        .easyvacc-light main [class~="bg-[#081629]/70"],
+        .easyvacc-light main [class~="bg-[#081629]/80"],
+        .easyvacc-light main [class~="bg-[#081629]/90"],
+        .easyvacc-light main [class~="bg-[#10253e]"],
+        .easyvacc-light main [class~="bg-[#111827]"],
+        .easyvacc-light main [class~="bg-[#0b2239]"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-light main [class~="bg-[#16243b]"],
+        .easyvacc-light main [class~="bg-[#172b45]"] {
+          background-color: #f1f5f9 !important;
+        }
+        .easyvacc-light main [class~="text-[#e2e8f0]"],
+        .easyvacc-light main [class~="text-[#f8fafc]"] {
+          color: #102b49 !important;
+        }
+        .easyvacc-light main [class~="text-[#94a3b8]"] {
+          color: #475569 !important;
+        }
+        .easyvacc-light main [class~="border-[#304760]"],
+        .easyvacc-light main [class~="border-[#18344d]"],
+        .easyvacc-light main [class~="border-[#203b5a]"] {
+          border-color: #cbd5e1 !important;
+        }
+        /* Cores da sidebar e destaque de navegação */
+        .easyvacc-light #menu-principal nav a[aria-current="page"] {
+          color: #126ca8 !important;
+          background-color: #eff6ff !important;
+        }
+        .easyvacc-light #menu-principal nav a[aria-current="page"] svg {
+          color: #126ca8 !important;
+        }
+        .easyvacc-light #menu-principal .text-blue-400,
+        .easyvacc-light #menu-principal .text-blue-500,
+        .easyvacc-light #menu-principal .text-blue-600 {
+          color: #126ca8 !important;
+        }
+        .easyvacc-light #menu-principal .bg-blue-500,
+        .easyvacc-light #menu-principal .bg-blue-600 {
+          background-color: #126ca8 !important;
+        }
+        .easyvacc-light #menu-principal .bg-blue-500.text-white,
+        .easyvacc-light #menu-principal .bg-blue-600.text-white {
+          color: #fff !important;
+        }
+        /* Cartão de vacina: suporte a ambos os temas. */
+        .easyvacc-app:not(.easyvacc-light) .easyvacc-vaccine-card {
+          background-color: #081629;
+          border-color: #304760;
+          color: #f8fafc;
+        }
+        .easyvacc-app:not(.easyvacc-light) .easyvacc-vaccine-card .vaccine-title,
+        .easyvacc-app:not(.easyvacc-light) .easyvacc-vaccine-card .vaccine-value {
+          color: #f8fafc;
+        }
+        .easyvacc-app:not(.easyvacc-light) .easyvacc-vaccine-card .vaccine-muted {
+          color: #94a3b8;
+        }
+        .easyvacc-app:not(.easyvacc-light) .easyvacc-vaccine-card .vaccine-divider {
+          border-color: #304760;
+        }
+
+
+        /* Compatibilidade com estilos legados e fundos personalizados. */
+        .easyvacc-light main [class~="bg-[#0b1628]"],
+        .easyvacc-light main [class~="bg-[#0d1b30]"],
+        .easyvacc-light main [class~="bg-[#101d32]"],
+        .easyvacc-light main [class~="bg-[#121e32]"],
+        .easyvacc-light main [class~="bg-[#152441]"],
+        .easyvacc-light main [class~="bg-[#172554]"] {
+          background-color: #ffffff !important;
+        }
+        .easyvacc-light main [class~="text-[#ffffff]"],
+        .easyvacc-light main [class~="text-[#f1f5f9]"],
+        .easyvacc-light main [class~="text-[#cbd5e1]"] {
+          color: #102b49 !important;
+        }
+        .easyvacc-light main [class~="text-[#64748b]"] {
+          color: #475569 !important;
+        }
+        .easyvacc-light main [class~="border-[#1e293b]"],
+        .easyvacc-light main [class~="border-[#26364d]"] {
+          border-color: #cbd5e1 !important;
+        }
+
+
+        /* Aparência do aplicativo mobile inspirada na prévia da landing.
+           Apenas apresentação: mantém componentes, rotas e lógica existentes. */
+        @media (max-width: 1023px) {
+          .easyvacc-app main {
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
+          }
+          .easyvacc-app main > * {
+            max-width: 100%;
+          }
+          .easyvacc-app button,
+          .easyvacc-app a {
+            -webkit-tap-highlight-color: transparent;
+          }
+          .easyvacc-app main input,
+          .easyvacc-app main select,
+          .easyvacc-app main textarea {
+            font-size: max(16px, 1em);
+          }
+          .easyvacc-app main :is(button, a):focus-visible {
+            outline: 3px solid #60b9f4;
+            outline-offset: 3px;
+          }
+        }
         /* O documento do certificado mantém seu próprio desenho e impressão. */
         @media print {
           .easyvacc-app main {
@@ -644,7 +821,7 @@ html::-webkit-scrollbar-button {
           type="button"
           aria-label="Fechar menu"
           onClick={fecharMenuMobile}
-          className="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-[3px] lg:hidden"
         />
       )}
 
@@ -661,7 +838,7 @@ html::-webkit-scrollbar-button {
           ${
             temaClaro
               ? 'border-slate-200 bg-white text-slate-900'
-              : 'border-[#18344d] bg-[#0b2239] text-white'
+              : 'border-[#203b5a] bg-[#081629] text-white'
           }
           shadow-2xl
           transition-all duration-300 ease-out
@@ -682,8 +859,8 @@ html::-webkit-scrollbar-button {
 
           ${
             isOpen
-              ? 'w-[280px] lg:w-[260px]'
-              : 'w-[280px] lg:w-[72px]'
+              ? 'w-[min(88vw,340px)] lg:w-[260px]'
+              : 'w-[min(88vw,340px)] lg:w-[72px]'
           }
         `}
       >
@@ -722,9 +899,9 @@ html::-webkit-scrollbar-button {
                   : 'lg:hidden'
               }
             >
-              <div className="whitespace-nowrap text-[18px] font-extrabold tracking-tight text-white">
+              <div className={`whitespace-nowrap text-[18px] font-extrabold tracking-tight ${temaClaro ? "text-[#102b49]" : "text-white"}`}>
                 Easy{' '}
-                <span className="text-emerald-400">
+                <span className="text-[#1478b8]">
                   Vacc
                 </span>
               </div>
@@ -793,41 +970,7 @@ html::-webkit-scrollbar-button {
   to="/historico"
   title="Vacinação"
   className={estiloLink}
-  onClick={async (e) => {
-    e.preventDefault();
-
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error || !user) {
-      navigate('/login');
-      return;
-    }
-
-    const { data: perfil } = await supabase
-      .from('users')
-      .select('nome')
-      .eq('id', user.id)
-      .single();
-
-    salvarPessoaAtiva({
-      tipo: 'titular',
-      id: user.id,
-      nome:
-        perfil?.nome ||
-        user.user_metadata?.nome ||
-        'Titular',
-    });
-
-    window.dispatchEvent(
-      new Event('pessoaAtivaAtualizada')
-    );
-
-    fecharMenuMobile();
-    navigate('/historico');
-  }}
+  onClick={abrirVacinacao}
 >
                 <Syringe
                   size={18}
@@ -897,7 +1040,7 @@ html::-webkit-scrollbar-button {
 
                   {notificacoesNaoLidas >
                     0 && (
-                    <span className="flex min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                    <span className="flex min-w-5 items-center justify-center rounded-full bg-blue-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
                       {
                         notificacoesNaoLidas
                       }
@@ -908,7 +1051,7 @@ html::-webkit-scrollbar-button {
                 {!isOpen &&
                   notificacoesNaoLidas >
                     0 && (
-                    <span className="absolute right-2 top-2 hidden h-1.5 w-1.5 rounded-full bg-emerald-400 lg:block" />
+                    <span className="absolute right-2 top-2 hidden h-1.5 w-1.5 rounded-full bg-blue-400 lg:block" />
                   )}
               </NavLink>
 
@@ -1020,7 +1163,7 @@ html::-webkit-scrollbar-button {
                       );
                     }}
                     className={`
-                      flex h-11 w-full items-center rounded-xl
+                      flex min-h-12 w-full items-center rounded-xl
                       text-left text-slate-400
                       transition-colors
                       hover:bg-white/[0.06]
@@ -1205,8 +1348,8 @@ html::-webkit-scrollbar-button {
   lg:flex
   ${
     temaClaro
-      ? 'border-slate-200 bg-white text-slate-500 hover:border-emerald-300 hover:text-emerald-600'
-      : 'border-slate-600 bg-slate-800 text-slate-300 hover:border-emerald-500 hover:text-emerald-400'
+      ? 'border-slate-200 bg-white text-slate-500 hover:border-blue-300 hover:text-blue-700'
+      : 'border-slate-600 bg-slate-800 text-slate-300 hover:border-blue-500 hover:text-blue-400'
   }
 `}
         >
@@ -1223,76 +1366,52 @@ html::-webkit-scrollbar-button {
       ====================================== */}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* HEADER MOBILE */}
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-sm lg:hidden print:hidden">
-          <button
-            type="button"
-            onClick={() =>
-              setMobileOpen(true)
-            }
-            aria-label="Abrir menu"
-            aria-expanded={
-              mobileOpen
-            }
-            aria-controls="menu-principal"
-            className="
-              flex h-10 w-10 items-center
-              justify-center rounded-xl
-              border border-slate-200
-              bg-white text-slate-700
-              shadow-sm transition
-              hover:bg-slate-50
-              focus:outline-none
-              focus:ring-2
-              focus:ring-emerald-500
-            "
-          >
-            <Menu size={22} />
+        {/* CABEÇALHO MOBILE — identidade visual e ações acessíveis */}
+        <header className="relative z-20 flex h-[76px] shrink-0 items-center justify-between overflow-hidden border-b border-white/15 bg-[linear-gradient(125deg,#0c3b6a,#1478b8)] px-4 text-white shadow-[0_8px_24px_rgba(5,43,85,0.16)] lg:hidden print:hidden">
+          <span aria-hidden="true" className="pointer-events-none absolute -right-12 -top-24 h-52 w-52 rounded-full bg-white/10" />
+          <button type="button" onClick={() => void abrirTitular()} aria-label="Ir para o início" className="flex min-h-11 min-w-0 items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8]">
+            <img src="/logo.png" alt="" className="h-10 w-10 shrink-0 rounded-xl bg-white object-contain p-1" />
+            <span className="text-left">
+              <span className="block whitespace-nowrap text-lg font-extrabold leading-tight tracking-tight">Easy<span className="text-[#bce4ff]">Vacc</span></span>
+              <span className={`block text-[9px] font-semibold uppercase tracking-[0.12em] text-[#dceeff]`}>Caderneta digital</span>
+            </span>
           </button>
-
-          <button
-            type="button"
-            onClick={() =>
-              void abrirTitular()
-            }
-            className="flex items-center gap-2"
-            aria-label="Ir para o início"
-          >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0b2239]">
-              <img
-                src="/logo.png"
-                alt=""
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-
-            <div className="text-left">
-              <p className="text-sm font-bold tracking-tight text-[#0b2239]">
-                Easy{' '}
-                <span className="text-emerald-600">
-                  Vacc
-                </span>
-              </p>
-
-              <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                Caderneta digital
-              </p>
-            </div>
-          </button>
-
-          <div
-            className="h-10 w-10"
-            aria-hidden="true"
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            <button type="button" onClick={alternarTema} aria-label={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'} title={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'} className={`flex h-11 w-11 items-center justify-center rounded-full border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] border-white/25 bg-white/15 text-white hover:bg-white/25`}>
+              {temaClaro ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
+            <NavLink to="/notificacoes" aria-label={notificacoesNaoLidas > 0 ? `Notificações: ${notificacoesNaoLidas} não lidas` : 'Notificações'} onClick={fecharMenuMobile} className={`relative flex h-11 w-11 items-center justify-center rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] border-white/25 bg-white/15 text-white hover:bg-white/25`}>
+              <Bell size={20} />
+              {notificacoesNaoLidas > 0 && <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full border-2 border-current bg-[#1478b8]" />}
+            </NavLink>
+          </div>
         </header>
 
         <main
           className={`relative min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden print:overflow-visible print:bg-white ${
-            temaClaro ? 'bg-slate-50' : 'bg-slate-950'
+            temaClaro ? 'bg-[#f6faff]' : 'bg-[#071426]'
           }`}
         >
   <Outlet />
 </main>
+        {/* Navegação fixa apenas no celular; não interfere na sidebar desktop. */}
+        <nav aria-label="Navegação rápida" className={`relative z-30 grid h-[calc(70px+env(safe-area-inset-bottom))] shrink-0 grid-cols-5 items-start border-t px-1 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_25px_rgba(0,0,0,0.05)] lg:hidden print:hidden ${temaClaro ? 'border-[#dce7f3] bg-white text-[#345371]' : 'border-[#253f5d] bg-[#0b1d33] text-[#c5d9ec]'}`}>
+          <NavLink to="/dashboard" onClick={(e) => { e.preventDefault(); void abrirTitular(); }} className={({isActive}) => `flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+            <LayoutDashboard size={21} strokeWidth={1.9} /><span>Início</span>
+          </NavLink>
+          <NavLink to="/historico" onClick={abrirVacinacao} className={({isActive}) => `flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+            <Syringe size={21} strokeWidth={1.9} /><span>Vacinação</span>
+          </NavLink>
+          <NavLink to="/certificado" onClick={fecharMenuMobile} className={({isActive}) => `flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+            <FileText size={21} strokeWidth={1.9} /><span>Certificado</span>
+          </NavLink>
+          <NavLink to="/notificacoes" onClick={fecharMenuMobile} className={({isActive}) => `relative flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+            <Bell size={21} strokeWidth={1.9} />{notificacoesNaoLidas > 0 && <span className="absolute right-[25%] top-1 h-2 w-2 rounded-full bg-[#1478b8]" />}<span>Avisos</span>
+          </NavLink>
+          <button type="button" onClick={() => setMobileOpen(true)} aria-label="Abrir menu completo" aria-expanded={mobileOpen} aria-controls="menu-principal" className={`flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${mobileOpen ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+            <Menu size={21} strokeWidth={1.9} /><span>Menu</span>
+          </button>
+        </nav>
       </div>
     </div>
   );

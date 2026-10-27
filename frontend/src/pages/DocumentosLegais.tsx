@@ -10,14 +10,11 @@ function useTemaEasyVacc() {
   );
 
   const alternarTema = () => {
-    setTemaClaro((atual) => {
-      const novoTemaClaro = !atual;
-      localStorage.setItem(
-        'easyvacc-tema',
-        novoTemaClaro ? 'claro' : 'escuro'
-      );
-      return novoTemaClaro;
-    });
+    const proximo = localStorage.getItem('easyvacc-tema') !== 'claro';
+    localStorage.setItem('easyvacc-tema', proximo ? 'claro' : 'escuro');
+    setTemaClaro(proximo);
+    window.dispatchEvent(new Event('easyvacc-tema-atualizado'));
+    window.dispatchEvent(new Event('easyvaccTemaAtualizado'));
   };
 
   return { temaClaro, alternarTema };
@@ -36,7 +33,7 @@ function BotaoTema({
       onClick={alternarTema}
       aria-label={temaClaro ? 'Ativar tema escuro' : 'Ativar tema claro'}
       title={temaClaro ? 'Tema escuro' : 'Tema claro'}
-      className="fixed right-4 top-20 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-teal-500 hover:text-teal-400"
+      className="fixed right-4 top-20 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-blue-500 hover:text-blue-400"
     >
       {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
     </button>
@@ -49,14 +46,14 @@ function CabecalhoLegal({ temaClaro }: { temaClaro: boolean }) {
       <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
         <Link
           to="/"
-          className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#00a884] ${temaClaro ? 'border-slate-300 text-slate-700 hover:bg-slate-100' : 'border-slate-800 text-slate-200 hover:bg-slate-900'}`}
+          className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#1769aa] ${temaClaro ? 'border-slate-300 text-slate-700 hover:bg-slate-100' : 'border-slate-800 text-slate-200 hover:bg-slate-900'}`}
         >
           <ArrowLeft size={18} aria-hidden="true" />
           Voltar
         </Link>
 
         <Link to="/" className={`text-base font-bold ${temaClaro ? 'text-slate-950' : 'text-white'}`}>
-          Easy<span className="text-[#00a884]">Vacc</span>
+          Easy<span className="text-[#1769aa]">Vacc</span>
         </Link>
       </div>
     </header>
@@ -70,11 +67,11 @@ export function PoliticaPrivacidade() {
 
       <style>{`
         .easyvacc-light {
-          background: #f8fafc !important;
-          color: #0f172a !important;
+          background: #edf3f9 !important;
+          color: #10243e !important;
         }
         .easyvacc-light [class~="bg-slate-950"] {
-          background-color: #f8fafc !important;
+          background-color: #edf3f9 !important;
         }
         .easyvacc-light [class~="bg-slate-900"],
         .easyvacc-light [class~="bg-slate-900/60"],
@@ -88,7 +85,7 @@ export function PoliticaPrivacidade() {
         .easyvacc-light [class~="text-white"],
         .easyvacc-light [class~="text-slate-100"],
         .easyvacc-light [class~="text-slate-200"] {
-          color: #0f172a !important;
+          color: #10243e !important;
         }
         .easyvacc-light [class~="text-slate-300"] {
           color: #334155 !important;
@@ -106,7 +103,7 @@ export function PoliticaPrivacidade() {
         .easyvacc-light select,
         .easyvacc-light textarea {
           background-color: #ffffff !important;
-          color: #0f172a !important;
+          color: #10243e !important;
           border-color: #cbd5e1 !important;
         }
         .easyvacc-light input::placeholder,
@@ -124,7 +121,7 @@ export function PoliticaPrivacidade() {
       <CabecalhoLegal temaClaro={temaClaro} />
 
       <article className="mx-auto max-w-3xl px-4 py-10 text-base leading-7">
-        <p className="text-sm font-semibold text-[#00a884]">
+        <p className="text-sm font-semibold text-[#1769aa]">
           Versão {PRIVACIDADE_VERSAO}
         </p>
 
@@ -484,11 +481,11 @@ export function TermosUso() {
 
       <style>{`
         .easyvacc-light {
-          background: #f8fafc !important;
-          color: #0f172a !important;
+          background: #edf3f9 !important;
+          color: #10243e !important;
         }
         .easyvacc-light [class~="bg-slate-950"] {
-          background-color: #f8fafc !important;
+          background-color: #edf3f9 !important;
         }
         .easyvacc-light [class~="bg-slate-900"],
         .easyvacc-light [class~="bg-slate-900/60"],
@@ -502,7 +499,7 @@ export function TermosUso() {
         .easyvacc-light [class~="text-white"],
         .easyvacc-light [class~="text-slate-100"],
         .easyvacc-light [class~="text-slate-200"] {
-          color: #0f172a !important;
+          color: #10243e !important;
         }
         .easyvacc-light [class~="text-slate-300"] {
           color: #334155 !important;
@@ -520,7 +517,7 @@ export function TermosUso() {
         .easyvacc-light select,
         .easyvacc-light textarea {
           background-color: #ffffff !important;
-          color: #0f172a !important;
+          color: #10243e !important;
           border-color: #cbd5e1 !important;
         }
         .easyvacc-light input::placeholder,
@@ -538,7 +535,7 @@ export function TermosUso() {
       <CabecalhoLegal temaClaro={temaClaro} />
 
       <article className="mx-auto max-w-3xl px-4 py-10 text-base leading-7">
-        <p className="text-sm font-semibold text-[#00a884]">
+        <p className="text-sm font-semibold text-[#1769aa]">
           Versão {TERMOS_VERSAO}
         </p>
 

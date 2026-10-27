@@ -95,14 +95,11 @@ export default function PainelPosto() {
   );
 
   const alternarTema = () => {
-    setTemaClaro((atual) => {
-      const novoTemaClaro = !atual;
-      localStorage.setItem(
-        'easyvacc-tema',
-        novoTemaClaro ? 'claro' : 'escuro'
-      );
-      return novoTemaClaro;
-    });
+    const proximo = localStorage.getItem('easyvacc-tema') !== 'claro';
+    localStorage.setItem('easyvacc-tema', proximo ? 'claro' : 'escuro');
+    setTemaClaro(proximo);
+    window.dispatchEvent(new Event('easyvacc-tema-atualizado'));
+    window.dispatchEvent(new Event('easyvaccTemaAtualizado'));
   };
 
   // ===================================================
@@ -646,19 +643,19 @@ const [proximaDose, setProximaDose] =
   // JSX
   // ===================================================
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-slate-900 p-8 font-sans text-slate-100`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-[#081629] p-8 font-sans text-slate-100`}>
 
       <style>{`
         .easyvacc-light {
           background: #f8fafc !important;
           color: #0f172a !important;
         }
-        .easyvacc-light [class~="bg-slate-950"] {
+        .easyvacc-light [class~="bg-[#020817]"] {
           background-color: #f8fafc !important;
         }
-        .easyvacc-light [class~="bg-slate-900"],
-        .easyvacc-light [class~="bg-slate-900/60"],
-        .easyvacc-light [class~="bg-slate-900/80"] {
+        .easyvacc-light [class~="bg-[#081629]"],
+        .easyvacc-light [class~="bg-[#081629]/60"],
+        .easyvacc-light [class~="bg-[#081629]/80"] {
           background-color: #ffffff !important;
         }
         .easyvacc-light [class~="bg-slate-800"],
@@ -705,7 +702,7 @@ const [proximaDose, setProximaDose] =
         onClick={alternarTema}
         aria-label={temaClaro ? 'Ativar tema escuro' : 'Ativar tema claro'}
         title={temaClaro ? 'Tema escuro' : 'Tema claro'}
-        className="fixed right-4 top-4 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-teal-500 hover:text-teal-400"
+        className="fixed right-4 top-4 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-[#081629] text-slate-200 shadow-lg transition hover:border-blue-600 hover:text-blue-500"
       >
         {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
       </button>
@@ -715,7 +712,7 @@ const [proximaDose, setProximaDose] =
       ================================================= */}
       <div className="mx-auto mb-8 flex max-w-4xl items-center justify-between border-b border-slate-800 pb-6">
         <div>
-          <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-400">
+          <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-500">
             <ShieldAlert size={16} />
             Painel profissional
           </div>
@@ -739,7 +736,7 @@ const [proximaDose, setProximaDose] =
         {/* =================================================
             AVISO
         ================================================= */}
-        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-teal-800/50 bg-teal-950/50 p-4 text-sm text-teal-300">
+        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-blue-800/50 bg-blue-950/50 p-4 text-sm text-blue-300">
           <UserCheck
             size={20}
             className="shrink-0"
@@ -753,8 +750,8 @@ const [proximaDose, setProximaDose] =
         {/* =================================================
             BUSCA CPF
         ================================================= */}
-        <div className="mb-7 rounded-2xl border border-slate-700 bg-slate-900/60 p-5">
-          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-teal-400">
+        <div className="mb-7 rounded-2xl border border-slate-700 bg-[#081629]/60 p-5">
+          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-blue-500">
             CPF e código de atendimento
           </label>
           <p className="mb-3 text-xs text-slate-400">
@@ -763,7 +760,7 @@ const [proximaDose, setProximaDose] =
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_220px_auto]">
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                <CreditCard className="h-5 w-5 text-teal-400" />
+                <CreditCard className="h-5 w-5 text-blue-500" />
               </div>
               <input
                 type="text"
@@ -796,7 +793,7 @@ const [proximaDose, setProximaDose] =
                   }
                 }}
                 maxLength={14}
-                className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3.5 pl-12 pr-4 font-mono text-lg text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500"
+                className="w-full rounded-xl border border-slate-700 bg-[#081629] py-3.5 pl-12 pr-4 font-mono text-lg text-white outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600"
                 placeholder="000.000.000-00"
                 aria-label="CPF do cidadão responsável"
               />
@@ -827,7 +824,7 @@ const [proximaDose, setProximaDose] =
               }}
               maxLength={6}
               aria-label="Código de atendimento"
-              className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3.5 text-center font-mono text-lg tracking-[0.3em] text-white outline-none transition placeholder:tracking-normal focus:border-teal-500 focus:ring-2 focus:ring-teal-500"
+              className="w-full rounded-xl border border-slate-700 bg-[#081629] px-4 py-3.5 text-center font-mono text-lg tracking-[0.3em] text-white outline-none transition placeholder:tracking-normal focus:border-blue-600 focus:ring-2 focus:ring-blue-600"
               placeholder="Código de 6 dígitos"
             />
             <button
@@ -838,7 +835,7 @@ const [proximaDose, setProximaDose] =
               disabled={
                 buscandoPaciente
               }
-              className="flex items-center justify-center gap-2 rounded-xl bg-teal-500 px-6 py-3.5 font-bold text-slate-950 transition hover:bg-teal-400 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 font-bold text-slate-950 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {buscandoPaciente ? (
                 <>
@@ -861,11 +858,11 @@ const [proximaDose, setProximaDose] =
             SELEÇÃO DO PACIENTE
         ================================================= */}
         {paciente && (
-          <div className="mb-7 rounded-2xl border border-slate-700 bg-slate-900/50 p-5">
+          <div className="mb-7 rounded-2xl border border-slate-700 bg-[#081629]/50 p-5">
             <div className="mb-4 flex items-center gap-2">
               <Users
                 size={18}
-                className="text-teal-400"
+                className="text-blue-500"
               />
               <h2 className="font-bold text-white">
                 Selecione o paciente
@@ -889,7 +886,7 @@ const [proximaDose, setProximaDose] =
                 className={`w-full rounded-xl border p-4 text-left transition ${
                   pessoaSelecionada?.tipo ===
                   'titular'
-                    ? 'border-teal-500 bg-teal-500/10'
+                    ? 'border-blue-600 bg-blue-600/10'
                     : 'border-slate-700 bg-slate-800 hover:border-slate-600'
                 }`}
               >
@@ -906,7 +903,7 @@ const [proximaDose, setProximaDose] =
                     'titular' && (
                     <CheckCircle
                       size={20}
-                      className="text-teal-400"
+                      className="text-blue-500"
                     />
                   )}
                 </div>
@@ -938,7 +935,7 @@ const [proximaDose, setProximaDose] =
                       }}
                       className={`w-full rounded-xl border p-4 text-left transition ${
                         selecionado
-                          ? 'border-teal-500 bg-teal-500/10'
+                          ? 'border-blue-600 bg-blue-600/10'
                           : 'border-slate-700 bg-slate-800 hover:border-slate-600'
                       }`}
                     >
@@ -959,7 +956,7 @@ const [proximaDose, setProximaDose] =
                         {selecionado && (
                           <CheckCircle
                             size={20}
-                            className="text-teal-400"
+                            className="text-blue-500"
                           />
                         )}
                       </div>
@@ -975,9 +972,9 @@ const [proximaDose, setProximaDose] =
         ================================================= */}
         {pessoaSelecionada &&
           paciente && (
-            <div className="mb-7 rounded-2xl border border-slate-700 bg-slate-900/50 p-5">
+            <div className="mb-7 rounded-2xl border border-slate-700 bg-[#081629]/50 p-5">
               <div className="mb-5 flex items-start gap-3">
-                <div className="rounded-xl border border-teal-800/50 bg-teal-950/50 p-2.5 text-teal-400">
+                <div className="rounded-xl border border-blue-800/50 bg-blue-950/50 p-2.5 text-blue-500">
                   <History size={20} />
                 </div>
                 <div>
@@ -1026,7 +1023,7 @@ const [proximaDose, setProximaDose] =
                             <div className="flex items-center gap-2">
                               <Syringe
                                 size={17}
-                                className="text-teal-400"
+                                className="text-blue-500"
                               />
                               <p className="font-bold text-white">
                                 {
@@ -1078,7 +1075,7 @@ const [proximaDose, setProximaDose] =
                                   : vacina.status ===
                                       'corrigido'
                                     ? 'border-amber-800 bg-amber-950/50 text-amber-300'
-                                    : 'border-emerald-800 bg-emerald-950/50 text-emerald-300'
+                                    : 'border-blue-800 bg-blue-950/50 text-blue-300'
                               }`}
                             >
                               {vacina.status ===
@@ -1112,7 +1109,7 @@ const [proximaDose, setProximaDose] =
                           </div>
                         </div>
                         {vacina.motivo_correcao && (
-                          <div className="mt-4 rounded-lg border border-slate-700 bg-slate-900/60 p-3 text-xs text-slate-400">
+                          <div className="mt-4 rounded-lg border border-slate-700 bg-[#081629]/60 p-3 text-xs text-slate-400">
                             <strong className="text-slate-300">
                               Observação:
                             </strong>{' '}
@@ -1138,11 +1135,11 @@ const [proximaDose, setProximaDose] =
           className="space-y-6"
         >
           {pessoaSelecionada && (
-            <div className="rounded-xl border border-teal-800/50 bg-teal-950/30 p-4 text-sm">
+            <div className="rounded-xl border border-blue-800/50 bg-blue-950/30 p-4 text-sm">
               <span className="text-slate-400">
                 Registrando vacinação para:{' '}
               </span>
-              <strong className="text-teal-300">
+              <strong className="text-blue-300">
                 {
                   pessoaSelecionada.nome
                 }
@@ -1165,7 +1162,7 @@ const [proximaDose, setProximaDose] =
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <Syringe className="h-5 w-5 text-teal-400" />
+                  <Syringe className="h-5 w-5 text-blue-500" />
                 </div>
                 <input
                   type="text"
@@ -1179,7 +1176,7 @@ const [proximaDose, setProximaDose] =
                   disabled={
                     !pessoaSelecionada
                   }
-                  className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-xl border border-slate-700 bg-[#081629] py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Ex: Tríplice Viral, Febre Amarela, HPV..."
                 />
               </div>
@@ -1191,7 +1188,7 @@ const [proximaDose, setProximaDose] =
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <Calendar className="h-5 w-5 text-teal-400" />
+                  <Calendar className="h-5 w-5 text-blue-500" />
                 </div>
                 <input
                   type="date"
@@ -1207,7 +1204,7 @@ const [proximaDose, setProximaDose] =
                   disabled={
                     !pessoaSelecionada
                   }
-                  className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-50"
+                  className="w-full rounded-xl border border-slate-700 bg-[#081629] py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
                 />
               </div>
             </div>
@@ -1218,7 +1215,7 @@ const [proximaDose, setProximaDose] =
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <Hash className="h-5 w-5 text-teal-400" />
+                  <Hash className="h-5 w-5 text-blue-500" />
                 </div>
                 <input
                   type="text"
@@ -1232,7 +1229,7 @@ const [proximaDose, setProximaDose] =
                   disabled={
                     !pessoaSelecionada
                   }
-                  className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-50"
+                  className="w-full rounded-xl border border-slate-700 bg-[#081629] py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
                   placeholder="Ex: LOTE-98821"
                 />
               </div>
@@ -1244,7 +1241,7 @@ const [proximaDose, setProximaDose] =
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <Factory className="h-5 w-5 text-teal-400" />
+                  <Factory className="h-5 w-5 text-blue-500" />
                 </div>
                 <input
                   type="text"
@@ -1260,7 +1257,7 @@ const [proximaDose, setProximaDose] =
                   disabled={
                     !pessoaSelecionada
                   }
-                  className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-50"
+                  className="w-full rounded-xl border border-slate-700 bg-[#081629] py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
                   placeholder="Ex: Fiocruz, Butantan, Pfizer..."
                 />
               </div>
@@ -1275,7 +1272,7 @@ const [proximaDose, setProximaDose] =
                 value={dose}
                 onChange={(e) => setDose(e.target.value)}
                 disabled={!pessoaSelecionada}
-                className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3.5 text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-50"
+                className="w-full rounded-xl border border-slate-700 bg-[#081629] px-4 py-3.5 text-white outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
               >
                 <option value="">Selecione a dose</option>
                 <option value="1ª dose">1ª dose</option>
@@ -1293,7 +1290,7 @@ const [proximaDose, setProximaDose] =
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                  <Clock className="h-5 w-5 text-teal-400" />
+                  <Clock className="h-5 w-5 text-blue-500" />
                 </div>
                 <input
                   type="date"
@@ -1308,7 +1305,7 @@ const [proximaDose, setProximaDose] =
                   disabled={
                     !pessoaSelecionada
                   }
-                  className="w-full rounded-xl border border-slate-700 bg-slate-900 py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-50"
+                  className="w-full rounded-xl border border-slate-700 bg-[#081629] py-3.5 pl-12 pr-4 text-white outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
                 />
               </div>
             </div>
@@ -1317,7 +1314,7 @@ const [proximaDose, setProximaDose] =
               MENSAGENS
           ================================================= */}
           {mensagem && (
-            <div className="flex items-center gap-2 rounded-xl border border-emerald-800 bg-emerald-950/60 p-4 text-sm font-semibold text-emerald-400">
+            <div className="flex items-center gap-2 rounded-xl border border-blue-800 bg-blue-950/60 p-4 text-sm font-semibold text-blue-500">
               <CheckCircle
                 size={18}
               />
@@ -1339,7 +1336,7 @@ const [proximaDose, setProximaDose] =
                 !pessoaSelecionada ||
                 salvando
               }
-              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-8 py-4 font-black text-slate-950 shadow-lg shadow-teal-500/10 transition hover:from-emerald-400 hover:to-teal-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-600 px-8 py-4 font-black text-slate-950 shadow-lg shadow-blue-600/10 transition hover:from-blue-500 hover:to-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {salvando ? (
                 <>
@@ -1366,10 +1363,10 @@ const [proximaDose, setProximaDose] =
       ================================================= */}
       {vacinaEmEdicao && modoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-700 bg-[#081629] p-6 shadow-2xl">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-teal-400">
+                <p className="text-xs font-bold uppercase tracking-widest text-blue-500">
                   Auditoria de vacinação
                 </p>
                 <h2 className="mt-1 text-2xl font-black text-white">
@@ -1401,7 +1398,7 @@ const [proximaDose, setProximaDose] =
                     type="text"
                     value={editNome}
                     onChange={(e) => setEditNome(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
+                    className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 text-white outline-none focus:border-blue-600"
                   />
                 </div>
                 <div>
@@ -1412,7 +1409,7 @@ const [proximaDose, setProximaDose] =
                     type="date"
                     value={editDataAplicacao}
                     onChange={(e) => setEditDataAplicacao(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
+                    className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 text-white outline-none focus:border-blue-600"
                   />
                 </div>
                 <div>
@@ -1423,7 +1420,7 @@ const [proximaDose, setProximaDose] =
                     type="text"
                     value={editLote}
                     onChange={(e) => setEditLote(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
+                    className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 text-white outline-none focus:border-blue-600"
                   />
                 </div>
                 <div>
@@ -1434,7 +1431,7 @@ const [proximaDose, setProximaDose] =
                     type="text"
                     value={editFabricante}
                     onChange={(e) => setEditFabricante(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
+                    className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 text-white outline-none focus:border-blue-600"
                   />
                 </div>
                 <div>
@@ -1445,7 +1442,7 @@ const [proximaDose, setProximaDose] =
                     required
                     value={editDose}
                     onChange={(e) => setEditDose(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
+                    className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 text-white outline-none focus:border-blue-600"
                   >
                     <option value="">Selecione a dose</option>
                     <option value="1ª dose">1ª dose</option>
@@ -1464,7 +1461,7 @@ const [proximaDose, setProximaDose] =
                     type="date"
                     value={editProximaDose}
                     onChange={(e) => setEditProximaDose(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
+                    className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 text-white outline-none focus:border-blue-600"
                   />
                 </div>
               </div>
@@ -1489,7 +1486,7 @@ const [proximaDose, setProximaDose] =
                     ? 'Explique por que este registro precisa ser corrigido...'
                     : 'Explique por que este registro precisa ser cancelado...'
                 }
-                className="w-full resize-none rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-teal-500"
+                className="w-full resize-none rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 text-white outline-none focus:border-blue-600"
               />
               <p className="mt-1 text-right text-xs text-slate-500">
                 {motivoAlteracao.length}/500

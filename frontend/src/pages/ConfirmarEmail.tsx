@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle2, Mail } from 'lucide-react';
 
@@ -16,6 +17,13 @@ function mascararEmail(email: string) {
 
 export default function ConfirmarEmail() {
   const location = useLocation();
+  const [temaClaro, setTemaClaro] = useState(() => localStorage.getItem("easyvacc-tema") === "claro");
+  useEffect(() => {
+    const atualizar = () => setTemaClaro(localStorage.getItem("easyvacc-tema") === "claro");
+    window.addEventListener("storage", atualizar);
+    window.addEventListener("easyvaccTemaAtualizado", atualizar);
+    return () => { window.removeEventListener("storage", atualizar); window.removeEventListener("easyvaccTemaAtualizado", atualizar); };
+  }, []);
 
   const state = (location.state || {}) as {
     mensagem?: string;
@@ -25,15 +33,27 @@ export default function ConfirmarEmail() {
   const email = state.email || '';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100">
+    <div className={`flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100 ${temaClaro ? "easyvacc-light" : ""}`}>
+      <style>{`
+        .easyvacc-light { background: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-light .text-white, .easyvacc-light .text-slate-100, .easyvacc-light .text-slate-200 { color: #10243e !important; }
+        .easyvacc-light .text-slate-300 { color: #29435f !important; }
+        .easyvacc-light .text-slate-400, .easyvacc-light .text-slate-500 { color: #526780 !important; }
+        .easyvacc-light [class~="bg-slate-900"], .easyvacc-light [class~="bg-slate-900/60"], .easyvacc-light [class~="bg-slate-900/80"] { background-color: #fff !important; }
+        .easyvacc-light [class~="bg-slate-950"], .easyvacc-light [class~="bg-slate-950/70"] { background-color: #edf3f9 !important; }
+        .easyvacc-light [class~="bg-slate-800"], .easyvacc-light [class~="bg-slate-800/70"] { background-color: #e4edf7 !important; }
+        .easyvacc-light [class~="border-slate-800"], .easyvacc-light [class~="border-slate-700"] { border-color: #c7d5e5 !important; }
+        .easyvacc-light input, .easyvacc-light select, .easyvacc-light textarea { color: #10243e !important; background: #fff !important; border-color: #c7d5e5 !important; }
+        .easyvacc-light .text-blue-400, .easyvacc-light .text-blue-300 { color: #175b96 !important; }
+`}</style>
       <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
 
         {/* Ícone */}
         <div className="mb-6 flex justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10">
             <Mail
               size={32}
-              className="text-emerald-400"
+              className="text-blue-400"
               aria-hidden="true"
             />
           </div>
@@ -57,20 +77,20 @@ export default function ConfirmarEmail() {
               E-mail informado
             </p>
 
-            <p className="mt-1 break-all font-semibold text-emerald-400">
+            <p className="mt-1 break-all font-semibold text-blue-400">
               {mascararEmail(email)}
             </p>
           </div>
         )}
 
         {/* Instruções */}
-        <div className="mt-6 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+        <div className="mt-6 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
 
           <div className="flex items-start gap-3">
 
             <CheckCircle2
               size={21}
-              className="mt-0.5 shrink-0 text-emerald-400"
+              className="mt-0.5 shrink-0 text-blue-400"
               aria-hidden="true"
             />
 
@@ -98,7 +118,7 @@ export default function ConfirmarEmail() {
         {/* Login */}
         <Link
           to="/login"
-          className="mt-7 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#00a884] font-bold text-slate-950 transition hover:bg-[#00bd96] focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"
+          className="mt-7 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#1769aa] font-bold text-slate-950 transition hover:bg-[#2582c4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-950"
         >
           Ir para o login
         </Link>

@@ -563,16 +563,24 @@ export default function Notificacoes() {
   ).length;
 
   return (
-    <div className="relative min-h-screen bg-slate-950 pb-16 font-sans text-slate-100 antialiased">
+    <div className="relative min-h-screen bg-[#020817] pb-16 font-sans text-slate-100 antialiased">
+      <style>{`
+        /* Badge de notificação lida: contraste próprio em cada tema. */
+        .easyvacc-light .ev-lida-badge {
+          background-color: #e8f2fc !important;
+          border-color: #a9c9e8 !important;
+          color: #174b78 !important;
+        }
+      `}</style>
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/15 via-[#00a884]/20 to-cyan-500/10 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-blue-600/15 via-[#126ca8]/20 to-blue-600/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+        <header className="mb-8 rounded-2xl border border-slate-800 bg-[#081629]/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-[#00a884]">
+              <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-medium text-[#126ca8]">
                 <Sparkles size={13} aria-hidden="true" />
                 <span>Central de Avisos</span>
                 <ChevronRight
@@ -596,11 +604,11 @@ export default function Notificacoes() {
             {!carregando &&
               notificacoes.length > 0 && (
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-2.5">
+                  <div className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-[#020817]/60 px-4 py-2.5">
                     <div
                       className={`h-2.5 w-2.5 rounded-full ${
                         naoLidas > 0
-                          ? 'animate-pulse bg-[#00a884]'
+                          ? 'animate-pulse bg-[#126ca8]'
                           : 'bg-slate-600'
                       }`}
                     />
@@ -619,7 +627,7 @@ export default function Notificacoes() {
                       onClick={() =>
                         void marcarTodasComoLidas()
                       }
-                      className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 text-xs font-bold text-[#00a884] transition hover:bg-emerald-500/20 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"
+                      className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-blue-600/30 bg-blue-600/10 px-4 text-xs font-bold text-[#126ca8] transition hover:bg-blue-600/20 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
                     >
                       {marcandoTodas ? (
                         <Loader2
@@ -661,7 +669,7 @@ export default function Notificacoes() {
             {[1, 2, 3].map((item) => (
               <div
                 key={item}
-                className="animate-pulse rounded-2xl border border-slate-800 bg-slate-900/80 p-6"
+                className="animate-pulse rounded-2xl border border-slate-800 bg-[#081629]/80 p-6"
               >
                 <div className="flex gap-4">
                   <div className="h-10 w-10 rounded-xl bg-slate-800" />
@@ -688,12 +696,12 @@ export default function Notificacoes() {
                   }
                   className={`relative block w-full overflow-hidden rounded-2xl border p-5 text-left transition-all duration-200 sm:p-6 ${
                     notif.lida
-                      ? 'border-slate-800/80 bg-slate-950/40 text-slate-400 hover:border-slate-700'
-                      : 'border-emerald-500/30 bg-slate-900/90 text-white shadow-xl shadow-[#00a884]/5 backdrop-blur-xl hover:border-emerald-500/50'
-                  } disabled:cursor-wait disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950`}
+                      ? 'border-slate-800/80 bg-[#020817]/40 text-slate-400 hover:border-slate-700'
+                      : 'border-blue-600/30 bg-[#081629]/90 text-white shadow-xl shadow-[#126ca8]/5 backdrop-blur-xl hover:border-blue-600/50'
+                  } disabled:cursor-wait disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950`}
                 >
                   {!notif.lida && (
-                    <div className="absolute bottom-0 left-0 top-0 w-1.5 bg-[#00a884]" />
+                    <div className="absolute bottom-0 left-0 top-0 w-1.5 bg-[#126ca8]" />
                   )}
 
                   <div className="flex items-start gap-4">
@@ -701,7 +709,7 @@ export default function Notificacoes() {
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
                         notif.lida
                           ? 'border-transparent bg-slate-800/60 text-slate-500'
-                          : 'border-[#00a884]/30 bg-[#00a884]/10 text-[#00a884]'
+                          : 'border-[#126ca8]/30 bg-[#126ca8]/10 text-[#126ca8]'
                       }`}
                     >
                       {abrindoId === notif.id ? (
@@ -730,8 +738,8 @@ export default function Notificacoes() {
                         <span
                           className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                             notif.lida
-                              ? 'border-slate-700 bg-slate-800/70 text-slate-400'
-                              : 'border-emerald-500/30 bg-emerald-500/10 text-[#00a884]'
+                              ? 'ev-lida-badge border-[#365473] bg-[#17314f] text-[#e0efff]'
+                              : 'border-blue-600/30 bg-blue-600/10 text-[#126ca8]'
                           }`}
                         >
                           {notif.lida
@@ -755,7 +763,7 @@ export default function Notificacoes() {
                         <span
                           className={
                             notif.tipo === 'campanha'
-                              ? 'font-semibold text-emerald-400'
+                              ? 'font-semibold text-blue-500'
                               : ''
                           }
                         >
@@ -763,7 +771,7 @@ export default function Notificacoes() {
                         </span>
                       </div>
 
-                      <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[#00a884]">
+                      <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[#126ca8]">
                         {notif.tipo === 'campanha' ? (
                           <ExternalLink size={13} aria-hidden="true" />
                         ) : (
@@ -777,8 +785,8 @@ export default function Notificacoes() {
                 </button>
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/60 p-12 text-center shadow-2xl backdrop-blur-xl">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#00a884]/20 bg-[#00a884]/10 text-[#00a884]">
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-[#081629]/60 p-12 text-center shadow-2xl backdrop-blur-xl">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#126ca8]/20 bg-[#126ca8]/10 text-[#126ca8]">
                   <Inbox size={24} aria-hidden="true" />
                 </div>
 

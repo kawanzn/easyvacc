@@ -112,6 +112,7 @@ function calcularStatus(
 
 export default function Campanhas() {
   const [searchParams] = useSearchParams();
+  const [temaClaro] = useState(() => localStorage.getItem('easyvacc-tema') === 'claro');
 
   const [campanhas, setCampanhas] =
     useState<Campanha[]>([]);
@@ -311,10 +312,10 @@ export default function Campanhas() {
   ) {
     switch (status) {
       case 'Campanha oficial':
-        return 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300';
+        return 'border-blue-500/30 bg-blue-500/10 text-blue-300';
 
       case 'Em andamento':
-        return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400';
+        return 'border-blue-500/30 bg-blue-500/10 text-blue-400';
 
       case 'Em breve':
         return 'border-amber-500/30 bg-amber-500/10 text-amber-300';
@@ -328,16 +329,43 @@ export default function Campanhas() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-slate-950 text-slate-100 antialiased">
+    <div className={`relative min-h-screen w-full bg-slate-950 text-slate-100 antialiased easyvacc-campanhas ${temaClaro ? "easyvacc-light" : ""}`}>
 
 
+      <style>{`
+        .easyvacc-campanhas.easyvacc-light { background-color: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-campanhas.easyvacc-light .text-white,
+        .easyvacc-campanhas.easyvacc-light .text-slate-100 { color: #10243e !important; }
+        .easyvacc-campanhas.easyvacc-light .text-slate-200,
+        .easyvacc-campanhas.easyvacc-light .text-slate-300 { color: #29435f !important; }
+        .easyvacc-campanhas.easyvacc-light .text-slate-400,
+        .easyvacc-campanhas.easyvacc-light .text-slate-500 { color: #526780 !important; }
+        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-900/80"],
+        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-900/60"],
+        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-900"],
+        .easyvacc-campanhas.easyvacc-light [class~="bg-[#111827]"] { background-color: #fff !important; }
+        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-950"],
+        .easyvacc-campanhas.easyvacc-light [class~="bg-[#090d16]"] { background-color: #edf3f9 !important; }
+        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-800"],
+        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-800/70"],
+        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-800/60"] { background-color: #e4edf7 !important; }
+        .easyvacc-campanhas.easyvacc-light [class~="border-slate-800"],
+        .easyvacc-campanhas.easyvacc-light [class~="border-slate-700"] { border-color: #c7d5e5 !important; }
+        .easyvacc-campanhas.easyvacc-light .text-blue-400 { color: #1769aa !important; }
+        .easyvacc-campanhas.easyvacc-light .text-blue-300 { color: #175b96 !important; }
+        .easyvacc-campanhas.easyvacc-light .text-blue-200 { color: #164f83 !important; }
+        @media print {
+          .easyvacc-campanhas.easyvacc-light .print\:text-slate-900 { color: #0f172a !important; }
+          .easyvacc-campanhas.easyvacc-light .print\:bg-white { background-color: #fff !important; }
+        }
+      `}</style>
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/10 via-[#00a884]/15 to-cyan-500/10 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-blue-500/10 via-[#1769aa]/15 to-blue-500/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-5xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
         <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
-          <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-[#00a884]">
+          <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-[#1769aa]">
             <Sparkles size={13}  aria-hidden="true" />
             <span>
               Informativo EasyVacc
@@ -356,14 +384,14 @@ export default function Campanhas() {
           </p>
         </div>
 
-        <div className="mb-6 flex items-start gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3">
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3">
           <ShieldCheck
             size={18}
-            className="mt-0.5 shrink-0 text-cyan-400"
+            className="mt-0.5 shrink-0 text-blue-400"
            aria-hidden="true" />
 
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-cyan-200">
+            <p className="text-sm font-semibold text-blue-200">
               Dados de campanhas de vacinação
             </p>
 
@@ -542,14 +570,14 @@ export default function Campanhas() {
                         }}
                         className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-slate-900/60 shadow-xl backdrop-blur-md transition-all duration-500 hover:-translate-y-0.5 hover:shadow-2xl ${
                           selecionada
-                            ? 'scale-[1.01] border-emerald-400 ring-2 ring-emerald-400/50 shadow-emerald-500/10'
+                            ? 'scale-[1.01] border-blue-400 ring-2 ring-blue-400/50 shadow-blue-500/10'
                             : campanha.destaque
-                              ? 'border-emerald-800/80 hover:border-emerald-700'
+                              ? 'border-blue-800/80 hover:border-blue-700'
                               : 'border-slate-800 hover:border-slate-700'
                         }`}
                       >
                         {selecionada && (
-                          <div className="absolute right-3 top-3 z-30 rounded-full border border-emerald-400/40 bg-slate-950/90 px-3 py-1 text-[11px] font-bold text-emerald-300 shadow-lg backdrop-blur">
+                          <div className="absolute right-3 top-3 z-30 rounded-full border border-blue-400/40 bg-slate-950/90 px-3 py-1 text-[11px] font-bold text-blue-300 shadow-lg backdrop-blur">
                             Campanha da
                             notificação
                           </div>
@@ -582,8 +610,8 @@ export default function Campanhas() {
                             </div>
                           </div>
                         ) : (
-                          <div className="relative flex h-40 flex-col justify-between overflow-hidden border-b border-slate-800 bg-gradient-to-br from-slate-900 via-teal-950/40 to-slate-900 p-6">
-                            <div className="absolute right-0 top-0 h-32 w-32 -translate-y-8 translate-x-8 rounded-full bg-[#00a884]/10 blur-2xl transition-all group-hover:bg-[#00a884]/20" />
+                          <div className="relative flex h-40 flex-col justify-between overflow-hidden border-b border-slate-800 bg-gradient-to-br from-slate-900 via-blue-950/40 to-slate-900 p-6">
+                            <div className="absolute right-0 top-0 h-32 w-32 -translate-y-8 translate-x-8 rounded-full bg-[#1769aa]/10 blur-2xl transition-all group-hover:bg-[#1769aa]/20" />
 
                             <div className="z-10 flex items-center justify-between">
                               <span
@@ -600,7 +628,7 @@ export default function Campanhas() {
                                 size={
                                   21
                                 }
-                                className="text-[#00a884]"
+                                className="text-[#1769aa]"
                                aria-hidden="true" />
                             </div>
 
@@ -615,7 +643,7 @@ export default function Campanhas() {
                         <div className="flex flex-1 flex-col p-6">
                           {campanha.destaque && (
                             <div className="mb-3">
-                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-400">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-400">
                                 <Sparkles
                                   size={
                                     11
@@ -647,7 +675,7 @@ export default function Campanhas() {
                                   size={
                                     16
                                   }
-                                  className="mt-0.5 shrink-0 text-[#00a884]"
+                                  className="mt-0.5 shrink-0 text-[#1769aa]"
                                  aria-hidden="true" />
 
                                 <div>
@@ -670,7 +698,7 @@ export default function Campanhas() {
                                   size={
                                     16
                                   }
-                                  className="mt-0.5 shrink-0 text-[#00a884]"
+                                  className="mt-0.5 shrink-0 text-[#1769aa]"
                                  aria-hidden="true" />
 
                                 <div>
@@ -692,7 +720,7 @@ export default function Campanhas() {
                                 size={
                                   16
                                 }
-                                className="mt-0.5 shrink-0 text-[#00a884]"
+                                className="mt-0.5 shrink-0 text-[#1769aa]"
                                aria-hidden="true" />
 
                               <div>
@@ -753,7 +781,7 @@ export default function Campanhas() {
                                   }
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-2 rounded-xl border border-emerald-800/60 bg-emerald-950/30 px-4 py-2.5 text-xs font-bold text-emerald-400 transition hover:border-emerald-700 hover:bg-emerald-950/60 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"
+                                  className="inline-flex items-center gap-2 rounded-xl border border-blue-800/60 bg-blue-950/30 px-4 py-2.5 text-xs font-bold text-blue-400 transition hover:border-blue-700 hover:bg-blue-950/60 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-950"
                                 >
                                   <ExternalLink
                                     size={

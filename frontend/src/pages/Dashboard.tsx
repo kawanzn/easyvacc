@@ -406,7 +406,7 @@ useEffect(() => {
   const tomStatus = useMemo(() => {
     const status = situacao?.status;
     if (status === 'em_dia') {
-      return 'emerald';
+      return 'blue';
     }
     if (status === 'atrasada') {
       return 'amber';
@@ -421,18 +421,18 @@ useEffect(() => {
     >
       <style>{`
         .easyvacc-light {
-          background: #f8fafc !important;
-          color: #0f172a !important;
+          background: #edf3f9 !important;
+          color: #10243e !important;
         }
 
         .easyvacc-light .ev-surface {
           background: #ffffff !important;
-          border-color: #dbe3ee !important;
+          border-color: #cbd5e1 !important;
           box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06) !important;
         }
 
         .easyvacc-light .ev-title {
-          color: #0f172a !important;
+          color: #10243e !important;
         }
 
         .easyvacc-light .ev-text {
@@ -440,23 +440,23 @@ useEffect(() => {
         }
 
         .easyvacc-light .ev-muted {
-          color: #64748b !important;
+          color: #475569 !important;
         }
 
         .easyvacc-light .ev-green {
-          color: #047857 !important;
+          color: #175b96 !important;
         }
 
         .easyvacc-light .ev-hero {
           background:
-            radial-gradient(circle at 88% 18%, rgba(16, 185, 129, 0.12), transparent 30%),
-            linear-gradient(135deg, #ffffff 0%, #f8fafc 58%, #ecfdf5 100%) !important;
+            radial-gradient(circle at 88% 18%, rgba(37, 99, 235, 0.12), transparent 30%),
+            linear-gradient(135deg, #ffffff 0%, #edf3f9 58%, #eff6ff 100%) !important;
           border-color: #cbd5e1 !important;
         }
 
         .easyvacc-light .ev-status {
-          background: #ecfdf5 !important;
-          border-color: #bbf7d0 !important;
+          background: #eff6ff !important;
+          border-color: #bfdbfe !important;
         }
 
         .easyvacc-light .ev-status-warn {
@@ -471,28 +471,39 @@ useEffect(() => {
         }
 
         .easyvacc-light .ev-badge {
-          background: #5b6474 !important;
-          color: #ffffff !important;
+          background: #dbeafe !important;
+          color: #1e40af !important;
+          border: 1px solid #93c5fd !important;
         }
 
         .easyvacc-light .ev-campaign {
-          background: linear-gradient(135deg, #ecfeff 0%, #f0fdf4 100%) !important;
-          border-color: #a5f3fc !important;
+          background: linear-gradient(135deg, #eff6ff 0%, #eff6ff 100%) !important;
+          border-color: #bfdbfe !important;
+        }
+
+        .easyvacc-light .ev-service .ev-service-icon {
+          background: #e8f2fc !important;
+          color: #1478b8 !important;
+          border: 1px solid #bfdbfe !important;
+        }
+
+        .easyvacc-light .ev-service .ev-service-arrow {
+          color: #2563a6 !important;
         }
 
         .easyvacc-light .ev-service:hover {
-          background: #f0fdf4 !important;
-          border-color: #a7f3d0 !important;
+          background: #eff6ff !important;
+          border-color: #bfdbfe !important;
         }
       `}</style>
 
       <div className="relative isolate overflow-hidden">
-        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_36%)]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.12),transparent_36%)]" />
 
         <div className="mx-auto max-w-7xl px-5 py-7 sm:px-6 md:px-10 md:py-10">
           <header className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-400 ev-green">
+              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-400 ev-green">
                 <Sparkles size={15} />
                 <span>Minha saúde</span>
               </div>
@@ -509,16 +520,16 @@ useEffect(() => {
                 to="/notificacoes"
                 aria-label="Notificações"
                 title="Notificações"
-                className="ev-surface flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-300 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/30"
+                className="ev-surface flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-300 shadow-lg transition hover:-translate-y-0.5 hover:border-blue-500/30"
               >
                 <Bell size={18} aria-hidden="true" />
               </Link>
 
               <Link
                 to="/perfil"
-                className="ev-surface flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900 px-3 py-2 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/30"
+                className="ev-surface flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900 px-3 py-2 shadow-lg transition hover:-translate-y-0.5 hover:border-blue-500/30"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 ev-green">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 ev-green">
                   <User size={16} />
                 </div>
                 <div className="hidden text-left sm:block">
@@ -559,10 +570,10 @@ useEffect(() => {
 
           {situacao && !carregando && (
             <>
-              <section className="ev-hero ev-surface relative mb-6 overflow-hidden rounded-[30px] border border-slate-800 bg-[radial-gradient(circle_at_88%_18%,rgba(16,185,129,0.16),transparent_28%),linear-gradient(135deg,#0f172a_0%,#111827_55%,#052e2b_100%)] shadow-2xl">
+              <section className="ev-hero ev-surface relative mb-6 overflow-hidden rounded-[30px] border border-slate-800 bg-[radial-gradient(circle_at_88%_18%,rgba(37,99,235,0.16),transparent_28%),linear-gradient(135deg,#10243e_0%,#111827_55%,#052e2b_100%)] shadow-2xl">
                 <div className="grid lg:grid-cols-[1fr_390px]">
                   <div className="relative p-6 sm:p-8 lg:p-10">
-                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-300 ev-green">
+                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-xs font-bold text-blue-300 ev-green">
                       <User size={14} />
                       {pessoa?.tipo === 'dependente'
                         ? 'Caderneta do dependente'
@@ -585,7 +596,7 @@ useEffect(() => {
                     <div className="mt-7 flex flex-wrap gap-3">
                       <Link
                         to="/historico"
-                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-emerald-500"
+                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-500"
                       >
                         <Syringe size={16} />
                         Ver carteira
@@ -616,8 +627,8 @@ useEffect(() => {
                         <div className="mt-5 flex items-start gap-4">
                           <div
                             className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border ${
-                              tomStatus === 'emerald'
-                                ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                              tomStatus === 'blue'
+                                ? 'border-blue-500/20 bg-blue-500/10 text-blue-400'
                                 : tomStatus === 'amber'
                                   ? 'border-amber-500/20 bg-amber-500/10 text-amber-300'
                                   : 'border-slate-700 bg-slate-800 text-slate-300'
@@ -625,7 +636,7 @@ useEffect(() => {
                           >
                             {tomStatus === 'amber' ? (
                               <AlertTriangle size={25} />
-                            ) : tomStatus === 'emerald' ? (
+                            ) : tomStatus === 'blue' ? (
                               <CheckCircle2 size={25} />
                             ) : (
                               <ShieldCheck size={25} />
@@ -662,12 +673,12 @@ useEffect(() => {
               </section>
 
               <section className="mb-8 grid gap-4 md:grid-cols-3">
-                <div className="ev-surface rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition hover:-translate-y-1 hover:border-emerald-500/20">
+                <div className="ev-surface rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition hover:-translate-y-1 hover:border-blue-500/20">
                   <div className="mb-5 flex items-start justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 ev-green">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 ev-green">
                       <Syringe size={20} />
                     </div>
-                    <span className="ev-badge rounded-full bg-slate-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-200">
+                    <span className="ev-badge rounded-full bg-blue-900/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-100">
                       Carteira
                     </span>
                   </div>
@@ -692,7 +703,7 @@ useEffect(() => {
                       className={`flex h-11 w-11 items-center justify-center rounded-xl ${
                         situacao.atrasadas.length > 0
                           ? 'bg-amber-500/10 text-amber-300'
-                          : 'bg-emerald-500/10 text-emerald-400 ev-green'
+                          : 'bg-blue-500/10 text-blue-400 ev-green'
                       }`}
                     >
                       {situacao.atrasadas.length > 0 ? (
@@ -701,7 +712,7 @@ useEffect(() => {
                         <CheckCircle2 size={20} />
                       )}
                     </div>
-                    <span className="ev-badge rounded-full bg-slate-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-200">
+                    <span className="ev-badge rounded-full bg-blue-900/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-100">
                       Atenção
                     </span>
                   </div>
@@ -720,12 +731,12 @@ useEffect(() => {
                   </p>
                 </div>
 
-                <div className="ev-surface rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition hover:-translate-y-1 hover:border-cyan-500/20">
+                <div className="ev-surface rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition hover:-translate-y-1 hover:border-blue-500/20">
                   <div className="mb-5 flex items-start justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-300">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-300">
                       <CalendarDays size={20} />
                     </div>
-                    <span className="ev-badge rounded-full bg-slate-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-200">
+                    <span className="ev-badge rounded-full bg-blue-900/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-100">
                       Agenda
                     </span>
                   </div>
@@ -746,14 +757,14 @@ useEffect(() => {
               </section>
 
               {situacao.campanhasAplicaveis.length > 0 && (
-                <section className="ev-campaign mb-8 overflow-hidden rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/[0.08] to-emerald-500/[0.06] p-5 sm:p-6">
+                <section className="ev-campaign mb-8 overflow-hidden rounded-2xl border border-blue-500/20 bg-gradient-to-r from-blue-500/[0.08] to-blue-500/[0.06] p-5 sm:p-6">
                   <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex gap-4">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-300">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-300">
                         <Megaphone size={20} />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-300">
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-300">
                           Campanhas ativas
                         </p>
                         <h2 className="mt-1 text-base font-extrabold text-white ev-title">
@@ -772,7 +783,7 @@ useEffect(() => {
 
                     <Link
                       to="/campanhas"
-                      className="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-cyan-300"
+                      className="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-blue-300"
                     >
                       Ver campanhas
                       <ArrowRight size={14} />
@@ -821,9 +832,9 @@ useEffect(() => {
                     <Link
                       key={servico.to}
                       to={servico.to}
-                      className="ev-service ev-surface group rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg transition hover:-translate-y-1 hover:border-emerald-500/20"
+                      className="ev-service ev-surface group rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg transition hover:-translate-y-1 hover:border-blue-500/20"
                     >
-                      <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800/70 text-slate-300 transition group-hover:bg-emerald-500/10 group-hover:text-emerald-400">
+                      <div className="ev-service-icon mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/15 text-blue-300 transition group-hover:bg-blue-500/20 group-hover:text-blue-200">
                         <servico.icon size={19} />
                       </div>
                       <div className="flex items-center justify-between gap-3">
@@ -832,7 +843,7 @@ useEffect(() => {
                         </h3>
                         <ArrowRight
                           size={15}
-                          className="text-slate-600 transition group-hover:translate-x-1 group-hover:text-emerald-400"
+                          className="ev-service-arrow text-blue-400 transition group-hover:translate-x-1 group-hover:text-blue-300"
                         />
                       </div>
                       <p className="mt-2 text-xs leading-5 text-slate-400 ev-muted">
@@ -860,7 +871,7 @@ useEffect(() => {
 
                 <Link
                   to="/dependentes"
-                  className="ev-secondary inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:border-emerald-500/30"
+                  className="ev-secondary inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:border-blue-500/30"
                 >
                   Gerenciar dependentes
                   <ArrowRight size={14} />

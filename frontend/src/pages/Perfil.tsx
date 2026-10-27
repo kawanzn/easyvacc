@@ -852,7 +852,7 @@ export default function Perfil() {
   // =====================================================
   if (carregando) {
   return (
-    <div className="mx-auto min-h-screen max-w-5xl bg-slate-950 p-4 pb-20 text-slate-100 sm:p-8">
+    <div className="mx-auto min-h-screen max-w-5xl bg-[#020817] p-4 pb-20 text-slate-100 sm:p-8">
       <div
         role="status"
         aria-live="polite"
@@ -870,7 +870,7 @@ export default function Perfil() {
         </div>
 
         {/* Card principal */}
-        <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90">
+        <div className="overflow-hidden rounded-3xl border border-slate-800 bg-[#081629]/90">
           <div className="h-32 animate-pulse border-b border-slate-800 bg-slate-800/60" />
 
           <div className="relative px-5 pb-8 sm:px-8">
@@ -921,7 +921,7 @@ export default function Perfil() {
       className="
         mx-auto min-h-screen
         max-w-5xl
-        bg-slate-950
+        bg-[#020817]
         p-4 pb-20
         font-sans
         text-slate-100
@@ -983,7 +983,7 @@ export default function Perfil() {
             flex items-center gap-2
             rounded-xl
             border border-slate-700/80
-            bg-slate-900
+            bg-[#081629]
             px-3.5 py-2
             text-xs text-slate-300
             shadow-sm
@@ -991,20 +991,20 @@ export default function Perfil() {
             hover:bg-slate-800
             focus:outline-none
             focus:ring-2
-            focus:ring-emerald-500
+            focus:ring-blue-600
           "
         >
           {mostrarSensiveis ? (
             <EyeOff
               size={15}
               aria-hidden="true"
-              className="text-[#00a884]"
+              className="text-[#126ca8]"
             />
           ) : (
             <Eye
               size={15}
               aria-hidden="true"
-              className="text-[#00a884]"
+              className="text-[#126ca8]"
             />
           )}
           <span>
@@ -1038,11 +1038,11 @@ export default function Perfil() {
           className="
             mb-6 flex items-center gap-2
             rounded-xl
-            border border-emerald-500/30
-            bg-emerald-500/10
+            border border-blue-600/30
+            bg-blue-600/10
             p-4
             text-sm font-semibold
-            text-emerald-300
+            text-blue-300
           "
         >
           <CheckCircle
@@ -1058,7 +1058,7 @@ export default function Perfil() {
           relative overflow-hidden
           rounded-3xl
           border border-slate-800
-          bg-slate-900/90
+          bg-[#081629]/90
           shadow-2xl
           backdrop-blur-xl
         "
@@ -1071,7 +1071,7 @@ export default function Perfil() {
             border-b
             border-slate-800/80
             bg-gradient-to-r
-            from-emerald-950
+            from-blue-950
             via-slate-900
             to-slate-950
           "
@@ -1082,7 +1082,7 @@ export default function Perfil() {
               -bottom-10 -right-10
               h-40 w-40
               rounded-full
-              bg-[#00a884]/20
+              bg-[#126ca8]/20
               blur-3xl
             "
           />
@@ -1097,7 +1097,7 @@ export default function Perfil() {
                 cursor-pointer
                 rounded-full
                 focus-within:ring-2
-                focus-within:ring-emerald-500
+                focus-within:ring-blue-600
               "
             >
               <div
@@ -1110,7 +1110,7 @@ export default function Perfil() {
                   rounded-full
                   border-4
                   border-slate-900
-                  bg-slate-950
+                  bg-[#020817]
                   shadow-2xl
                 "
               >
@@ -1118,12 +1118,12 @@ export default function Perfil() {
                   <div
                     role="status"
                     aria-label="Enviando foto"
-                    className="flex h-full w-full items-center justify-center bg-slate-950"
+                    className="flex h-full w-full items-center justify-center bg-[#020817]"
                   >
                     <Loader2
                       size={26}
                       aria-hidden="true"
-                      className="animate-spin text-[#00a884]"
+                      className="animate-spin text-[#126ca8]"
                     />
                   </div>
                 ) : fotoPerfil ? (
@@ -1133,7 +1133,7 @@ export default function Perfil() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-3xl font-black text-[#00a884]">
+                  <span className="text-3xl font-black text-[#126ca8]">
                     {usuario.nome
                       ? usuario.nome.charAt(0).toUpperCase()
                       : '?'}
@@ -1145,7 +1145,7 @@ export default function Perfil() {
                     flex flex-col
                     items-center
                     justify-center
-                    bg-slate-950/70
+                    bg-[#020817]/70
                     text-white
                     opacity-0
                     transition-opacity
@@ -1215,7 +1215,7 @@ export default function Perfil() {
                 <MapPin
                   size={15}
                   aria-hidden="true"
-                  className="text-[#00a884]"
+                  className="text-[#126ca8]"
                 />
                 {usuario.cidade ||
                   'Cidade não informada'}
@@ -1229,17 +1229,17 @@ export default function Perfil() {
                   flex items-center
                   gap-2
                   rounded-xl
-                  border border-emerald-500/30
-                  bg-emerald-500/10
+                  border border-blue-600/30
+                  bg-blue-600/10
                   px-4 py-2.5
                   text-xs
                   font-bold
-                  text-emerald-300
+                  text-blue-300
                   transition
-                  hover:bg-emerald-500/20
+                  hover:bg-blue-600/20
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-emerald-500
+                  focus:ring-blue-600
                 "
               >
                 <Pencil
@@ -1278,7 +1278,7 @@ export default function Perfil() {
                 <User
                   size={16}
                   aria-hidden="true"
-                  className="text-[#00a884]"
+                  className="text-[#126ca8]"
                 />
                 Identificação
               </h3>
@@ -1300,7 +1300,7 @@ export default function Perfil() {
                   <CreditCard
                     size={16}
                     aria-hidden="true"
-                    className="text-[#00a884]"
+                    className="text-[#126ca8]"
                   />
                   {mascararCpf(
                     usuario.cpf
@@ -1325,7 +1325,7 @@ export default function Perfil() {
                   <Activity
                     size={16}
                     aria-hidden="true"
-                    className="text-[#00a884]"
+                    className="text-[#126ca8]"
                   />
                   {mascararCns(
                     usuario.cns
@@ -1348,7 +1348,7 @@ export default function Perfil() {
                   <Calendar
                     size={16}
                     aria-hidden="true"
-                    className="text-[#00a884]"
+                    className="text-[#126ca8]"
                   />
                   {usuario.dataNascimento ||
                     'Não informada'}
@@ -1371,7 +1371,7 @@ export default function Perfil() {
                 <MapPin
                   size={16}
                   aria-hidden="true"
-                  className="text-[#00a884]"
+                  className="text-[#126ca8]"
                 />
                 Contato e Endereço
               </h3>
@@ -1395,7 +1395,7 @@ export default function Perfil() {
                     aria-hidden="true"
                     className="
                       shrink-0
-                      text-[#00a884]
+                      text-[#126ca8]
                     "
                   />
                   {usuario.email ||
@@ -1434,16 +1434,16 @@ export default function Perfil() {
                       rounded-xl
                       border
                       border-slate-700
-                      bg-slate-950
+                      bg-[#020817]
                       px-3 py-2.5
                       text-sm
                       text-white
                       outline-none
                       transition
                       placeholder:text-slate-600
-                      focus:border-emerald-500
+                      focus:border-blue-600
                       focus:ring-2
-                      focus:ring-emerald-500/20
+                      focus:ring-blue-600/20
                     "
                   />
                 ) : (
@@ -1459,7 +1459,7 @@ export default function Perfil() {
                     <Phone
                       size={16}
                       aria-hidden="true"
-                      className="text-[#00a884]"
+                      className="text-[#126ca8]"
                     />
                     {usuario.telefone ||
                       'Não informado'}
@@ -1498,16 +1498,16 @@ export default function Perfil() {
                       rounded-xl
                       border
                       border-slate-700
-                      bg-slate-950
+                      bg-[#020817]
                       px-3 py-2.5
                       text-sm
                       text-white
                       outline-none
                       transition
                       placeholder:text-slate-600
-                      focus:border-emerald-500
+                      focus:border-blue-600
                       focus:ring-2
-                      focus:ring-emerald-500/20
+                      focus:ring-blue-600/20
                     "
                   />
                 ) : (
@@ -1526,7 +1526,7 @@ export default function Perfil() {
                       className="
                         mt-0.5
                         shrink-0
-                        text-[#00a884]
+                        text-[#126ca8]
                       "
                     />
                     <span className="leading-snug">
@@ -1553,7 +1553,7 @@ export default function Perfil() {
                 <Heart
                   size={16}
                   aria-hidden="true"
-                  className="text-[#00a884]"
+                  className="text-[#126ca8]"
                 />
                 Dados Clínicos (Restrito)
               </h3>
@@ -1586,15 +1586,15 @@ export default function Perfil() {
                       rounded-xl
                       border
                       border-slate-700
-                      bg-slate-950
+                      bg-[#020817]
                       px-3 py-2.5
                       text-sm
                       text-white
                       outline-none
                       transition
-                      focus:border-emerald-500
+                      focus:border-blue-600
                       focus:ring-2
-                      focus:ring-emerald-500/20
+                      focus:ring-blue-600/20
                     "
                   >
                     <option value="">
@@ -1670,16 +1670,16 @@ export default function Perfil() {
                       rounded-xl
                       border
                       border-slate-700
-                      bg-slate-950
+                      bg-[#020817]
                       px-3 py-2.5
                       text-sm
                       text-white
                       outline-none
                       transition
                       placeholder:text-slate-600
-                      focus:border-emerald-500
+                      focus:border-blue-600
                       focus:ring-2
-                      focus:ring-emerald-500/20
+                      focus:ring-blue-600/20
                     "
                   />
                 ) : (
@@ -1752,7 +1752,7 @@ export default function Perfil() {
                           rounded-xl
                           border
                           border-slate-700
-                          bg-slate-950
+                          bg-[#020817]
                           px-3 py-2.5
                           text-sm
                           text-white
@@ -1796,7 +1796,7 @@ export default function Perfil() {
                           rounded-xl
                           border
                           border-slate-700
-                          bg-slate-950
+                          bg-[#020817]
                           px-3 py-2.5
                           text-sm
                           text-white
@@ -1838,7 +1838,7 @@ export default function Perfil() {
             </div>
           </div>
           {/* AUTORIZAÇÃO DE ATENDIMENTO */}
-          <section className="mt-10 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+          <section className="mt-10 rounded-2xl border border-blue-600/20 bg-blue-600/5 p-5">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <h3 className="text-sm font-bold text-white">Autorizar atendimento</h3>
@@ -1850,16 +1850,16 @@ export default function Perfil() {
                 type="button"
                 onClick={() => void gerarAutorizacaoAtendimento()}
                 disabled={gerandoAutorizacao}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {gerandoAutorizacao ? <Loader2 size={15} className="animate-spin" aria-hidden="true" /> : <CheckCircle size={15} aria-hidden="true" />}
                 {gerandoAutorizacao ? 'Gerando...' : codigoAutorizacao ? 'Gerar novo código' : 'Gerar código'}
               </button>
             </div>
             {codigoAutorizacao && (
-              <div className="mt-5 rounded-xl border border-emerald-500/30 bg-slate-950 p-4" role="status" aria-live="polite">
+              <div className="mt-5 rounded-xl border border-blue-600/30 bg-[#020817] p-4" role="status" aria-live="polite">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Código de atendimento</p>
-                <p className="mt-1 font-mono text-3xl font-black tracking-[0.25em] text-emerald-400">{codigoAutorizacao}</p>
+                <p className="mt-1 font-mono text-3xl font-black tracking-[0.25em] text-blue-500">{codigoAutorizacao}</p>
                 <p className="mt-2 text-xs text-slate-400">
                   Válido até {new Date(expiraAutorizacao).toLocaleString('pt-BR')}. Informe ao profissional seu CPF e este código somente durante o atendimento.
                 </p>
@@ -1891,18 +1891,18 @@ export default function Perfil() {
                 type="button"
                 onClick={() => void baixarDadosPdf()}
                 disabled={salvando || exportandoDados}
-                className="flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
-                {exportandoDados ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <FileText size={14} className="text-[#00a884]" aria-hidden="true" />}
+                {exportandoDados ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <FileText size={14} className="text-[#126ca8]" aria-hidden="true" />}
                 Baixar PDF
               </button>
               <button
                 type="button"
                 onClick={() => void baixarDadosJson()}
                 disabled={salvando || exportandoDados}
-                className="flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
-                <Download size={14} className="text-[#00a884]" aria-hidden="true" />
+                <Download size={14} className="text-[#126ca8]" aria-hidden="true" />
                 Baixar JSON
               </button>
               <button
@@ -1951,7 +1951,7 @@ export default function Perfil() {
                     rounded-xl
                     border
                     border-slate-700
-                    bg-slate-900
+                    bg-[#081629]
                     px-5 py-3
                     text-xs
                     font-bold
@@ -1980,19 +1980,19 @@ export default function Perfil() {
                     justify-center
                     gap-2
                     rounded-xl
-                    bg-emerald-600
+                    bg-blue-600
                     px-6 py-3
                     text-xs
                     font-bold
                     text-slate-950
                     shadow-md
                     transition-all
-                    hover:bg-emerald-500
+                    hover:bg-blue-600
                     disabled:cursor-not-allowed
                     disabled:opacity-60
                     focus:outline-none
                     focus:ring-2
-                    focus:ring-emerald-400
+                    focus:ring-blue-500
                   "
                 >
                   {salvando ? (
@@ -2022,18 +2022,18 @@ export default function Perfil() {
                   justify-center
                   gap-2
                   rounded-xl
-                  bg-emerald-600
+                  bg-blue-600
                   px-6 py-3
                   text-xs
                   font-bold
                   text-slate-950
                   shadow-md
                   transition-all
-                  hover:bg-emerald-500
+                  hover:bg-blue-600
                   active:scale-[0.99]
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-emerald-400
+                  focus:ring-blue-500
                   sm:w-auto
                 "
               >
@@ -2048,8 +2048,8 @@ export default function Perfil() {
         </div>
       </div>
       {modalExclusao && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-exclusao">
-          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-rose-500/30 bg-slate-900 p-5 shadow-2xl sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020817]/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-exclusao">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-rose-500/30 bg-[#081629] p-5 shadow-2xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 id="titulo-exclusao" className="text-lg font-extrabold text-white">Solicitar exclusão da conta</h2>
@@ -2077,28 +2077,28 @@ export default function Perfil() {
         </div>
       )}
       {modalReautenticacao && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-reauth">
-          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020817]/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-reauth">
+          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#081629] p-6 shadow-2xl">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 id="titulo-reauth" className="text-lg font-extrabold text-white">Confirmar sua identidade</h2>
                 <p className="mt-2 text-sm leading-relaxed text-slate-400">Digite sua senha para visualizar CPF e CNS completos.</p>
               </div>
-              <button type="button" onClick={fecharReautenticacao} disabled={validandoSenha} aria-label="Fechar confirmação de identidade" className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50">
+              <button type="button" onClick={fecharReautenticacao} disabled={validandoSenha} aria-label="Fechar confirmação de identidade" className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50">
                 <X size={18} aria-hidden="true" />
               </button>
             </div>
             <form onSubmit={confirmarReautenticacao}>
               <label htmlFor="senha-reauth" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">Senha</label>
               <div className="relative">
-                <input id="senha-reauth" type={mostrarSenhaReautenticacao ? 'text' : 'password'} value={senhaReautenticacao} onChange={(e) => setSenhaReautenticacao(e.target.value)} autoComplete="current-password" autoFocus required disabled={validandoSenha} className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 pr-12 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-60" placeholder="Digite sua senha" />
-                <button type="button" onClick={() => setMostrarSenhaReautenticacao((valor) => !valor)} disabled={validandoSenha} aria-label={mostrarSenhaReautenticacao ? 'Ocultar senha' : 'Mostrar senha'} className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 disabled:opacity-50">
+                <input id="senha-reauth" type={mostrarSenhaReautenticacao ? 'text' : 'password'} value={senhaReautenticacao} onChange={(e) => setSenhaReautenticacao(e.target.value)} autoComplete="current-password" autoFocus required disabled={validandoSenha} className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 pr-12 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60" placeholder="Digite sua senha" />
+                <button type="button" onClick={() => setMostrarSenhaReautenticacao((valor) => !valor)} disabled={validandoSenha} aria-label={mostrarSenhaReautenticacao ? 'Ocultar senha' : 'Mostrar senha'} className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-600 disabled:opacity-50">
                   {mostrarSenhaReautenticacao ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                 </button>
               </div>
               <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button type="button" onClick={fecharReautenticacao} disabled={validandoSenha} className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50">Cancelar</button>
-                <button type="submit" disabled={validandoSenha || !senhaReautenticacao} className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 disabled:cursor-not-allowed disabled:opacity-60">
+                <button type="submit" disabled={validandoSenha || !senhaReautenticacao} className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60">
                   {validandoSenha && <Loader2 size={15} aria-hidden="true" className="animate-spin" />}
                   {validandoSenha ? 'Confirmando...' : 'Confirmar e exibir'}
                 </button>

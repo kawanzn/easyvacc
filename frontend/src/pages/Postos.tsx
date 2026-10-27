@@ -416,14 +416,14 @@ export default function Postos() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-slate-950 text-slate-100 antialiased">
+    <div className="relative min-h-screen w-full bg-[#020817] text-slate-100 antialiased">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/10 via-[#00a884]/15 to-cyan-500/10 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-blue-600/10 via-[#126ca8]/15 to-blue-600/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-8 pb-20 sm:px-6 lg:px-8">
-        <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
-          <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-[#00a884]">
+        <div className="mb-6 rounded-2xl border border-slate-800 bg-[#081629]/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
+          <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-medium text-[#126ca8]">
             <Sparkles size={13} />
             <span>
               Rede de Atendimento
@@ -464,14 +464,14 @@ export default function Postos() {
                   disabled={carregando}
                   placeholder="CEP, cidade, bairro ou unidade"
                   aria-label="Buscar posto de saúde"
-                  className="min-h-12 w-full rounded-xl border border-slate-700 bg-slate-950/80 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-60"
+                  className="min-h-12 w-full rounded-xl border border-slate-700 bg-[#020817]/80 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={carregando}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#00a884] px-5 text-sm font-bold text-white transition hover:bg-[#009578] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-5 text-sm font-bold text-white transition hover:bg-[#126ca8] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {carregando &&
                 modoBusca !== 'localizacao' ? (
@@ -491,7 +491,7 @@ export default function Postos() {
               type="button"
               onClick={usarMinhaLocalizacao}
               disabled={carregando}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 text-sm font-bold text-[#00a884] transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-blue-600/30 bg-blue-600/10 px-5 text-sm font-bold text-[#126ca8] transition hover:bg-blue-600/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {carregando &&
               modoBusca !== 'manual' ? (
@@ -522,14 +522,14 @@ export default function Postos() {
           </p>
         </div>
 
-        <div className="mb-6 flex items-start gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3">
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-blue-600/20 bg-blue-600/5 px-4 py-3">
           <ShieldCheck
             size={18}
-            className="mt-0.5 shrink-0 text-cyan-400"
+            className="mt-0.5 shrink-0 text-blue-500"
           />
 
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-cyan-200">
+            <p className="text-sm font-semibold text-blue-200">
               Dados de unidades de saúde
             </p>
 
@@ -596,7 +596,7 @@ export default function Postos() {
           <div className="flex flex-col items-center justify-center py-20 text-slate-400">
             <Loader2
               size={34}
-              className="animate-spin text-[#00a884]"
+              className="animate-spin text-[#126ca8]"
             />
 
             <p className="mt-4 text-sm font-medium">
@@ -612,8 +612,8 @@ export default function Postos() {
         {!carregando &&
           modoBusca === null &&
           !erro && (
-            <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 p-10 text-center sm:p-12">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-500">
+            <div className="rounded-2xl border border-dashed border-slate-800 bg-[#081629]/30 p-10 text-center sm:p-12">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-800 bg-[#081629] text-slate-500">
                 <MapPinned size={28} />
               </div>
 
@@ -672,7 +672,7 @@ export default function Postos() {
                     <button
                       type="button"
                       onClick={limparBuscaManual}
-                      className="text-xs font-semibold text-[#00a884] hover:underline"
+                      className="text-xs font-semibold text-[#126ca8] hover:underline"
                     >
                       Limpar busca
                     </button>
@@ -695,14 +695,14 @@ export default function Postos() {
                           posto.cnes ??
                           `${posto.latitude}-${posto.longitude}`
                         }
-                        className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl backdrop-blur-md transition-all hover:border-slate-700 md:p-7"
+                        className="rounded-2xl border border-slate-800 bg-[#081629]/60 p-6 shadow-xl backdrop-blur-md transition-all hover:border-slate-700 md:p-7"
                       >
                         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
                           <div className="min-w-0 flex-1">
                             <div className="mb-3 flex flex-wrap items-center gap-2">
                               {modoBusca === 'localizacao' &&
                                 distancia && (
-                                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-[#00a884]">
+                                  <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-[#126ca8]">
                                     <Navigation
                                       size={12}
                                     />
@@ -712,14 +712,14 @@ export default function Postos() {
 
                               {modoBusca === 'localizacao' &&
                                 index === 0 && (
-                                  <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-300">
+                                  <span className="rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-300">
                                     Mais próxima
                                   </span>
                                 )}
 
                               {modoBusca === 'manual' &&
                                 posto.municipio && (
-                                  <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-300">
+                                  <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-300">
                                     <MapPin
                                       size={12}
                                     />
@@ -747,7 +747,7 @@ export default function Postos() {
                               <p className="flex items-start gap-2 text-sm text-slate-300">
                                 <MapPin
                                   size={16}
-                                  className="mt-0.5 shrink-0 text-[#00a884]"
+                                  className="mt-0.5 shrink-0 text-[#126ca8]"
                                 />
 
                                 <span>
@@ -765,11 +765,11 @@ export default function Postos() {
                                       posto.telefone!
                                     )
                                   }
-                                  className="flex items-center gap-2 text-left text-sm text-slate-300 transition hover:text-[#00a884]"
+                                  className="flex items-center gap-2 text-left text-sm text-slate-300 transition hover:text-[#126ca8]"
                                 >
                                   <Phone
                                     size={15}
-                                    className="shrink-0 text-[#00a884]"
+                                    className="shrink-0 text-[#126ca8]"
                                   />
 
                                   {posto.telefone}
@@ -802,7 +802,7 @@ export default function Postos() {
                                   posto
                                 )
                               }
-                              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-[#00a884] transition hover:bg-emerald-500/20 md:w-auto"
+                              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-blue-600/30 bg-blue-600/10 px-4 py-3 text-sm font-semibold text-[#126ca8] transition hover:bg-blue-600/20 md:w-auto"
                             >
                               <Navigation
                                 size={17}
@@ -857,7 +857,7 @@ export default function Postos() {
                 <button
                   type="button"
                   onClick={limparBuscaManual}
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#00a884] hover:underline"
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#126ca8] hover:underline"
                 >
                   <RefreshCw size={15} />
                   Fazer outra busca
@@ -866,7 +866,7 @@ export default function Postos() {
                 <button
                   type="button"
                   onClick={usarMinhaLocalizacao}
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#00a884] hover:underline"
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#126ca8] hover:underline"
                 >
                   <RefreshCw size={15} />
                   Tentar novamente

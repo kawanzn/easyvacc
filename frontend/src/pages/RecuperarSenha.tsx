@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -47,6 +47,19 @@ function mensagemErroRecuperacao(error: unknown): string {
 }
 
 export default function RecuperarSenha() {
+  const [temaClaro, setTemaClaro] = useState(() => localStorage.getItem('easyvacc-tema') === 'claro');
+  useEffect(() => {
+    const atualizarTema = () => setTemaClaro(localStorage.getItem('easyvacc-tema') === 'claro');
+    window.addEventListener('storage', atualizarTema);
+    window.addEventListener('easyvacc-tema-atualizado', atualizarTema);
+    window.addEventListener('easyvaccTemaAtualizado', atualizarTema);
+    return () => {
+      window.removeEventListener('storage', atualizarTema);
+      window.removeEventListener('easyvacc-tema-atualizado', atualizarTema);
+      window.removeEventListener('easyvaccTemaAtualizado', atualizarTema);
+    };
+  }, []);
+
   const [email, setEmail] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState(false);
@@ -90,18 +103,47 @@ export default function RecuperarSenha() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100">
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+    <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] p-4 text-slate-100`}>
+      <style>{`
+        .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
+        .ev-public-light [class~="bg-[#020817]"],
+        .ev-public-light [class~="bg-[#090d16]"] {background:#f5f9ff !important;}
+        .ev-public-light [class~="bg-[#081629]"],
+        .ev-public-light [class~="bg-[#111827]"],
+        .ev-public-light [class~="bg-[#0d1420]"] {background:#fff !important;}
+        .ev-public-light [class~="text-white"],
+        .ev-public-light [class~="text-slate-100"],
+        .ev-public-light [class~="text-slate-200"] {color:#102b49 !important;}
+        .ev-public-light [class~="text-slate-300"] {color:#34516e !important;}
+        .ev-public-light [class~="text-slate-400"],
+        .ev-public-light [class~="text-slate-500"],
+        .ev-public-light [class~="text-slate-600"] {color:#526d87 !important;}
+        .ev-public-light [class~="border-slate-800"],
+        .ev-public-light [class~="border-slate-700"] {border-color:#d1e0ef !important;}
+        .ev-public-light input {background:#fff !important; color:#102b49 !important; border-color:#b8ccdf !important;}
+        .ev-public-light input::placeholder {color:#647e98 !important;}
+        .ev-public-light .text-blue-300,
+        .ev-public-light .text-blue-500 {color:#126ca8 !important;}
+        .ev-public-light .bg-blue-600\\/10 {background:#e8f3ff !important;}
+        .ev-public-light .text-red-300 {color:#b42336 !important;}
+        .ev-public-light .text-amber-300 {color:#9b6000 !important;}
+        .ev-public-light [class~="bg-[#126ca8]"] {color:white !important;}
+        @media(max-width:640px) {
+          .ev-public-page > div {max-width:100%;}
+          .ev-public-page input {font-size:16px;}
+        }
+`}</style>
+      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-5 sm:p-8 shadow-2xl">
         <Link
           to="/login"
-          className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-300 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-300 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
         >
           <ArrowLeft size={16} aria-hidden="true" />
           Voltar ao login
         </Link>
 
         <div className="mt-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600/10 text-blue-500">
             <Mail size={22} aria-hidden="true" />
           </div>
 
@@ -136,7 +178,7 @@ export default function RecuperarSenha() {
                 placeholder="seuemail@exemplo.com"
                 autoComplete="email"
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3.5 text-base text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3.5 text-base text-white outline-none transition placeholder:text-slate-600 focus:border-blue-600 focus:ring-2 focus:ring-blue-600"
               />
             </div>
 
@@ -150,7 +192,7 @@ export default function RecuperarSenha() {
               type="submit"
               disabled={carregando}
               aria-busy={carregando}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#00a884] font-bold text-slate-950 transition hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] font-bold text-white transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {carregando && (
                 <Loader2
@@ -167,16 +209,16 @@ export default function RecuperarSenha() {
           </form>
         ) : (
           <div className="mt-7">
-            <div role="status" aria-live="polite" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+            <div role="status" aria-live="polite" className="rounded-xl border border-blue-600/30 bg-blue-600/10 p-5">
               <div className="flex items-start gap-3">
                 <CheckCircle2
-                  className="mt-0.5 shrink-0 text-emerald-400"
+                  className="mt-0.5 shrink-0 text-blue-500"
                   size={21}
                   aria-hidden="true"
                 />
 
                 <div>
-                  <p className="font-semibold text-emerald-300">
+                  <p className="font-semibold text-blue-300">
                     Verifique seu e-mail
                   </p>
 
@@ -194,7 +236,7 @@ export default function RecuperarSenha() {
                 setSucesso(false);
                 setErro('');
               }}
-              className="mt-4 min-h-11 w-full rounded-lg text-center text-sm font-semibold text-slate-400 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              className="mt-4 min-h-11 w-full rounded-lg text-center text-sm font-semibold text-slate-400 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               Tentar outro e-mail
             </button>

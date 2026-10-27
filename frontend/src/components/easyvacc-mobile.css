@@ -1,0 +1,15 @@
+/* EasyVacc mobile: ajustes de ergonomia inspirados na prévia da landing.
+   Não modifica ações, dados, impressão nem regras de negócio. */
+@media screen and (max-width: 1023px) {
+  html, body, #root { max-width: 100%; overflow-x: clip; }
+  .easyvacc-app main { overflow-wrap: anywhere; overscroll-behavior-y: contain; }
+  .easyvacc-app main :is(input,select,textarea) { min-height: 44px; font-size: max(16px, 1em); }
+  .easyvacc-app main :is(button, a, [role="button"]) { touch-action: manipulation; }
+  .easyvacc-app main :is(button, a, input, select, textarea):focus-visible { outline: 3px solid #65b9f3; outline-offset: 2px; }
+  .easyvacc-app main :is(img, svg, video, canvas) { max-width: 100%; }
+  .easyvacc-app main :is(table) { max-width: 100%; }
+  .easyvacc-app main :is([class*="grid-cols-4"], [class*="grid-cols-3"]) { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .easyvacc-app *, .easyvacc-app *::before, .easyvacc-app *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

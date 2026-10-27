@@ -309,7 +309,7 @@ export default function AdicionarDependente() {
   };
 
   return (
-    <div className={`relative min-h-screen bg-slate-950 p-6 text-slate-100 antialiased md:p-10 ${temaClaro ? 'easyvacc-dependente-light' : ''}`}>
+    <div className={`relative min-h-screen bg-[#020817] p-6 text-slate-100 antialiased md:p-10 ${temaClaro ? 'easyvacc-dependente-light' : ''}`}>
       <style>{`
         .easyvacc-dependente-light {
           background: #f8fafc !important;
@@ -329,26 +329,26 @@ export default function AdicionarDependente() {
         .easyvacc-dependente-light .text-slate-500 {
           color: #64748b !important;
         }
-        .easyvacc-dependente-light [class~="bg-slate-900"],
-        .easyvacc-dependente-light [class~="bg-slate-900/60"],
-        .easyvacc-dependente-light [class~="bg-slate-900/70"],
-        .easyvacc-dependente-light [class~="bg-slate-900/80"],
-        .easyvacc-dependente-light [class~="bg-slate-900/90"] {
+        .easyvacc-dependente-light [class~="bg-[#081629]"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/60"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/70"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/80"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/90"] {
           background-color: #ffffff !important;
         }
-        .easyvacc-dependente-light [class~="bg-slate-950"],
-        .easyvacc-dependente-light [class~="bg-slate-950/50"],
-        .easyvacc-dependente-light [class~="bg-slate-950/60"],
-        .easyvacc-dependente-light [class~="bg-slate-950/80"] {
+        .easyvacc-dependente-light [class~="bg-[#020817]"],
+        .easyvacc-dependente-light [class~="bg-[#020817]/50"],
+        .easyvacc-dependente-light [class~="bg-[#020817]/60"],
+        .easyvacc-dependente-light [class~="bg-[#020817]/80"] {
           background-color: #ffffff !important;
         }
         .easyvacc-dependente-light [class~="bg-slate-800"],
         .easyvacc-dependente-light [class~="bg-slate-800/50"] {
           background-color: #f1f5f9 !important;
         }
-        .easyvacc-dependente-light [class~="border-slate-800"],
-        .easyvacc-dependente-light [class~="border-slate-800/80"],
-        .easyvacc-dependente-light [class~="border-slate-700"] {
+        .easyvacc-dependente-light [class~="border-[#304760]"],
+        .easyvacc-dependente-light [class~="border-[#304760]/80"],
+        .easyvacc-dependente-light [class~="border-[#405775]"] {
           border-color: #cbd5e1 !important;
         }
         .easyvacc-dependente-light input,
@@ -366,17 +366,40 @@ export default function AdicionarDependente() {
           color: #0f172a !important;
         }
         .easyvacc-dependente-light [class~="hover:bg-slate-800"]:hover,
-        .easyvacc-dependente-light [class~="hover:bg-slate-900"]:hover {
+        .easyvacc-dependente-light [class~="hover:bg-[#081629]"]:hover {
           background-color: #f1f5f9 !important;
         }
+        .easyvacc-dependente-light { background: #f5f8fc !important; color: #102b49 !important; }
+        .easyvacc-dependente-light [class~="bg-[#081629]"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/80"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/90"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/70"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/60"],
+        .easyvacc-dependente-light [class~="bg-[#081629]/50"],
+        .easyvacc-dependente-light [class~="bg-[#020817]"],
+        .easyvacc-dependente-light [class~="bg-[#020817]/50"],
+        .easyvacc-dependente-light [class~="bg-[#020817]/60"],
+        .easyvacc-dependente-light [class~="bg-[#020817]/80"] { background-color: #fff !important; }
+        .easyvacc-dependente-light [class~="border-[#304760]"],
+        .easyvacc-dependente-light [class~="border-[#304760]/80"],
+        .easyvacc-dependente-light [class~="border-[#405775]"] { border-color: #cbd5e1 !important; }
+        .easyvacc-dependente-light .text-white,
+        .easyvacc-dependente-light .text-slate-100 { color: #102b49 !important; }
+        .easyvacc-dependente-light .text-slate-200,
+        .easyvacc-dependente-light .text-slate-300 { color: #334155 !important; }
+        .easyvacc-dependente-light [class~="text-[#1478b8]"] { color: #126ca8 !important; }
+        .easyvacc-dependente-light input:not([type="checkbox"]),
+        .easyvacc-dependente-light select,
+        .easyvacc-dependente-light textarea { background: #fff !important; color: #102b49 !important; border-color: #cbd5e1 !important; }
+        .easyvacc-dependente-light button[type="submit"] { color: #fff !important; }
       `}</style>
 
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/15 via-[#00a884]/20 to-cyan-500/10 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[1000px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-blue-500/15 via-[#1478b8]/20 to-blue-500/10 blur-3xl" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-col gap-4 border-b border-slate-800/80 pb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-[#304760]/80 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
               <Link
@@ -388,7 +411,7 @@ export default function AdicionarDependente() {
 
               <ChevronRight size={12} className="text-slate-500" />
 
-              <span className="text-[#00a884]">
+              <span className="text-[#1478b8]">
                 DEPENDENTES
               </span>
             </div>
@@ -405,7 +428,7 @@ export default function AdicionarDependente() {
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2.5 text-xs font-semibold text-slate-300 shadow-lg backdrop-blur-xl transition-all hover:border-slate-700 hover:text-white"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#304760] bg-[#081629]/80 px-4 py-2.5 text-xs font-semibold text-slate-300 shadow-lg backdrop-blur-xl transition-all hover:border-[#405775] hover:text-white"
           >
             <ArrowLeft size={15} />
             Voltar ao Início
@@ -424,7 +447,7 @@ export default function AdicionarDependente() {
         {sucesso && (
           <div
             role="status"
-            className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm font-medium text-emerald-300"
+            className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-3 text-sm font-medium text-blue-300"
           >
             {sucesso}
           </div>
@@ -432,9 +455,9 @@ export default function AdicionarDependente() {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl">
+            <div className="rounded-2xl border border-[#304760] bg-[#081629]/80 p-6 shadow-2xl backdrop-blur-xl">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00a884]/30 bg-[#00a884]/10 text-[#00a884]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#1478b8]/30 bg-[#1478b8]/10 text-[#1478b8]">
                   <UserPlus size={18} />
                 </div>
 
@@ -460,7 +483,7 @@ export default function AdicionarDependente() {
                     className="block text-xs font-semibold text-slate-300"
                   >
                     Nome Completo{' '}
-                    <span className="text-[#00a884]">*</span>
+                    <span className="text-[#1478b8]">*</span>
                   </label>
 
                   <input
@@ -469,7 +492,7 @@ export default function AdicionarDependente() {
                     placeholder="Ex: Lucas Gentil"
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-[#00a884] focus:outline-none"
+                    className="mt-1.5 w-full rounded-xl border border-[#304760] bg-[#020817] px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-[#1478b8] focus:outline-none"
                   />
                 </div>
 
@@ -485,7 +508,7 @@ export default function AdicionarDependente() {
                     id="parentesco-dependente"
                     value={parentesco}
                     onChange={(e) => setParentesco(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white focus:border-[#00a884] focus:outline-none"
+                    className="mt-1.5 w-full rounded-xl border border-[#304760] bg-[#020817] px-3.5 py-2.5 text-xs text-white focus:border-[#1478b8] focus:outline-none"
                   >
                     <option value="Filho(a)">Filho(a)</option>
                     <option value="Cônjuge">Cônjuge</option>
@@ -501,7 +524,7 @@ export default function AdicionarDependente() {
                     className="block text-xs font-semibold text-slate-300"
                   >
                     Data de Nascimento{' '}
-                    <span className="text-[#00a884]">*</span>
+                    <span className="text-[#1478b8]">*</span>
                   </label>
 
                   <input
@@ -510,7 +533,7 @@ export default function AdicionarDependente() {
                     max={new Date().toISOString().split('T')[0]}
                     value={dataNascimento}
                     onChange={(e) => setDataNascimento(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white focus:border-[#00a884] focus:outline-none [color-scheme:dark]"
+                    className="mt-1.5 w-full rounded-xl border border-[#304760] bg-[#020817] px-3.5 py-2.5 text-xs text-white focus:border-[#1478b8] focus:outline-none [color-scheme:dark]"
                   />
                 </div>
 
@@ -540,7 +563,7 @@ export default function AdicionarDependente() {
 
                       setCartaoSus(valor);
                     }}
-                    className="mt-1.5 w-full rounded-xl border border-slate-800 bg-slate-950 px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-[#00a884] focus:outline-none"
+                    className="mt-1.5 w-full rounded-xl border border-[#304760] bg-[#020817] px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-[#1478b8] focus:outline-none"
                   />
 
                   <p className="mt-1.5 text-[11px] text-slate-500">
@@ -551,7 +574,7 @@ export default function AdicionarDependente() {
                 <button
                   type="submit"
                   disabled={salvando}
-                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#00a884] py-3 text-xs font-semibold text-slate-950 shadow-lg shadow-[#00a884]/20 transition-all hover:bg-[#00c49a] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1478b8] py-3 text-xs font-semibold text-white shadow-lg shadow-[#1478b8]/20 transition-all hover:bg-[#2492d0] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {salvando ? (
                     <Loader2 size={15} className="animate-spin" />
@@ -571,7 +594,7 @@ export default function AdicionarDependente() {
                 Dependentes Cadastrados
               </h2>
 
-              <span className="rounded-full border border-[#00a884]/30 bg-[#00a884]/10 px-2.5 py-0.5 text-xs font-semibold text-[#00a884]">
+              <span className="rounded-full border border-[#1478b8]/30 bg-[#1478b8]/10 px-2.5 py-0.5 text-xs font-semibold text-[#1478b8]">
                 {dependentes.length}
               </span>
             </div>
@@ -584,12 +607,12 @@ export default function AdicionarDependente() {
                 {[1, 2].map((item) => (
                   <div
                     key={item}
-                    className="h-56 animate-pulse rounded-2xl border border-slate-800 bg-slate-900/80"
+                    className="h-56 animate-pulse rounded-2xl border border-[#304760] bg-[#081629]/80"
                   />
                 ))}
               </div>
             ) : dependentes.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/50 p-12 text-center">
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-[#304760] bg-[#081629]/50 p-12 text-center">
                 <User size={28} className="text-slate-500" />
 
                 <h3 className="mt-3 text-sm font-bold text-slate-200">
@@ -605,11 +628,11 @@ export default function AdicionarDependente() {
                 {dependentes.map((dependente) => (
                   <div
                     key={dependente.id}
-                    className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl"
+                    className="rounded-2xl border border-[#304760] bg-[#081629]/80 p-5 shadow-xl"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#00a884]/30 bg-[#00a884]/10 text-[#00a884]">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#1478b8]/30 bg-[#1478b8]/10 text-[#1478b8]">
                           <User size={20} />
                         </div>
 
@@ -640,7 +663,7 @@ export default function AdicionarDependente() {
                       </button>
                     </div>
 
-                    <div className="mt-4 space-y-2 border-t border-slate-800 pt-3 text-xs">
+                    <div className="mt-4 space-y-2 border-t border-[#304760] pt-3 text-xs">
                       <div className="flex justify-between gap-3">
                         <span className="flex items-center gap-1.5 text-slate-400">
                           <Calendar size={13} />
@@ -709,11 +732,11 @@ export default function AdicionarDependente() {
                       </div>
                     </div>
 
-                    <div className="mt-4 border-t border-slate-800 pt-3">
+                    <div className="mt-4 border-t border-[#304760] pt-3">
                       <button
                         type="button"
                         onClick={() => abrirCaderneta(dependente)}
-                        className="flex w-full items-center justify-between text-xs font-semibold text-[#00a884] hover:text-[#00c49a]"
+                        className="flex w-full items-center justify-between text-xs font-semibold text-[#1478b8] hover:text-[#2492d0]"
                       >
                         <span>Ver caderneta completa</span>
                         <ChevronRight size={14} />

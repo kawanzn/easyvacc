@@ -19,14 +19,11 @@ export default function LoginAdministrador() {
   );
 
   const alternarTema = () => {
-    setTemaClaro((atual) => {
-      const novoTemaClaro = !atual;
-      localStorage.setItem(
-        'easyvacc-tema',
-        novoTemaClaro ? 'claro' : 'escuro'
-      );
-      return novoTemaClaro;
-    });
+    const proximo = localStorage.getItem('easyvacc-tema') !== 'claro';
+    localStorage.setItem('easyvacc-tema', proximo ? 'claro' : 'escuro');
+    setTemaClaro(proximo);
+    window.dispatchEvent(new Event('easyvacc-tema-atualizado'));
+    window.dispatchEvent(new Event('easyvaccTemaAtualizado'));
   };
 
 
@@ -93,19 +90,19 @@ export default function LoginAdministrador() {
   };
 
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}flex min-h-screen items-center justify-center bg-slate-950 px-4`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}flex min-h-screen items-center justify-center bg-[#020817] px-4`}>
 
       <style>{`
         .easyvacc-light {
           background: #f8fafc !important;
           color: #0f172a !important;
         }
-        .easyvacc-light [class~="bg-slate-950"] {
+        .easyvacc-light [class~="bg-[#020817]"] {
           background-color: #f8fafc !important;
         }
-        .easyvacc-light [class~="bg-slate-900"],
-        .easyvacc-light [class~="bg-slate-900/60"],
-        .easyvacc-light [class~="bg-slate-900/80"] {
+        .easyvacc-light [class~="bg-[#081629]"],
+        .easyvacc-light [class~="bg-[#081629]/60"],
+        .easyvacc-light [class~="bg-[#081629]/80"] {
           background-color: #ffffff !important;
         }
         .easyvacc-light [class~="bg-slate-800"],
@@ -152,14 +149,14 @@ export default function LoginAdministrador() {
         onClick={alternarTema}
         aria-label={temaClaro ? 'Ativar tema escuro' : 'Ativar tema claro'}
         title={temaClaro ? 'Tema escuro' : 'Tema claro'}
-        className="fixed right-4 top-4 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-teal-500 hover:text-teal-400"
+        className="fixed right-4 top-4 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-[#081629] text-slate-200 shadow-lg transition hover:border-blue-600 hover:text-blue-500"
       >
         {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
       </button>
 
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-8 shadow-2xl">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-400">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600/10 text-blue-500">
             <ShieldCheck size={32} />
           </div>
 
@@ -199,7 +196,7 @@ export default function LoginAdministrador() {
                 }
                 autoComplete="email"
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 py-3 pl-10 pr-4 text-white outline-none transition focus:border-teal-500"
+                className="w-full rounded-xl border border-slate-700 bg-[#020817] py-3 pl-10 pr-4 text-white outline-none transition focus:border-blue-600"
                 placeholder="E-mail administrativo"
               />
             </div>
@@ -228,7 +225,7 @@ export default function LoginAdministrador() {
                 }
                 autoComplete="current-password"
                 required
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 py-3 pl-10 pr-4 text-white outline-none transition focus:border-teal-500"
+                className="w-full rounded-xl border border-slate-700 bg-[#020817] py-3 pl-10 pr-4 text-white outline-none transition focus:border-blue-600"
                 placeholder="Sua senha"
               />
             </div>
@@ -246,7 +243,7 @@ export default function LoginAdministrador() {
           <button
             type="submit"
             disabled={carregando}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-teal-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 font-semibold text-slate-950 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {carregando ? (
               <>

@@ -276,10 +276,10 @@ export default function Cadastro() {
   };
 
   const campo =
-    'w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3.5 text-base text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none';
+    'w-full rounded-lg border border-[#405775] bg-[#020817] px-4 py-3.5 text-base text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none';
 
   return (
-    <div className={`relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4 font-sans text-slate-100 ${temaClaro ? 'easyvacc-cadastro-light' : ''}`}>
+    <div className={`relative flex min-h-screen items-center justify-center overflow-hidden bg-[#020817] p-4 font-sans text-slate-100 ${temaClaro ? 'easyvacc-cadastro-light' : ''}`}>
       <style>{`
         .easyvacc-cadastro-light {
           background: #f8fafc !important;
@@ -299,17 +299,17 @@ export default function Cadastro() {
         .easyvacc-cadastro-light .text-slate-500 {
           color: #64748b !important;
         }
-        .easyvacc-cadastro-light [class~="bg-slate-900"],
-        .easyvacc-cadastro-light [class~="bg-slate-900/80"],
-        .easyvacc-cadastro-light [class~="bg-slate-900/90"] {
+        .easyvacc-cadastro-light [class~="bg-[#081629]"],
+        .easyvacc-cadastro-light [class~="bg-[#081629]/80"],
+        .easyvacc-cadastro-light [class~="bg-[#081629]/90"] {
           background-color: #ffffff !important;
         }
-        .easyvacc-cadastro-light [class~="bg-slate-950"],
-        .easyvacc-cadastro-light [class~="bg-slate-950/80"] {
+        .easyvacc-cadastro-light [class~="bg-[#020817]"],
+        .easyvacc-cadastro-light [class~="bg-[#020817]/80"] {
           background-color: #ffffff !important;
         }
-        .easyvacc-cadastro-light [class~="border-slate-800"],
-        .easyvacc-cadastro-light [class~="border-slate-700"] {
+        .easyvacc-cadastro-light [class~="border-[#304760]"],
+        .easyvacc-cadastro-light [class~="border-[#405775]"] {
           border-color: #cbd5e1 !important;
         }
         .easyvacc-cadastro-light input,
@@ -327,20 +327,43 @@ export default function Cadastro() {
           color: #0f172a !important;
         }
         .easyvacc-cadastro-light [class~="hover:bg-slate-800"]:hover,
-        .easyvacc-cadastro-light [class~="hover:bg-slate-900"]:hover {
+        .easyvacc-cadastro-light [class~="hover:bg-[#081629]"]:hover {
           background-color: #f1f5f9 !important;
         }
+        .easyvacc-cadastro-light { background: #f5f8fc !important; color: #102b49 !important; }
+        .easyvacc-cadastro-light [class~="bg-[#081629]"],
+        .easyvacc-cadastro-light [class~="bg-[#081629]/80"],
+        .easyvacc-cadastro-light [class~="bg-[#081629]/90"],
+        .easyvacc-cadastro-light [class~="bg-[#081629]/70"],
+        .easyvacc-cadastro-light [class~="bg-[#081629]/60"],
+        .easyvacc-cadastro-light [class~="bg-[#081629]/50"],
+        .easyvacc-cadastro-light [class~="bg-[#020817]"],
+        .easyvacc-cadastro-light [class~="bg-[#020817]/50"],
+        .easyvacc-cadastro-light [class~="bg-[#020817]/60"],
+        .easyvacc-cadastro-light [class~="bg-[#020817]/80"] { background-color: #fff !important; }
+        .easyvacc-cadastro-light [class~="border-[#304760]"],
+        .easyvacc-cadastro-light [class~="border-[#304760]/80"],
+        .easyvacc-cadastro-light [class~="border-[#405775]"] { border-color: #cbd5e1 !important; }
+        .easyvacc-cadastro-light .text-white,
+        .easyvacc-cadastro-light .text-slate-100 { color: #102b49 !important; }
+        .easyvacc-cadastro-light .text-slate-200,
+        .easyvacc-cadastro-light .text-slate-300 { color: #334155 !important; }
+        .easyvacc-cadastro-light [class~="text-[#1478b8]"] { color: #126ca8 !important; }
+        .easyvacc-cadastro-light input:not([type="checkbox"]),
+        .easyvacc-cadastro-light select,
+        .easyvacc-cadastro-light textarea { background: #fff !important; color: #102b49 !important; border-color: #cbd5e1 !important; }
+        .easyvacc-cadastro-light button[type="submit"] { color: #fff !important; }
       `}</style>
 
       <Link
         to="/login"
-        className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-950"
+        className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#020817]"
       >
         <ArrowLeft size={16} aria-hidden="true" />
         Voltar ao login
       </Link>
 
-      <div className="my-8 w-full max-w-xl rounded-[2rem] border border-slate-800 bg-slate-900/90 p-8 shadow-2xl md:p-10">
+      <div className="my-8 w-full max-w-xl rounded-[2rem] border border-[#304760] bg-[#081629]/90 p-8 shadow-2xl md:p-10">
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-black tracking-tight text-white">
             Criar nova conta
@@ -350,7 +373,7 @@ export default function Cadastro() {
             Ou{' '}
             <Link
               to="/login"
-              className="rounded font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+              className="rounded font-bold text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#081629]"
             >
               já tenho uma conta
             </Link>
@@ -580,7 +603,7 @@ export default function Cadastro() {
                       !valor
                   )
                 }
-                className="absolute inset-y-0 right-0 min-w-11 rounded-r-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-400"
+                className="absolute inset-y-0 right-0 min-w-11 rounded-r-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-400"
                 aria-label={
                   mostrarSenha
                     ? 'Ocultar senha'
@@ -641,13 +664,13 @@ export default function Cadastro() {
             />
           </div>
 
-          <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/50 p-4 text-sm leading-6 text-slate-200">
+          <div className="space-y-3 rounded-xl border border-[#304760] bg-[#020817]/50 p-4 text-sm leading-6 text-slate-200">
             <label className="flex items-start gap-3">
               <input
                 type="checkbox"
                 required
                 aria-required="true"
-                className="mt-1 h-5 w-5 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="mt-1 h-5 w-5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 checked={
                   aceiteTermos
                 }
@@ -664,13 +687,11 @@ export default function Cadastro() {
                   to="/termos"
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded font-bold text-[#00a884] underline focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  className="rounded font-bold text-[#1478b8] underline focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   Termos de uso
                 </Link>{' '}
-                (versão{' '}
-                {TERMOS_VERSAO}
-                ).
+                
               </span>
             </label>
 
@@ -679,7 +700,7 @@ export default function Cadastro() {
                 type="checkbox"
                 required
                 aria-required="true"
-                className="mt-1 h-5 w-5 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="mt-1 h-5 w-5 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 checked={
                   aceitePrivacidade
                 }
@@ -696,15 +717,11 @@ export default function Cadastro() {
                   to="/privacidade"
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded font-bold text-[#00a884] underline focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  className="rounded font-bold text-[#1478b8] underline focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   Política de privacidade
                 </Link>{' '}
-                (versão{' '}
-                {
-                  PRIVACIDADE_VERSAO
-                }
-                ).
+                
               </span>
             </label>
           </div>
@@ -723,7 +740,7 @@ export default function Cadastro() {
             type="submit"
             disabled={carregando}
             aria-busy={carregando}
-            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-base font-bold text-white hover:from-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-700 to-blue-800 text-base font-bold text-white hover:from-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#081629] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {carregando && (
               <Loader2

@@ -38,6 +38,13 @@ interface Dependente {
 
 export default function Dependentes() {
   const navigate = useNavigate();
+  const [temaClaro, setTemaClaro] = useState(() => localStorage.getItem("easyvacc-tema") === "claro");
+  useEffect(() => {
+    const atualizar = () => setTemaClaro(localStorage.getItem("easyvacc-tema") === "claro");
+    window.addEventListener("storage", atualizar);
+    window.addEventListener("easyvaccTemaAtualizado", atualizar); window.addEventListener("easyvacc-tema-atualizado", atualizar);
+    return () => { window.removeEventListener("storage", atualizar); window.removeEventListener("easyvaccTemaAtualizado", atualizar); window.removeEventListener("easyvacc-tema-atualizado", atualizar); };
+  }, []);
 
   const [dependentes, setDependentes] = useState<Dependente[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -421,7 +428,19 @@ export default function Dependentes() {
   };
 
   return (
-    <div className="min-h-full bg-slate-950 text-slate-100">
+    <div className={`min-h-full bg-slate-950 text-slate-100 ${temaClaro ? "easyvacc-light" : ""}`}>
+      <style>{`
+        .easyvacc-light { background: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-light .text-white, .easyvacc-light .text-slate-100, .easyvacc-light .text-slate-200 { color: #10243e !important; }
+        .easyvacc-light .text-slate-300 { color: #29435f !important; }
+        .easyvacc-light .text-slate-400, .easyvacc-light .text-slate-500 { color: #526780 !important; }
+        .easyvacc-light [class~="bg-slate-900"], .easyvacc-light [class~="bg-slate-900/60"], .easyvacc-light [class~="bg-slate-900/80"] { background-color: #fff !important; }
+        .easyvacc-light [class~="bg-slate-950"], .easyvacc-light [class~="bg-slate-950/70"] { background-color: #edf3f9 !important; }
+        .easyvacc-light [class~="bg-slate-800"], .easyvacc-light [class~="bg-slate-800/70"] { background-color: #e4edf7 !important; }
+        .easyvacc-light [class~="border-slate-800"], .easyvacc-light [class~="border-slate-700"] { border-color: #c7d5e5 !important; }
+        .easyvacc-light input, .easyvacc-light select, .easyvacc-light textarea { color: #10243e !important; background: #fff !important; border-color: #c7d5e5 !important; }
+        .easyvacc-light .text-blue-400, .easyvacc-light .text-blue-300 { color: #175b96 !important; }
+`}</style>
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10">
 
         {/* ================================= */}
@@ -459,7 +478,7 @@ export default function Dependentes() {
             <button
               type="button"
               onClick={abrirModal}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#00a884] px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:brightness-110"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:brightness-110"
             >
               <UserPlus size={16} />
               Adicionar dependente
@@ -525,7 +544,7 @@ export default function Dependentes() {
             <button
               type="button"
               onClick={abrirModal}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#00a884] px-4 py-2 text-xs font-semibold text-slate-950"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2 text-xs font-semibold text-slate-950"
             >
               <Plus size={14} />
               Cadastrar primeiro dependente
@@ -761,7 +780,7 @@ export default function Dependentes() {
                           e.target.value,
                       })
                     }
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:border-[#00a884] focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:border-[#1769aa] focus:outline-none"
                   />
                 </div>
 
@@ -790,7 +809,7 @@ export default function Dependentes() {
                           e.target.value,
                       })
                     }
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-[#00a884] focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-[#1769aa] focus:outline-none"
                   >
                     <option value="Filho(a)">
                       Filho(a)
@@ -845,7 +864,7 @@ export default function Dependentes() {
                           e.target.value,
                       })
                     }
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-[#00a884] focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-[#1769aa] focus:outline-none"
                   />
                 </div>
 
@@ -884,7 +903,7 @@ export default function Dependentes() {
                             ),
                       })
                     }
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:border-[#00a884] focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:border-[#1769aa] focus:outline-none"
                   />
 
                   <p className="mt-1.5 text-[11px] leading-4 text-slate-500">
@@ -917,7 +936,7 @@ export default function Dependentes() {
                   <button
                     type="submit"
                     disabled={salvando}
-                    className="inline-flex items-center gap-2 rounded-lg bg-[#00a884] px-4 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {salvando && (
                       <Loader2

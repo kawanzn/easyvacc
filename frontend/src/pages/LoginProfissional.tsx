@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Lock,
@@ -18,15 +18,29 @@ export default function LoginProfissional() {
     () => localStorage.getItem('easyvacc-tema') === 'claro'
   );
 
+  // Mantém o tema sincronizado com as demais telas, inclusive ao voltar à aba.
+  useEffect(() => {
+    const sincronizarTema = () => {
+      setTemaClaro(localStorage.getItem('easyvacc-tema') === 'claro');
+    };
+    window.addEventListener('storage', sincronizarTema);
+    window.addEventListener('easyvacc-tema-atualizado', sincronizarTema);
+    window.addEventListener('easyvaccTemaAtualizado', sincronizarTema);
+    window.addEventListener('focus', sincronizarTema);
+    return () => {
+      window.removeEventListener('storage', sincronizarTema);
+      window.removeEventListener('easyvacc-tema-atualizado', sincronizarTema);
+      window.removeEventListener('easyvaccTemaAtualizado', sincronizarTema);
+      window.removeEventListener('focus', sincronizarTema);
+    };
+  }, []);
+
   const alternarTema = () => {
-    setTemaClaro((atual) => {
-      const novoTemaClaro = !atual;
-      localStorage.setItem(
-        'easyvacc-tema',
-        novoTemaClaro ? 'claro' : 'escuro'
-      );
-      return novoTemaClaro;
-    });
+    const proximo = !temaClaro;
+    localStorage.setItem('easyvacc-tema', proximo ? 'claro' : 'escuro');
+    setTemaClaro(proximo);
+    window.dispatchEvent(new Event('easyvacc-tema-atualizado'));
+    window.dispatchEvent(new Event('easyvaccTemaAtualizado'));
   };
 
 
@@ -149,19 +163,19 @@ export default function LoginProfissional() {
   };
 
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}flex min-h-screen items-center justify-center bg-[#020817] px-4 text-slate-100`}>
 
       <style>{`
         .easyvacc-light {
           background: #f8fafc !important;
           color: #0f172a !important;
         }
-        .easyvacc-light [class~="bg-slate-950"] {
+        .easyvacc-light [class~="bg-[#020817]"] {
           background-color: #f8fafc !important;
         }
-        .easyvacc-light [class~="bg-slate-900"],
-        .easyvacc-light [class~="bg-slate-900/60"],
-        .easyvacc-light [class~="bg-slate-900/80"] {
+        .easyvacc-light [class~="bg-[#081629]"],
+        .easyvacc-light [class~="bg-[#081629]/60"],
+        .easyvacc-light [class~="bg-[#081629]/80"] {
           background-color: #ffffff !important;
         }
         .easyvacc-light [class~="bg-slate-800"],
@@ -208,15 +222,15 @@ export default function LoginProfissional() {
         onClick={alternarTema}
         aria-label={temaClaro ? 'Ativar tema escuro' : 'Ativar tema claro'}
         title={temaClaro ? 'Tema escuro' : 'Tema claro'}
-        className="fixed right-4 top-4 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-teal-500 hover:text-teal-400"
+        className="fixed right-4 top-4 z-[100] flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-[#081629] text-slate-200 shadow-lg transition hover:border-blue-600 hover:text-blue-500"
       >
         {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
       </button>
 
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-8 shadow-2xl">
 
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-500/20 bg-teal-500/10 text-teal-400">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-600/20 bg-blue-600/10 text-blue-500">
             <ShieldCheck size={28} />
           </div>
 
@@ -252,7 +266,7 @@ export default function LoginProfissional() {
                   setEmail(e.target.value)
                 }
                 placeholder="profissional@email.com"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 py-3.5 pl-12 pr-4 text-white outline-none focus:border-teal-500"
+                className="w-full rounded-xl border border-slate-700 bg-[#020817] py-3.5 pl-12 pr-4 text-white outline-none focus:border-blue-600"
               />
             </div>
           </div>
@@ -276,7 +290,7 @@ export default function LoginProfissional() {
                   setSenha(e.target.value)
                 }
                 placeholder="Sua senha"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 py-3.5 pl-12 pr-4 text-white outline-none focus:border-teal-500"
+                className="w-full rounded-xl border border-slate-700 bg-[#020817] py-3.5 pl-12 pr-4 text-white outline-none focus:border-blue-600"
               />
             </div>
           </div>
@@ -290,7 +304,7 @@ export default function LoginProfissional() {
           <button
             type="submit"
             disabled={carregando}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 py-3.5 font-bold text-slate-950 transition hover:bg-teal-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] py-3.5 font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {carregando ? (
               <>
@@ -312,7 +326,7 @@ export default function LoginProfissional() {
         <div className="mt-7 border-t border-slate-800 pt-6 text-center">
           <Link
             to="/login"
-            className="text-sm font-semibold text-teal-400 hover:text-teal-300"
+            className="text-sm font-semibold text-blue-500 hover:text-blue-300"
           >
             Voltar para acesso do cidadão
           </Link>

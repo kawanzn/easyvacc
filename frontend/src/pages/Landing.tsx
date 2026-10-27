@@ -174,7 +174,7 @@ export default function Landing() {
         <div className={`mx-auto flex min-h-[62px] max-w-[1380px] flex-wrap items-center justify-center gap-x-6 gap-y-2 px-5 py-3 text-xs sm:justify-between sm:px-8 lg:px-12 ${
           temaClaro ? 'text-[#62788f]' : 'text-[#9fb4ce]'
         }`}>
-          <span>© {new Date().getFullYear()} EasyVacc · Caderneta digital independente</span>
+          <span>© {new Date().getFullYear()} EasyVacc · Todos os Direitos Reservados </span>
           <div className="flex flex-wrap items-center gap-5">
             <button type="button" onClick={() => setMostrarDuvidas(true)} className="hover:text-[#1478b8] sm:hidden">Dúvidas</button>
             <Link to="/privacidade" className="hover:text-[#1478b8]">Privacidade</Link>

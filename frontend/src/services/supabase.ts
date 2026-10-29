@@ -11,5 +11,9 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient(
   supabaseUrl,
-  supabaseKey
+  supabaseKey,
+  {
+    // Recurso experimental do Supabase Auth (WebAuthn / Passkeys).
+    auth: { experimental: { passkey: true } },
+  }
 );

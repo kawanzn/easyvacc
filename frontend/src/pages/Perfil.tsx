@@ -19,9 +19,19 @@ import {
   Save,
   X,
   CheckCircle,
+  Fingerprint,
+  Trash2,
 } from 'lucide-react';
 import { supabase } from '../services/supabase';
+import { passkeysDisponiveis, mensagemErroPasskey } from '../lib/passkeys';
 import { jsPDF } from 'jspdf';
+interface PasskeyRegistrada {
+  id: string;
+  friendly_name?: string | null;
+  created_at: string;
+  last_used_at?: string | null;
+}
+
 interface Usuario {
   id: string;
   avatarPath: string;
@@ -115,6 +125,12 @@ export default function Perfil() {
   const [modalExclusao, setModalExclusao] = useState(false);
   const [solicitandoExclusao, setSolicitandoExclusao] = useState(false);
   const [statusExclusao, setStatusExclusao] = useState('');
+  const [passkeys, setPasskeys] = useState<PasskeyRegistrada[]>([]);
+  const [carregandoPasskeys, setCarregandoPasskeys] = useState(false);
+  const [salvandoPasskey, setSalvandoPasskey] = useState(false);
+  const [removendoPasskey, setRemovendoPasskey] = useState<string | null>(null);
+  const [erroPasskey, setErroPasskey] = useState('');
+  const [sucessoPasskey, setSucessoPasskey] = useState('');
   // =====================================================
   // CARREGAR PERFIL
   // =====================================================
@@ -260,6 +276,77 @@ export default function Perfil() {
     };
     void carregarPerfil();
   }, []);
+  // =====================================================
+  // PASSKEYS / BIOMETRIA
+  // =====================================================
+  useEffect(() => {
+    if (!usuario.id || !passkeysDisponiveis()) return;
+    let ativo = true;
+
+    const carregarPasskeys = async () => {
+      setCarregandoPasskeys(true);
+      try {
+        const { data, error } = await supabase.auth.passkey.list();
+        if (error) throw error;
+        if (ativo) setPasskeys(data ?? []);
+      } catch (error) {
+        if (ativo) setErroPasskey(mensagemErroPasskey(error, 'Não foi possível consultar os dispositivos cadastrados.'));
+      } finally {
+        if (ativo) setCarregandoPasskeys(false);
+      }
+    };
+
+    void carregarPasskeys();
+    return () => { ativo = false; };
+  }, [usuario.id]);
+
+  const cadastrarPasskey = async () => {
+    if (salvandoPasskey || !passkeysDisponiveis()) return;
+    setErroPasskey('');
+    setSucessoPasskey('');
+    setSalvandoPasskey(true);
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user || user.id !== usuario.id) {
+        throw new Error('Sua sessão expirou. Entre novamente antes de cadastrar a biometria.');
+      }
+      const { error } = await supabase.auth.registerPasskey();
+      if (error) throw error;
+      setSucessoPasskey('Biometria cadastrada! No próximo acesso, use Entrar com biometria.');
+      const { data: lista, error: erroLista } = await supabase.auth.passkey.list();
+      if (erroLista) {
+        setErroPasskey('A biometria foi cadastrada, mas não foi possível atualizar a lista. Reabra o Perfil.');
+      } else {
+        setPasskeys(lista ?? []);
+      }
+    } catch (error) {
+      console.error('Erro ao cadastrar Passkey:', error);
+      setErroPasskey(mensagemErroPasskey(error, 'Não foi possível cadastrar a biometria.'));
+    } finally {
+      setSalvandoPasskey(false);
+    }
+  };
+
+  const removerPasskey = async (passkey: PasskeyRegistrada) => {
+    if (removendoPasskey || salvandoPasskey) return;
+    const nome = passkey.friendly_name || 'este dispositivo';
+    if (!window.confirm(`Remover a biometria de ${nome}? Ela deixará de funcionar para entrar na sua conta.`)) return;
+    setErroPasskey('');
+    setSucessoPasskey('');
+    setRemovendoPasskey(passkey.id);
+    try {
+      const { error } = await supabase.auth.passkey.delete({ passkeyId: passkey.id });
+      if (error) throw error;
+      setPasskeys((anteriores) => anteriores.filter((item) => item.id !== passkey.id));
+      setSucessoPasskey('Dispositivo removido com sucesso.');
+    } catch (error) {
+      console.error('Erro ao remover Passkey:', error);
+      setErroPasskey(mensagemErroPasskey(error, 'Não foi possível remover o dispositivo.'));
+    } finally {
+      setRemovendoPasskey(null);
+    }
+  };
+
   // =====================================================
   // CPF
   // =====================================================
@@ -1863,6 +1950,66 @@ export default function Perfil() {
                 <p className="mt-2 text-xs text-slate-400">
                   Válido até {new Date(expiraAutorizacao).toLocaleString('pt-BR')}. Informe ao profissional seu CPF e este código somente durante o atendimento.
                 </p>
+              </div>
+            )}
+          </section>
+          {/* SEGURANÇA: FACE ID / BIOMETRIA */}
+          <section className="mt-8 rounded-2xl border border-blue-500/25 bg-[#081629]/85 p-5" aria-labelledby="titulo-passkeys">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <h3 id="titulo-passkeys" className="flex items-center gap-2 text-sm font-bold text-white">
+                  <Fingerprint size={19} className="text-[#4da7e2]" aria-hidden="true" />
+                  Segurança — Face ID e biometria
+                </h3>
+                <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-400">
+                  Cadastre uma Passkey para entrar com Face ID, impressão digital ou bloqueio do dispositivo.
+                  A verificação é feita pelo aparelho, sem enviar seu rosto ao EasyVacc.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void cadastrarPasskey()}
+                disabled={!passkeysDisponiveis() || salvandoPasskey || carregandoPasskeys || Boolean(removendoPasskey)}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#105b90] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {salvandoPasskey ? <Loader2 size={16} className="animate-spin" /> : <Fingerprint size={16} />}
+                {salvandoPasskey ? 'Cadastrando...' : 'Cadastrar biometria'}
+              </button>
+            </div>
+            {!passkeysDisponiveis() && (
+              <p className="mt-3 text-xs text-amber-300">A biometria exige HTTPS (ou localhost) e um navegador compatível com Passkeys.</p>
+            )}
+            {erroPasskey && <p role="alert" className="mt-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200">{erroPasskey}</p>}
+            {sucessoPasskey && <p role="status" className="mt-3 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 text-xs text-blue-200">{sucessoPasskey}</p>}
+            {passkeysDisponiveis() && (
+              <div className="mt-4 border-t border-slate-700/70 pt-4">
+                <p className="mb-2 text-xs font-semibold text-slate-300">Dispositivos autorizados</p>
+                {carregandoPasskeys ? (
+                  <p className="flex items-center gap-2 text-xs text-slate-400"><Loader2 size={14} className="animate-spin" /> Consultando dispositivos...</p>
+                ) : passkeys.length === 0 ? (
+                  <p className="text-xs text-slate-400">Nenhuma biometria cadastrada nesta conta.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {passkeys.map((passkey) => (
+                      <li key={passkey.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-700/60 bg-[#020817]/40 px-3 py-2.5">
+                        <div className="min-w-0">
+                          <p className="break-words text-xs font-semibold text-slate-100">{passkey.friendly_name || 'Passkey cadastrada'}</p>
+                          <p className="mt-1 text-[11px] text-slate-400">Cadastrada em {new Date(passkey.created_at).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => void removerPasskey(passkey)}
+                          disabled={Boolean(removendoPasskey) || salvandoPasskey}
+                          aria-label={`Remover biometria ${passkey.friendly_name || 'cadastrada'}`}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/30 px-3 py-2 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/10 disabled:opacity-50"
+                        >
+                          {removendoPasskey === passkey.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                          Remover
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
           </section>

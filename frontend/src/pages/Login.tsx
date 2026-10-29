@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Eye, EyeOff, Loader2, Lock, ShieldCheck, ArrowRight, UserRound, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Loader2, Lock, ShieldCheck, ArrowRight, UserRound, Moon, Sun, Fingerprint } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { cpfValido, mascaraCpf, salvarPessoaAtiva, soDigitos } from '../lib/brasil';
+import { passkeysDisponiveis, mensagemErroPasskey } from '../lib/passkeys';
 
 export default function Login() {
   const [temaClaro, setTemaClaro] = useState(() => localStorage.getItem('easyvacc-tema') === 'claro');
@@ -20,7 +21,53 @@ export default function Login() {
   const [capsLock, setCapsLock] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
+  const [entrandoComPasskey, setEntrandoComPasskey] = useState(false);
   const navigate = useNavigate();
+
+  // Validação de perfil única para login por CPF e por Passkey.
+  const concluirEntrada = async (idAutenticado: string): Promise<void> => {
+    const { data: usuario, error: perfilError } = await supabase
+      .from('users')
+      .select('id, nome, email, cpf, cns, cidade')
+      .eq('id', idAutenticado)
+      .single();
+
+    if (perfilError || !usuario || usuario.id !== idAutenticado) {
+      await supabase.auth.signOut();
+      throw new Error('Não foi possível validar os dados da sua conta.');
+    }
+
+    localStorage.setItem('usuarioId', usuario.id);
+    salvarPessoaAtiva({
+      tipo: 'titular',
+      id: usuario.id,
+      nome: usuario.nome,
+    });
+    navigate('/dashboard');
+  };
+
+  const entrarComBiometria = async () => {
+    setErro('');
+    if (!passkeysDisponiveis()) {
+      setErro('A biometria não está disponível neste navegador ou conexão. Use HTTPS ou localhost.');
+      return;
+    }
+
+    setEntrandoComPasskey(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPasskey();
+      if (error) throw error;
+      if (!data?.session || !data?.user) {
+        throw new Error('O Supabase não retornou uma sessão válida.');
+      }
+      await concluirEntrada(data.user.id);
+    } catch (error) {
+      console.error('Erro no login com Passkey:', error);
+      setErro(mensagemErroPasskey(error, 'Não foi possível entrar com biometria.'));
+    } finally {
+      setEntrandoComPasskey(false);
+    }
+  };
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setErro('');
@@ -106,72 +153,7 @@ export default function Login() {
         return;
       }
 
-      // A partir daqui o usuário já está autenticado e
-      // o RLS permite consultar somente o próprio perfil.
-      const {
-        data: usuario,
-        error: perfilError,
-      } = await supabase
-        .from('users')
-        .select(`
-          id,
-          nome,
-          email,
-          cpf,
-          cns,
-          cidade
-        `)
-        .eq('id', sessionData.user.id)
-        .single();
-
-      if (perfilError) {
-        console.error(
-          'Erro ao carregar perfil:',
-          perfilError
-        );
-
-        await supabase.auth.signOut();
-
-        setErro(
-          'Não foi possível carregar os dados da sua conta.'
-        );
-        return;
-      }
-
-      if (!usuario) {
-        await supabase.auth.signOut();
-
-        setErro(
-          'Perfil do usuário não encontrado.'
-        );
-        return;
-      }
-
-      if (usuario.id !== sessionData.user.id) {
-        console.error(
-          'ID do Auth diferente do perfil.'
-        );
-
-        await supabase.auth.signOut();
-
-        setErro(
-          'Não foi possível validar sua conta.'
-        );
-        return;
-      }
-
-      localStorage.setItem(
-        'usuarioId',
-        usuario.id
-      );
-
-      salvarPessoaAtiva({
-        tipo: 'titular',
-        id: usuario.id,
-        nome: usuario.nome,
-      });
-
-      navigate('/dashboard');
+      await concluirEntrada(sessionData.user.id);
     } catch (error) {
       console.error(
         'Erro ao realizar login:',
@@ -232,7 +214,7 @@ export default function Login() {
             </div>
           </section>
 
-          <section aria-labelledby="login-title" className={`mx-auto w-full max-w-[460px] min-h-0 rounded-[24px] border p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-5 lg:p-5 ${temaClaro ? "border-white/85 bg-white/95 text-[#102b49]" : "border-[#304760] bg-[#081629]/95 text-white"}`}>
+          <section aria-labelledby="login-title" className={`mx-auto w-full max-w-[460px] min-h-0 max-h-full overflow-y-auto rounded-[24px] border p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-5 lg:p-5 ${temaClaro ? "border-white/85 bg-white/95 text-[#102b49]" : "border-[#304760] bg-[#081629]/95 text-white"}`}>
             <div className="mb-3 text-center">
               <div className="mb-2 flex items-center justify-center gap-2.5">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-100"><img src="/logo.png" alt="" className="h-full w-full object-contain" /></span>
@@ -266,6 +248,21 @@ export default function Login() {
                 {carregando ? <><Loader2 size={18} className="animate-spin" /> Entrando...</> : <>Entrar na caderneta <ArrowRight size={18} /></>}
               </button>
             </form>
+
+            <button
+              type="button"
+              onClick={() => void entrarComBiometria()}
+              disabled={carregando || entrandoComPasskey || !passkeysDisponiveis()}
+              className={`mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-lg border px-4 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${temaClaro ? 'border-[#126ca8] bg-blue-50 text-[#105b90] hover:bg-blue-100' : 'border-[#3186c0] bg-[#102b49] text-white hover:bg-[#183e65]'}`}
+            >
+              {entrandoComPasskey ? <Loader2 size={18} className="animate-spin" /> : <Fingerprint size={19} />}
+              {entrandoComPasskey ? 'Verificando biometria...' : 'Entrar com biometria / Face ID'}
+            </button>
+            {!passkeysDisponiveis() && (
+              <p className={`mt-1 text-center text-[11px] ${temaClaro ? 'text-slate-500' : 'text-slate-300'}`}>
+                Biometria indisponível neste navegador ou conexão.
+              </p>
+            )}
 
             <div className={`my-2 flex items-center gap-3 text-[10px] font-semibold tracking-wide ${temaClaro ? "text-slate-500" : "text-slate-300"}`}><span className={`h-px flex-1 ${temaClaro ? "bg-slate-300" : "bg-white/25"}`} />AINDA NÃO TEM CONTA?<span className={`h-px flex-1 ${temaClaro ? "bg-slate-300" : "bg-white/25"}`} /></div>
             <Link to="/cadastro" className={`flex h-10 w-full items-center justify-center rounded-lg border border-[#126ca8] text-sm font-bold transition ${temaClaro ? "bg-white text-[#105b90] hover:bg-blue-50" : "bg-[#102b49] text-white hover:bg-[#183e65]"}`}>Criar minha conta</Link>

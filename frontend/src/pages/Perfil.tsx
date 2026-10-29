@@ -1953,15 +1953,69 @@ export default function Perfil() {
               </div>
             )}
           </section>
+
+          {/* Ajustes exclusivos do tema claro para o painel de biometria. */}
+          <style>{`
+            .easyvacc-app.easyvacc-light .ev-passkey-section {
+              background: rgba(255, 255, 255, 0.94) !important;
+              border-color: #cbd5e1 !important;
+              box-shadow: 0 8px 26px rgba(15, 43, 73, 0.07);
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-title {
+              color: #102b49 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-description,
+            .easyvacc-app.easyvacc-light .ev-passkey-date,
+            .easyvacc-app.easyvacc-light .ev-passkey-empty {
+              color: #475569 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-list-title,
+            .easyvacc-app.easyvacc-light .ev-passkey-name {
+              color: #1e293b !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-divider {
+              border-color: #e2e8f0 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-item {
+              background: #f8fafc !important;
+              border-color: #dbe3ed !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-register {
+              background: #126ca8 !important;
+              color: #ffffff !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-register:hover {
+              background: #105b90 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-remove {
+              color: #be123c !important;
+              border-color: #fda4af !important;
+              background: #fff1f2 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-remove:hover {
+              background: #ffe4e6 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-error {
+              color: #9f1239 !important;
+              background: #fff1f2 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-success {
+              color: #075985 !important;
+              background: #e0f2fe !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-passkey-warning {
+              color: #92400e !important;
+            }
+          `}</style>
           {/* SEGURANÇA: FACE ID / BIOMETRIA */}
-          <section className="mt-8 rounded-2xl border border-blue-500/25 bg-[#081629]/85 p-5" aria-labelledby="titulo-passkeys">
+          <section className="ev-passkey-section mt-8 rounded-2xl border border-blue-500/25 bg-[#081629]/85 p-5" aria-labelledby="titulo-passkeys">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <h3 id="titulo-passkeys" className="flex items-center gap-2 text-sm font-bold text-white">
+                <h3 id="titulo-passkeys" className="ev-passkey-title flex items-center gap-2 text-sm font-bold text-white">
                   <Fingerprint size={19} className="text-[#4da7e2]" aria-hidden="true" />
                   Segurança — Face ID e biometria
                 </h3>
-                <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-400">
+                <p className="ev-passkey-description mt-2 max-w-2xl text-xs leading-5 text-slate-400">
                   Cadastre uma Passkey para entrar com Face ID, impressão digital ou bloqueio do dispositivo.
                   A verificação é feita pelo aparelho, sem enviar seu rosto ao EasyVacc.
                 </p>
@@ -1970,38 +2024,38 @@ export default function Perfil() {
                 type="button"
                 onClick={() => void cadastrarPasskey()}
                 disabled={!passkeysDisponiveis() || salvandoPasskey || carregandoPasskeys || Boolean(removendoPasskey)}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#105b90] disabled:cursor-not-allowed disabled:opacity-50"
+                className="ev-passkey-register inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#105b90] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {salvandoPasskey ? <Loader2 size={16} className="animate-spin" /> : <Fingerprint size={16} />}
                 {salvandoPasskey ? 'Cadastrando...' : 'Cadastrar biometria'}
               </button>
             </div>
             {!passkeysDisponiveis() && (
-              <p className="mt-3 text-xs text-amber-300">A biometria exige HTTPS (ou localhost) e um navegador compatível com Passkeys.</p>
+              <p className="ev-passkey-warning mt-3 text-xs text-amber-300">A biometria exige HTTPS (ou localhost) e um navegador compatível com Passkeys.</p>
             )}
-            {erroPasskey && <p role="alert" className="mt-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200">{erroPasskey}</p>}
-            {sucessoPasskey && <p role="status" className="mt-3 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 text-xs text-blue-200">{sucessoPasskey}</p>}
+            {erroPasskey && <p role="alert" className="ev-passkey-error mt-3 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-200">{erroPasskey}</p>}
+            {sucessoPasskey && <p role="status" className="ev-passkey-success mt-3 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 text-xs text-blue-200">{sucessoPasskey}</p>}
             {passkeysDisponiveis() && (
-              <div className="mt-4 border-t border-slate-700/70 pt-4">
-                <p className="mb-2 text-xs font-semibold text-slate-300">Dispositivos autorizados</p>
+              <div className="ev-passkey-divider mt-4 border-t border-slate-700/70 pt-4">
+                <p className="ev-passkey-list-title mb-2 text-xs font-semibold text-slate-300">Dispositivos autorizados</p>
                 {carregandoPasskeys ? (
-                  <p className="flex items-center gap-2 text-xs text-slate-400"><Loader2 size={14} className="animate-spin" /> Consultando dispositivos...</p>
+                  <p className="ev-passkey-empty flex items-center gap-2 text-xs text-slate-400"><Loader2 size={14} className="animate-spin" /> Consultando dispositivos...</p>
                 ) : passkeys.length === 0 ? (
-                  <p className="text-xs text-slate-400">Nenhuma biometria cadastrada nesta conta.</p>
+                  <p className="ev-passkey-empty text-xs text-slate-400">Nenhuma biometria cadastrada nesta conta.</p>
                 ) : (
                   <ul className="space-y-2">
                     {passkeys.map((passkey) => (
-                      <li key={passkey.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-700/60 bg-[#020817]/40 px-3 py-2.5">
+                      <li key={passkey.id} className="ev-passkey-item flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-700/60 bg-[#020817]/40 px-3 py-2.5">
                         <div className="min-w-0">
-                          <p className="break-words text-xs font-semibold text-slate-100">{passkey.friendly_name || 'Passkey cadastrada'}</p>
-                          <p className="mt-1 text-[11px] text-slate-400">Cadastrada em {new Date(passkey.created_at).toLocaleDateString('pt-BR')}</p>
+                          <p className="ev-passkey-name break-words text-xs font-semibold text-slate-100">{passkey.friendly_name || 'Passkey cadastrada'}</p>
+                          <p className="ev-passkey-date mt-1 text-[11px] text-slate-400">Cadastrada em {new Date(passkey.created_at).toLocaleDateString('pt-BR')}</p>
                         </div>
                         <button
                           type="button"
                           onClick={() => void removerPasskey(passkey)}
                           disabled={Boolean(removendoPasskey) || salvandoPasskey}
                           aria-label={`Remover biometria ${passkey.friendly_name || 'cadastrada'}`}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/30 px-3 py-2 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/10 disabled:opacity-50"
+                          className="ev-passkey-remove inline-flex items-center gap-1.5 rounded-lg border border-rose-500/30 px-3 py-2 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/10 disabled:opacity-50"
                         >
                           {removendoPasskey === passkey.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                           Remover

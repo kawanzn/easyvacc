@@ -329,11 +329,11 @@ export default function Campanhas() {
   }
 
   return (
-    <div className={`relative min-h-screen w-full bg-slate-950 text-slate-100 antialiased easyvacc-campanhas ${temaClaro ? "easyvacc-light" : ""}`}>
+    <div className={`relative min-h-screen w-full bg-transparent text-slate-100 antialiased easyvacc-campanhas ${temaClaro ? "easyvacc-light" : ""}`}>
 
 
       <style>{`
-        .easyvacc-campanhas.easyvacc-light { background-color: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-campanhas.easyvacc-light { background-color: transparent !important; color: #10243e !important; }
         .easyvacc-campanhas.easyvacc-light .text-white,
         .easyvacc-campanhas.easyvacc-light .text-slate-100 { color: #10243e !important; }
         .easyvacc-campanhas.easyvacc-light .text-slate-200,

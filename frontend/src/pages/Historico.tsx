@@ -301,8 +301,8 @@ export default function Historico() {
 
   return (
     <div
-      className={`historico-caderneta min-h-screen overflow-x-hidden ${
-        temaClaro ? 'bg-[#f4f7fb] text-slate-900' : 'bg-[#020817] text-slate-100'
+      className={`historico-caderneta min-h-full overflow-x-hidden ${
+        temaClaro ? 'bg-transparent text-slate-900' : 'bg-transparent text-slate-100'
       }`}
     >
       {!temaClaro && (
@@ -361,7 +361,7 @@ export default function Historico() {
           }
         `}</style>
       )}
-      <main className="mx-auto w-full max-w-[1180px] px-3 py-5 sm:px-5 lg:px-6">
+      <div className="mx-auto w-full max-w-[1180px] px-3 py-5 sm:px-5 lg:px-6">
         <header className="mb-4">
           <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-blue-700">
             <ShieldCheck size={15} />
@@ -690,7 +690,7 @@ export default function Historico() {
           os registros e a próxima dose cadastrada no EasyVacc. “Em dia” significa apenas que
           não há retorno vencido registrado.
         </p>
-      </main>
+      </div>
     </div>
   );
 }

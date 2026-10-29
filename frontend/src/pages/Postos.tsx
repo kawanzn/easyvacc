@@ -416,7 +416,7 @@ export default function Postos() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#020817] text-slate-100 antialiased">
+    <div className="relative min-h-screen w-full bg-transparent text-slate-100 antialiased">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-blue-600/10 via-[#126ca8]/15 to-blue-600/10 blur-3xl" />
       </div>

@@ -852,7 +852,7 @@ export default function Perfil() {
   // =====================================================
   if (carregando) {
   return (
-    <div className="mx-auto min-h-screen max-w-5xl bg-[#020817] p-4 pb-20 text-slate-100 sm:p-8">
+    <div className="mx-auto min-h-screen max-w-5xl bg-transparent p-4 pb-20 text-slate-100 sm:p-8">
       <div
         role="status"
         aria-live="polite"
@@ -921,7 +921,7 @@ export default function Perfil() {
       className="
         mx-auto min-h-screen
         max-w-5xl
-        bg-[#020817]
+        bg-transparent
         p-4 pb-20
         font-sans
         text-slate-100

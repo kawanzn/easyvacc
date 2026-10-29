@@ -807,6 +807,30 @@ html::-webkit-scrollbar-button {
             outline-offset: 3px;
           }
         }
+
+        /* Fundo contínuo: camada independente da rolagem do conteúdo. */
+        .easyvacc-app .ev-wave-surface {
+          background: #071a30;
+          --ev-wave-top: #143c63;
+          --ev-wave-bottom: #1b4d78;
+          --ev-wave-line: #3979a7;
+        }
+        .easyvacc-app.easyvacc-light .ev-wave-surface {
+          background: #dbeaf7;
+          --ev-wave-top: #b2d0e9;
+          --ev-wave-bottom: #a5c9e6;
+          --ev-wave-line: #679ac2;
+        }
+        .easyvacc-app main.ev-wave-content,
+        .easyvacc-app.easyvacc-light main.ev-wave-content {
+          background: transparent !important;
+        }
+        @media print {
+          .easyvacc-app main.ev-wave-content {
+            background: white !important;
+          }
+        }
+
         /* O documento do certificado mantém seu próprio desenho e impressão. */
         @media print {
           .easyvacc-app main {
@@ -1387,13 +1411,52 @@ html::-webkit-scrollbar-button {
           </div>
         </header>
 
-        <main
-          className={`relative min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden print:overflow-visible print:bg-white ${
-            temaClaro ? 'bg-[#f6faff]' : 'bg-[#071426]'
-          }`}
-        >
-  <Outlet />
-</main>
+        {/* Fundo em uma camada fixa na área visível: não rola com o Perfil. */}
+        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
+          <div
+            aria-hidden="true"
+            className="ev-wave-surface pointer-events-none absolute inset-0 overflow-hidden print:hidden"
+          >
+            <svg
+              className="block h-full w-full"
+              viewBox="0 0 1440 900"
+              preserveAspectRatio="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Faixa superior ondulada */}
+              <path
+                d="M0 0 H1440 V215 C1320 165 1250 5 1080 42 C850 90 780 255 550 235 C320 214 190 92 0 205 Z"
+                fill="var(--ev-wave-top)"
+              />
+
+              {/* Faixa inferior: chega até a borda inferior da tela */}
+              <path
+                d="M0 790 C185 645 315 640 495 710 C670 782 805 790 960 695 C1110 604 1240 485 1340 615 C1385 675 1415 695 1440 705 V900 H0 Z"
+                fill="var(--ev-wave-bottom)"
+              />
+
+              {/* Linhas geométricas finas, sem animação */}
+              <g
+                fill="none"
+                stroke="var(--ev-wave-line)"
+                strokeWidth="2.5"
+                opacity="0.55"
+              >
+                <path d="M0 757 C185 612 320 611 500 683 C677 754 807 758 953 665 C1100 574 1237 462 1347 587 C1390 647 1418 665 1440 677" />
+                <path d="M0 773 C185 628 320 627 500 699 C677 770 807 774 953 681 C1100 590 1237 478 1347 603 C1390 663 1418 681 1440 693" />
+                <path d="M0 789 C185 644 320 643 500 715 C677 786 807 790 953 697 C1100 606 1237 494 1347 619 C1390 679 1418 697 1440 709" />
+                <path d="M990 -80 L1490 480" />
+                <path d="M1080 -80 L1580 480" />
+                <path d="M1170 -80 L1670 480" />
+              </g>
+            </svg>
+          </div>
+
+          {/* Apenas o conteúdo rola; a arte permanece até a borda inferior. */}
+          <main className="ev-wave-content relative z-10 h-full min-w-0 overflow-y-auto overflow-x-hidden print:overflow-visible">
+            <Outlet />
+          </main>
+        </div>
         {/* Navegação fixa apenas no celular; não interfere na sidebar desktop. */}
         <nav aria-label="Navegação rápida" className={`relative z-30 grid h-[calc(70px+env(safe-area-inset-bottom))] shrink-0 grid-cols-5 items-start border-t px-1 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_25px_rgba(0,0,0,0.05)] lg:hidden print:hidden ${temaClaro ? 'border-[#dce7f3] bg-white text-[#345371]' : 'border-[#253f5d] bg-[#0b1d33] text-[#c5d9ec]'}`}>
           <NavLink to="/dashboard" onClick={(e) => { e.preventDefault(); void abrirTitular(); }} className={({isActive}) => `flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>

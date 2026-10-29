@@ -415,13 +415,13 @@ useEffect(() => {
   }, [situacao]);
   return (
     <div
-      className={`min-h-full bg-slate-950 text-slate-100 transition-colors duration-300 ${
+      className={`min-h-full bg-transparent text-slate-100 transition-colors duration-300 ${
         temaClaro ? 'easyvacc-light' : ''
       }`}
     >
       <style>{`
-        .easyvacc-light {
-          background: #edf3f9 !important;
+        .easyvacc-app .easyvacc-light {
+          background: transparent !important;
           color: #10243e !important;
         }
 

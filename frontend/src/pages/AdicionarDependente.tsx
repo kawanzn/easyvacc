@@ -309,10 +309,10 @@ export default function AdicionarDependente() {
   };
 
   return (
-    <div className={`relative min-h-screen bg-[#020817] p-6 text-slate-100 antialiased md:p-10 ${temaClaro ? 'easyvacc-dependente-light' : ''}`}>
+    <div className={`relative min-h-screen bg-transparent p-6 text-slate-100 antialiased md:p-10 ${temaClaro ? 'easyvacc-dependente-light' : ''}`}>
       <style>{`
         .easyvacc-dependente-light {
-          background: #f8fafc !important;
+          background: transparent !important;
           color: #0f172a !important;
         }
         .easyvacc-dependente-light .text-white,
@@ -369,7 +369,7 @@ export default function AdicionarDependente() {
         .easyvacc-dependente-light [class~="hover:bg-[#081629]"]:hover {
           background-color: #f1f5f9 !important;
         }
-        .easyvacc-dependente-light { background: #f5f8fc !important; color: #102b49 !important; }
+        .easyvacc-dependente-light { background: transparent !important; color: #102b49 !important; }
         .easyvacc-dependente-light [class~="bg-[#081629]"],
         .easyvacc-dependente-light [class~="bg-[#081629]/80"],
         .easyvacc-dependente-light [class~="bg-[#081629]/90"],

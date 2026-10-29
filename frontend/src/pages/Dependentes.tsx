@@ -428,9 +428,9 @@ export default function Dependentes() {
   };
 
   return (
-    <div className={`min-h-full bg-slate-950 text-slate-100 ${temaClaro ? "easyvacc-light" : ""}`}>
+    <div className={`min-h-full bg-transparent text-slate-100 ${temaClaro ? "easyvacc-light" : ""}`}>
       <style>{`
-        .easyvacc-light { background: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-app .easyvacc-light { background: transparent !important; color: #10243e !important; }
         .easyvacc-light .text-white, .easyvacc-light .text-slate-100, .easyvacc-light .text-slate-200 { color: #10243e !important; }
         .easyvacc-light .text-slate-300 { color: #29435f !important; }
         .easyvacc-light .text-slate-400, .easyvacc-light .text-slate-500 { color: #526780 !important; }

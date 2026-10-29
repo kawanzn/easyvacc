@@ -648,7 +648,7 @@ export default function Certificado() {
     return (
       <>
       <style>{`
-        .easyvacc-certificado.easyvacc-light { background-color: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-certificado.easyvacc-light { background-color: transparent !important; color: #10243e !important; }
         .easyvacc-certificado.easyvacc-light .text-white,
         .easyvacc-certificado.easyvacc-light .text-slate-100 { color: #10243e !important; }
         .easyvacc-certificado.easyvacc-light .text-slate-200,
@@ -670,11 +670,12 @@ export default function Certificado() {
         .easyvacc-certificado.easyvacc-light .text-blue-300 { color: #175b96 !important; }
         .easyvacc-certificado.easyvacc-light .text-blue-200 { color: #164f83 !important; }
         @media print {
+          .easyvacc-certificado.easyvacc-light { background-color: #fff !important; }
           .easyvacc-certificado.easyvacc-light .print\:text-slate-900 { color: #0f172a !important; }
           .easyvacc-certificado.easyvacc-light .print\:bg-white { background-color: #fff !important; }
         }
       `}</style>
-      <div className={`min-h-[70vh] bg-[#090d16] px-6 py-8 text-slate-100 md:px-10 md:py-10 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
+      <div className={`min-h-[70vh] bg-transparent px-6 py-8 text-slate-100 md:px-10 md:py-10 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
         <div
           className="mx-auto max-w-7xl"
           role="status"
@@ -731,7 +732,7 @@ export default function Certificado() {
   return (
     <>
       <style>{`
-        .easyvacc-certificado.easyvacc-light { background-color: #edf3f9 !important; color: #10243e !important; }
+        .easyvacc-certificado.easyvacc-light { background-color: transparent !important; color: #10243e !important; }
         .easyvacc-certificado.easyvacc-light .text-white,
         .easyvacc-certificado.easyvacc-light .text-slate-100 { color: #10243e !important; }
         .easyvacc-certificado.easyvacc-light .text-slate-200,
@@ -753,6 +754,7 @@ export default function Certificado() {
         .easyvacc-certificado.easyvacc-light .text-blue-300 { color: #175b96 !important; }
         .easyvacc-certificado.easyvacc-light .text-blue-200 { color: #164f83 !important; }
         @media print {
+          .easyvacc-certificado.easyvacc-light { background-color: #fff !important; }
           .easyvacc-certificado.easyvacc-light .print\:text-slate-900 { color: #0f172a !important; }
           .easyvacc-certificado.easyvacc-light .print\:bg-white { background-color: #fff !important; }
         }
@@ -778,7 +780,7 @@ export default function Certificado() {
         }
       `}</style>
 
-      <div className={`min-h-full bg-[#090d16] text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
+      <div className={`min-h-full bg-transparent text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10 print:max-w-none print:p-0">
 
         {/* CABEÇALHO */}

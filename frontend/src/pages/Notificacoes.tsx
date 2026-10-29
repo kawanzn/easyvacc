@@ -563,7 +563,7 @@ export default function Notificacoes() {
   ).length;
 
   return (
-    <div className="relative min-h-screen bg-[#020817] pb-16 font-sans text-slate-100 antialiased">
+    <div className="relative min-h-screen bg-transparent pb-16 font-sans text-slate-100 antialiased">
       <style>{`
         /* Badge de notificação lida: contraste próprio em cada tema. */
         .easyvacc-light .ev-lida-badge {

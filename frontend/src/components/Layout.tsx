@@ -63,6 +63,84 @@ export default function Layout() {
   const [dependentes, setDependentes] = useState<any[]>([]);
   const [notificacoesNaoLidas, setNotificacoesNaoLidas] =
     useState(0);
+  const [nomeUsuario, setNomeUsuario] = useState('');
+
+  // A identidade exibida no menu pertence sempre ao usuário autenticado.
+  // Não utilizar dados de pessoa ativa (que pode ser um dependente) nem cache local.
+  useEffect(() => {
+    let ativo = true;
+    let versao = 0;
+    let usuarioAtualId: string | null = null;
+
+    const carregarIdentidade = async () => {
+      const requisicao = ++versao;
+      const { data: { user }, error: erroAuth } = await supabase.auth.getUser();
+      if (!ativo || requisicao !== versao) return;
+
+      if (erroAuth || !user) {
+        usuarioAtualId = null;
+        setNomeUsuario('');
+        return;
+      }
+
+      if (usuarioAtualId !== user.id) {
+        usuarioAtualId = user.id;
+        setNomeUsuario('');
+      }
+
+      const { data: perfil, error: erroPerfil } = await supabase
+        .from('users')
+        .select('nome')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      // Ignora respostas de uma sessão anterior ao trocar de conta.
+      if (!ativo || requisicao !== versao || usuarioAtualId !== user.id) return;
+      if (erroPerfil) {
+        console.error('Erro ao carregar nome do usuário no menu:', erroPerfil);
+      }
+
+      const nomePerfil = typeof perfil?.nome === 'string' ? perfil.nome.trim() : '';
+      const nomeAuth = typeof user.user_metadata?.nome === 'string'
+        ? user.user_metadata.nome.trim()
+        : '';
+      setNomeUsuario(nomePerfil || nomeAuth || 'Usuário');
+    };
+
+    void carregarIdentidade();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((evento, sessao) => {
+      if (evento === 'SIGNED_OUT') {
+        ++versao;
+        usuarioAtualId = null;
+        setNomeUsuario('');
+        return;
+      }
+
+      if (evento === 'SIGNED_IN' || evento === 'USER_UPDATED' || evento === 'INITIAL_SESSION') {
+        const idSessao = sessao?.user?.id ?? null;
+        if (usuarioAtualId !== idSessao) {
+          ++versao;
+          usuarioAtualId = idSessao;
+          setNomeUsuario('');
+        }
+        // Executa a consulta fora do callback do Auth para evitar disputa de lock.
+        window.setTimeout(() => {
+          if (ativo) void carregarIdentidade();
+        }, 0);
+      }
+    });
+
+    return () => {
+      ativo = false;
+      ++versao;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const partesNomeUsuario = nomeUsuario.trim().split(/\s+/).filter(Boolean);
+  const iniciaisUsuario = partesNomeUsuario.length > 1
+    ? `${partesNomeUsuario[0][0]}${partesNomeUsuario[partesNomeUsuario.length - 1][0]}`.toLocaleUpperCase('pt-BR')
+    : (partesNomeUsuario[0]?.slice(0, 2).toLocaleUpperCase('pt-BR') || '—');
 
   const fecharMenuMobile = () => {
     setMobileOpen(false);
@@ -1269,13 +1347,13 @@ html::-webkit-scrollbar-button {
                 : 'flex lg:hidden'
             }`}
           >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-xs font-bold shadow-sm text-[#0b2239]">
-              JV
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-xs font-bold shadow-sm text-[#0b2239]" aria-hidden="true">
+              {iniciaisUsuario}
             </div>
 
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-medium text-slate-200">
-                João Victor
+                {nomeUsuario || 'Carregando...'}
               </p>
 
               <p className="mt-0.5 truncate text-[9px] text-slate-500">

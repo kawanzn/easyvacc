@@ -78,13 +78,6 @@ function calcularStatus(
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
-  if (
-    !campanha.data_inicio &&
-    !campanha.data_fim
-  ) {
-    return 'Campanha oficial';
-  }
-
   if (campanha.data_inicio) {
     const inicio = dataLocal(
       campanha.data_inicio
@@ -107,7 +100,13 @@ function calcularStatus(
     }
   }
 
-  return 'Em andamento';
+  // Só confirma vigência quando início e fim estão informados.
+  // Sem o período completo, não é possível garantir que esteja em andamento.
+  if (campanha.data_inicio && campanha.data_fim) {
+    return 'Em andamento';
+  }
+
+  return 'Campanha oficial';
 }
 
 export default function Campanhas() {
@@ -417,7 +416,7 @@ export default function Campanhas() {
               {totalCampanhasAtivas !==
                 null && (
                 <span>
-                  Campanhas ativas:{' '}
+                  Campanhas disponíveis:{' '}
                   <strong className="font-semibold text-slate-300">
                     {totalCampanhasAtivas.toLocaleString(
                       'pt-BR'
@@ -426,6 +425,15 @@ export default function Campanhas() {
                 </span>
               )}
             </div>
+
+            <p className="mt-2 text-[11px] leading-4 text-slate-600">
+              Classificação: "Em breve" indica início futuro;
+              "Em andamento" exige datas de início e fim que
+              incluam hoje; "Encerrada" indica término passado.
+              "Campanha oficial" significa que as datas disponíveis
+              não permitem confirmar a vigência. O total disponível
+              não representa necessariamente campanhas em andamento.
+            </p>
 
             <p className="mt-2 text-[11px] leading-4 text-slate-600">
               A data acima corresponde à
@@ -731,9 +739,9 @@ export default function Campanhas() {
                                 {!campanha.data_inicio &&
                                 !campanha.data_fim ? (
                                   <span className="text-slate-300">
-                                    Não
-                                    informado
-                                    pela fonte
+                                    Não informado pela fonte.
+                                    Não é possível confirmar se a
+                                    campanha está em andamento.
                                   </span>
                                 ) : (
                                   <>
@@ -813,7 +821,7 @@ export default function Campanhas() {
 
                   <p className="mt-1 text-sm text-slate-500">
                     Não há campanhas
-                    ativas cadastradas no
+                    disponíveis cadastradas no
                     EasyVacc neste momento. Você pode atualizar a lista para conferir novamente.
                   </p>
                   <button type="button" onClick={() => void carregarDados()} className="ev-btn-secondary mt-5 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold">

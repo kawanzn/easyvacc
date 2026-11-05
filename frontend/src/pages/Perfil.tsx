@@ -2373,36 +2373,130 @@ export default function Perfil() {
         </div>,
         document.body
       )}
-      {modalReautenticacao && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020817]/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-reauth">
-          <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#081629] p-6 shadow-2xl">
-            <div className="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <h2 id="titulo-reauth" className="text-lg font-extrabold text-white">Confirmar sua identidade</h2>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">Digite sua senha para visualizar CPF e CNS completos.</p>
+      {/* Janela de identidade fora do contêiner de rolagem do Perfil, como a exclusão. */}
+      {modalReautenticacao && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="titulo-reauth"
+          className="fixed inset-0 overflow-y-auto overscroll-contain p-4 backdrop-blur-sm"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(2, 8, 23, 0.78)',
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-y',
+            paddingTop: 'max(16px, env(safe-area-inset-top))',
+            paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
+          }}
+        >
+          <div className="flex min-h-full w-full items-center justify-center">
+            <div
+              className="w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-[#081629] p-6 shadow-2xl"
+              style={{
+                maxHeight: 'calc(100dvh - 32px)',
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+                ...(temaClaroExclusao ? {
+                  backgroundColor: '#ffffff',
+                  borderColor: '#cbd5e1',
+                } : {}),
+              }}
+            >
+              <div className="mb-5 flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h2
+                    id="titulo-reauth"
+                    className="text-lg font-extrabold text-white"
+                    style={temaClaroExclusao ? { color: '#18324d' } : undefined}
+                  >
+                    Confirmar sua identidade
+                  </h2>
+                  <p
+                    className="mt-2 text-sm leading-relaxed text-slate-400"
+                    style={temaClaroExclusao ? { color: '#475569' } : undefined}
+                  >
+                    Digite sua senha para visualizar CPF e CNS completos.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={fecharReautenticacao}
+                  disabled={validandoSenha}
+                  aria-label="Fechar confirmação de identidade"
+                  className="shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
+                  style={temaClaroExclusao ? { color: '#475569' } : undefined}
+                >
+                  <X size={18} aria-hidden="true" />
+                </button>
               </div>
-              <button type="button" onClick={fecharReautenticacao} disabled={validandoSenha} aria-label="Fechar confirmação de identidade" className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50">
-                <X size={18} aria-hidden="true" />
-              </button>
+              <form onSubmit={confirmarReautenticacao}>
+                <label
+                  htmlFor="senha-reauth"
+                  className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400"
+                  style={temaClaroExclusao ? { color: '#475569' } : undefined}
+                >
+                  Senha
+                </label>
+                <div className="relative">
+                  <input
+                    id="senha-reauth"
+                    type={mostrarSenhaReautenticacao ? 'text' : 'password'}
+                    value={senhaReautenticacao}
+                    onChange={(e) => setSenhaReautenticacao(e.target.value)}
+                    autoComplete="current-password"
+                    autoFocus
+                    required
+                    disabled={validandoSenha}
+                    className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 pr-12 text-base text-white outline-none transition placeholder:text-slate-600 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60 sm:text-sm"
+                    style={temaClaroExclusao ? {
+                      backgroundColor: '#f8fafc',
+                      borderColor: '#cbd5e1',
+                      color: '#1e293b',
+                    } : undefined}
+                    placeholder="Digite sua senha"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMostrarSenhaReautenticacao((valor) => !valor)}
+                    disabled={validandoSenha}
+                    aria-label={mostrarSenhaReautenticacao ? 'Ocultar senha' : 'Mostrar senha'}
+                    className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-600 disabled:opacity-50"
+                    style={temaClaroExclusao ? { color: '#475569' } : undefined}
+                  >
+                    {mostrarSenhaReautenticacao ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+                  </button>
+                </div>
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={fecharReautenticacao}
+                    disabled={validandoSenha}
+                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50"
+                    style={temaClaroExclusao ? {
+                      backgroundColor: '#f1f5f9',
+                      borderColor: '#cbd5e1',
+                      color: '#334155',
+                    } : undefined}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={validandoSenha || !senhaReautenticacao}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    style={temaClaroExclusao ? { backgroundColor: '#126ca8', color: '#ffffff' } : undefined}
+                  >
+                    {validandoSenha && <Loader2 size={15} aria-hidden="true" className="animate-spin" />}
+                    {validandoSenha ? 'Confirmando...' : 'Confirmar e exibir'}
+                  </button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={confirmarReautenticacao}>
-              <label htmlFor="senha-reauth" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">Senha</label>
-              <div className="relative">
-                <input id="senha-reauth" type={mostrarSenhaReautenticacao ? 'text' : 'password'} value={senhaReautenticacao} onChange={(e) => setSenhaReautenticacao(e.target.value)} autoComplete="current-password" autoFocus required disabled={validandoSenha} className="w-full rounded-xl border border-slate-700 bg-[#020817] px-4 py-3 pr-12 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60" placeholder="Digite sua senha" />
-                <button type="button" onClick={() => setMostrarSenhaReautenticacao((valor) => !valor)} disabled={validandoSenha} aria-label={mostrarSenhaReautenticacao ? 'Ocultar senha' : 'Mostrar senha'} className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-600 disabled:opacity-50">
-                  {mostrarSenhaReautenticacao ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
-                </button>
-              </div>
-              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button type="button" onClick={fecharReautenticacao} disabled={validandoSenha} className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50">Cancelar</button>
-                <button type="submit" disabled={validandoSenha || !senhaReautenticacao} className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60">
-                  {validandoSenha && <Loader2 size={15} aria-hidden="true" className="animate-spin" />}
-                  {validandoSenha ? 'Confirmando...' : 'Confirmar e exibir'}
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

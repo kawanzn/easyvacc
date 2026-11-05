@@ -1,10 +1,10 @@
-import './easyvacc-mobile.css';
-import { useEffect, useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import {
   NavLink,
   Outlet,
   Link,
   useNavigate,
+  useLocation,
 } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -29,9 +29,12 @@ import { lerPessoaAtiva, salvarPessoaAtiva } from '../lib/brasil';
 
 export default function Layout() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const [isOpen, setIsOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const fecharPainelMobileRef = useRef<HTMLButtonElement>(null);
+  const abrirPainelMobileRef = useRef<HTMLButtonElement>(null);
 
   const [temaClaro, setTemaClaro] = useState(() => {
     return localStorage.getItem('easyvacc-tema') === 'claro';
@@ -409,6 +412,13 @@ export default function Layout() {
     };
   }, [mobileOpen]);
 
+  // O painel mobile abre com foco no controle de fechar.
+  useEffect(() => {
+    if (mobileOpen && window.matchMedia('(max-width: 1023px)').matches) {
+      fecharPainelMobileRef.current?.focus();
+    }
+  }, [mobileOpen]);
+
   // Mesma ação de Vacinação usada na sidebar e na barra inferior.
   const abrirVacinacao = async (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -478,6 +488,65 @@ export default function Layout() {
     isOpen
       ? ''
       : 'lg:hidden';
+
+  // Somente o cabeçalho do aplicativo móvel: as páginas desktop permanecem intactas.
+  const titulosMobile: Record<string, { etiqueta: string; titulo: string; descricao: string }> = {
+    '/dashboard': {
+      etiqueta: nomeUsuario ? `Olá, ${nomeUsuario.split(' ')[0]}!` : 'Olá, bem-vindo(a)!',
+      titulo: 'Minha caderneta',
+      descricao: 'Tudo sobre sua vacinação em um só lugar.',
+    },
+    '/historico': {
+      etiqueta: 'Seus registros digitais',
+      titulo: 'Vacinação',
+      descricao: 'Seu histórico de vacinas, organizado.',
+    },
+    '/certificado': {
+      etiqueta: 'Comprovantes digitais',
+      titulo: 'Certificados',
+      descricao: 'Seus documentos de vacinação.',
+    },
+    '/dependentes': {
+      etiqueta: 'Você e sua família',
+      titulo: 'Meus dependentes',
+      descricao: 'Acompanhe quem está vinculado à sua conta.',
+    },
+    '/adicionar-dependente': {
+      etiqueta: 'Você e sua família',
+      titulo: 'Meus dependentes',
+      descricao: 'Gerencie os familiares vinculados à sua conta.',
+    },
+    '/perfil': {
+      etiqueta: 'Sua conta EasyVacc',
+      titulo: 'Meu perfil',
+      descricao: 'Seus dados, saúde e segurança.',
+    },
+    '/notificacoes': {
+      etiqueta: 'Fique por dentro',
+      titulo: 'Notificações',
+      descricao: 'Avisos e atualizações em um só lugar.',
+    },
+    '/postos': {
+      etiqueta: 'Rede de atendimento',
+      titulo: 'Postos de saúde',
+      descricao: 'Encontre unidades de saúde na sua região.',
+    },
+    '/campanhas': {
+      etiqueta: 'Informações de vacinação',
+      titulo: 'Campanhas',
+      descricao: 'Acompanhe as campanhas divulgadas.',
+    },
+  };
+  const cabecalhoMobile = titulosMobile[pathname] ?? titulosMobile['/dashboard'];
+
+  // Cada rota começa pelo topo do conteúdo no celular; desktop não é alterado.
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 1023px)').matches) {
+      const areaRolagem = document.querySelector<HTMLElement>('.easyvacc-app .ev-mobile-scroll');
+      if (areaRolagem) areaRolagem.scrollTop = 0;
+    }
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
     <div
@@ -917,25 +986,25 @@ html::-webkit-scrollbar-button {
           }
         }
       `}</style>
-      {/* OVERLAY MOBILE */}
+      {/* FUNDO ESCURECIDO DO PAINEL MOBILE */}
       {mobileOpen && (
         <button
           type="button"
           aria-label="Fechar menu"
           onClick={fecharMenuMobile}
-          className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-[3px] lg:hidden"
+          className="ev-mobile-sheet-backdrop fixed inset-0 z-40 bg-slate-950/55 backdrop-blur-[3px] lg:hidden print:hidden"
         />
       )}
 
       {/* ======================================
-          SIDEBAR ÚNICA
+          SIDEBAR EXCLUSIVA DO DESKTOP
       ====================================== */}
 
       <aside
         id="menu-principal"
         aria-label="Menu principal"
         className={`
-          ev-sidebar fixed inset-y-0 left-0 z-50 flex flex-col
+          ev-sidebar ev-sidebar-desktop-only hidden fixed inset-y-0 left-0 z-50 flex-col lg:flex
           border-r
           ${
             temaClaro
@@ -952,12 +1021,6 @@ html::-webkit-scrollbar-button {
           lg:shrink-0
           lg:translate-x-0
           lg:shadow-none
-
-          ${
-            mobileOpen
-              ? 'translate-x-0'
-              : '-translate-x-full'
-          }
 
           ${
             isOpen
@@ -1461,37 +1524,165 @@ html::-webkit-scrollbar-button {
         </button>
       </aside>
 
+      {/* Painel de opções exclusivo do celular. A sidebar acima permanece desktop. */}
+      {mobileOpen && (
+        <section
+          id="menu-mobile"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="menu-mobile-titulo"
+          className={`ev-mobile-sheet fixed inset-x-0 bottom-0 z-[60] mx-auto w-full max-w-[560px] lg:hidden print:hidden ${temaClaro ? 'ev-mobile-sheet-light' : 'ev-mobile-sheet-dark'}`}
+          onKeyDown={(event) => {
+            if (event.key !== 'Tab') return;
+            const botoes = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]'));
+            if (!botoes.length) return;
+            const primeiro = botoes[0];
+            const ultimo = botoes[botoes.length - 1];
+            if (event.shiftKey && document.activeElement === primeiro) {
+              event.preventDefault();
+              ultimo.focus();
+            } else if (!event.shiftKey && document.activeElement === ultimo) {
+              event.preventDefault();
+              primeiro.focus();
+            }
+          }}
+        >
+          <div className="ev-mobile-sheet-handle" aria-hidden="true" />
+          <div className="ev-mobile-sheet-header">
+            <div className="ev-mobile-sheet-account">
+              <div className="ev-mobile-sheet-avatar" aria-hidden="true">{iniciaisUsuario}</div>
+              <div className="min-w-0">
+                <p className="ev-mobile-sheet-eyebrow">Sua conta</p>
+                <h2 id="menu-mobile-titulo" className="ev-mobile-sheet-name truncate">{nomeUsuario || 'EasyVacc'}</h2>
+              </div>
+            </div>
+            <button
+              ref={fecharPainelMobileRef}
+              type="button"
+              onClick={() => { fecharMenuMobile(); abrirPainelMobileRef.current?.focus(); }}
+              aria-label="Fechar menu"
+              className="ev-mobile-sheet-close"
+            >
+              <X size={20} strokeWidth={2} />
+            </button>
+          </div>
+
+          <div className="ev-mobile-sheet-body">
+            <p className="ev-mobile-sheet-section-label">Mais opções</p>
+            <div className="ev-mobile-sheet-grid">
+              <NavLink to="/perfil" onClick={fecharMenuMobile} className="ev-mobile-sheet-tile">
+                <span className="ev-mobile-sheet-tile-icon"><UserRound size={21} strokeWidth={1.8} /></span>
+                <span>Meu perfil</span>
+                <ChevronRight size={15} className="ev-mobile-sheet-chevron" />
+              </NavLink>
+              <NavLink to="/postos" onClick={fecharMenuMobile} className="ev-mobile-sheet-tile">
+                <span className="ev-mobile-sheet-tile-icon"><MapPin size={21} strokeWidth={1.8} /></span>
+                <span>Postos de saúde</span>
+                <ChevronRight size={15} className="ev-mobile-sheet-chevron" />
+              </NavLink>
+              <NavLink to="/campanhas" onClick={fecharMenuMobile} className="ev-mobile-sheet-tile">
+                <span className="ev-mobile-sheet-tile-icon"><CalendarDays size={21} strokeWidth={1.8} /></span>
+                <span>Campanhas</span>
+                <ChevronRight size={15} className="ev-mobile-sheet-chevron" />
+              </NavLink>
+              <NavLink to="/adicionar-dependente" onClick={fecharMenuMobile} className="ev-mobile-sheet-tile">
+                <span className="ev-mobile-sheet-tile-icon"><UserPlus size={21} strokeWidth={1.8} /></span>
+                <span>Adicionar dependente</span>
+                <ChevronRight size={15} className="ev-mobile-sheet-chevron" />
+              </NavLink>
+            </div>
+
+            {dependentes.length > 0 && (
+              <div className="ev-mobile-sheet-dependents">
+                <div className="ev-mobile-sheet-section-heading">
+                  <p className="ev-mobile-sheet-section-label">Pessoas vinculadas</p>
+                  <span>{dependentes.length}</span>
+                </div>
+                <div className="ev-mobile-sheet-chips">
+                  {dependentes.map((dependente) => (
+                    <button
+                      type="button"
+                      key={dependente.id}
+                      className="ev-mobile-sheet-chip"
+                      onClick={() => {
+                        salvarPessoaAtiva({
+                          tipo: 'dependente',
+                          id: dependente.id,
+                          nome: dependente.nome,
+                          parentesco: dependente.parentesco,
+                        });
+                        window.dispatchEvent(new Event('pessoaAtivaAtualizada'));
+                        fecharMenuMobile();
+                        navigate(`/dependentes?selecionado=${dependente.id}`);
+                      }}
+                    >
+                      <span className="ev-mobile-sheet-chip-avatar" aria-hidden="true">{dependente.nome?.charAt(0).toUpperCase()}</span>
+                      <span className="truncate">{dependente.nome}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="ev-mobile-sheet-footer">
+              <span>Conta e segurança</span>
+              <button type="button" onClick={handleLogout} className="ev-mobile-sheet-logout">
+                <LogOut size={18} strokeWidth={1.9} />
+                Sair da conta
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ======================================
           CONTEÚDO
       ====================================== */}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* No celular, somente ações globais no topo; a navegação fica embaixo. */}
-        <header className="ev-mobile-topbar relative z-20 flex h-[60px] shrink-0 items-center justify-end gap-2 px-4 lg:hidden print:hidden" aria-label="Ações rápidas">
-          <button
-            type="button"
-            onClick={alternarTema}
-            aria-label={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
-            title={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
-            className="flex h-11 w-11 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-          >
-            {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
-          </button>
-          <NavLink
-            to="/notificacoes"
-            aria-label={notificacoesNaoLidas > 0 ? `Notificações: ${notificacoesNaoLidas} não lidas` : 'Notificações'}
-            onClick={fecharMenuMobile}
-            className="relative flex h-11 w-11 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-          >
-            <Bell size={19} />
-            {notificacoesNaoLidas > 0 && (
-              <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-blue-500" />
-            )}
-          </NavLink>
+        {/* Cabeçalho mobile inspirado no aplicativo mostrado na Landing.
+            Desktop: continua usando a sidebar e o cabeçalho de cada página. */}
+        <header className="ev-mobile-hero lg:hidden print:hidden" aria-label="Cabeçalho do EasyVacc">
+          <div className="ev-mobile-hero-row">
+            <Link
+              to="/dashboard"
+              onClick={(event) => { event.preventDefault(); void abrirTitular(); }}
+              className="ev-mobile-brand"
+              aria-label="EasyVacc — voltar ao início"
+            >
+              <span className="ev-mobile-brand-icon"><img src="/logo.png" alt="" /></span>
+              <span>Easy<span className="ev-mobile-brand-accent">Vacc</span></span>
+            </Link>
+            <div className="ev-mobile-hero-actions">
+              <button
+                type="button"
+                onClick={alternarTema}
+                aria-label={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
+                title={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
+                className="ev-mobile-hero-action"
+              >
+                {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
+              </button>
+              <NavLink
+                to="/notificacoes"
+                aria-label={notificacoesNaoLidas > 0 ? `Notificações: ${notificacoesNaoLidas} não lidas` : 'Notificações'}
+                onClick={fecharMenuMobile}
+                className="ev-mobile-hero-action"
+              >
+                <Bell size={19} />
+                {notificacoesNaoLidas > 0 && <span className="ev-mobile-notification-dot" />}
+              </NavLink>
+            </div>
+          </div>
+          <div className="ev-mobile-hero-copy">
+            <p className="ev-mobile-eyebrow">{cabecalhoMobile.etiqueta}</p>
+            <h1>{cabecalhoMobile.titulo}</h1>
+            <p className="ev-mobile-hero-description">{cabecalhoMobile.descricao}</p>
+          </div>
         </header>
 
         {/* Fundo em uma camada fixa na área visível: não rola com o Perfil. */}
-        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
+        <div className="ev-mobile-region relative min-h-0 min-w-0 flex-1 overflow-hidden">
           <div
             aria-hidden="true"
             className="ev-wave-surface pointer-events-none absolute inset-0 overflow-hidden print:hidden"
@@ -1532,7 +1723,7 @@ html::-webkit-scrollbar-button {
           </div>
 
           {/* Apenas o conteúdo rola; a arte permanece até a borda inferior. */}
-          <main className="ev-wave-content relative z-10 h-full min-w-0 overflow-y-auto overflow-x-hidden print:overflow-visible">
+          <main className="ev-wave-content ev-mobile-scroll relative z-10 h-full min-w-0 overflow-y-auto overflow-x-hidden print:overflow-visible">
             <Outlet />
           </main>
         </div>
@@ -1553,7 +1744,7 @@ html::-webkit-scrollbar-button {
           <NavLink to="/dependentes" onClick={fecharMenuMobile} className={({isActive}) => `flex min-h-[55px] flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
             <UserPlus size={21} strokeWidth={1.9} /><span>Dependentes</span>
           </NavLink>
-          <button type="button" onClick={() => setMobileOpen(true)} aria-label="Abrir menu completo" aria-expanded={mobileOpen} aria-controls="menu-principal" className={`flex min-h-[55px] flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${mobileOpen ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+          <button ref={abrirPainelMobileRef} type="button" onClick={() => setMobileOpen(true)} aria-label="Abrir menu completo" aria-expanded={mobileOpen} aria-controls="menu-mobile" className={`flex min-h-[55px] flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${mobileOpen ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
             <Menu size={21} strokeWidth={1.9} /><span>Menu</span>
           </button>
         </nav>

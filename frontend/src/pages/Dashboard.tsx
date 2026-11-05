@@ -483,7 +483,95 @@ useEffect(() => {
         }
       `}</style>
 
-      <div className="relative isolate overflow-hidden">
+      {/* Versão exclusiva para celular. A interface desktop abaixo permanece intacta. */}
+      <div className="ev-mobile-dashboard lg:hidden">
+        {carregando ? (
+          <div className="ev-m-home-loading" role="status" aria-live="polite">
+            <div className="ev-m-home-loading-line" />
+            <div className="ev-m-home-loading-block" />
+            <p>Carregando sua caderneta...</p>
+          </div>
+        ) : erro ? (
+          <div className="ev-m-home-error" role="alert">
+            <AlertTriangle size={20} />
+            <p>{erro}</p>
+          </div>
+        ) : situacao ? (
+          <>
+            <section className="ev-m-home-feature" aria-labelledby="ev-m-historico-title">
+              <div className="ev-m-home-feature-heading">
+                <h2 id="ev-m-historico-title">Meu histórico</h2>
+                <span className="ev-m-home-pill">Organizado</span>
+              </div>
+              <Link to="/historico" className="ev-m-home-vaccination">
+                <span className="ev-m-home-vaccine-icon"><Syringe size={23} strokeWidth={1.9} /></span>
+                <span className="ev-m-home-vaccine-copy">
+                  <strong>Vacinação</strong>
+                  <small>{situacao.totalRegistros === 1 ? '1 registro digital' : `${situacao.totalRegistros} registros digitais`}</small>
+                </span>
+                <span className="ev-m-home-vaccine-check"><CheckCircle2 size={20} /></span>
+              </Link>
+              <p className="ev-m-home-owner">
+                Caderneta de <strong>{pessoa?.nome || situacao.pessoa.nome}</strong>
+              </p>
+              <Link to="/historico" className="ev-m-home-primary">
+                Ver minha caderneta <ArrowRight size={18} />
+              </Link>
+            </section>
+
+            <section className="ev-m-home-quick" aria-labelledby="ev-m-acesso-rapido-title">
+              <div className="ev-m-home-section-heading">
+                <h2 id="ev-m-acesso-rapido-title">Acesso rápido</h2>
+                <span>O que você precisa?</span>
+              </div>
+              <div className="ev-m-home-quick-grid">
+                <Link to="/certificado" className="ev-m-home-quick-card">
+                  <span className="ev-m-home-quick-icon"><FileText size={24} /></span>
+                  <strong>Certificados</strong>
+                  <ArrowRight className="ev-m-home-quick-arrow" size={16} />
+                </Link>
+                <Link to="/dependentes" className="ev-m-home-quick-card">
+                  <span className="ev-m-home-quick-icon"><User size={24} /></span>
+                  <strong>Dependentes</strong>
+                  <ArrowRight className="ev-m-home-quick-arrow" size={16} />
+                </Link>
+              </div>
+            </section>
+
+            <section className="ev-m-home-status" aria-label="Situação dos registros">
+              <span className={`ev-m-home-status-icon ${tomStatus === 'amber' ? 'ev-m-home-status-alert' : ''}`}>
+                {tomStatus === 'amber' ? <AlertTriangle size={22} /> : <ShieldCheck size={22} />}
+              </span>
+              <div>
+                <h2>{situacao.statusRotulo}</h2>
+                <p>{situacao.totalRegistros === 0
+                  ? 'Sua caderneta ainda não possui doses cadastradas.'
+                  : situacao.statusDetalhe}</p>
+              </div>
+            </section>
+
+            {situacao.proximaDose && (
+              <section className="ev-m-home-next" aria-label="Próximo retorno registrado">
+                <CalendarDays size={19} />
+                <div>
+                  <strong>Próximo retorno cadastrado</strong>
+                  <p>{situacao.proximaDose.nome} · {situacao.proximaDose.data}</p>
+                </div>
+              </section>
+            )}
+
+            <div className="ev-m-home-other-links">
+              <Link to="/postos"><MapPin size={17} /> Postos de saúde <ArrowRight size={15} /></Link>
+              <Link to="/campanhas"><Megaphone size={17} /> Campanhas <ArrowRight size={15} /></Link>
+            </div>
+            <p className="ev-m-home-disclaimer">
+              O EasyVacc mostra os registros cadastrados. Não ter retornos atrasados não confirma que todas as vacinas estão em dia.
+            </p>
+          </>
+        ) : null}
+      </div>
+
+      <div className="relative isolate hidden overflow-hidden lg:block">
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.12),transparent_36%)]" />
 
         <div className="mx-auto max-w-7xl px-5 py-7 sm:px-6 md:px-10 md:py-10">

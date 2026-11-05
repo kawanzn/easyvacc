@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   User,
   Mail,
@@ -1003,6 +1004,9 @@ export default function Perfil() {
   // =====================================================
   // TELA
   // =====================================================
+  const temaClaroExclusao = typeof document !== 'undefined' &&
+    document.querySelector('.easyvacc-app')?.classList.contains('easyvacc-light');
+
   return (
     <div
       className="
@@ -2266,34 +2270,108 @@ export default function Perfil() {
           </section>
         </div>
       </div>
-      {modalExclusao && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020817]/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-exclusao">
-          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-rose-500/30 bg-[#081629] p-5 shadow-2xl sm:p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 id="titulo-exclusao" className="text-lg font-extrabold text-white">Solicitar exclusão da conta</h2>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  Sua conta não será apagada imediatamente. A solicitação será registrada para análise e tratamento seguro dos seus dados.
+      {/* Janela de exclusão isolada do scroll e das cores do restante do Perfil. */}
+      {modalExclusao && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="titulo-exclusao"
+          className="fixed inset-0 overflow-y-auto overscroll-contain p-4 backdrop-blur-sm"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(2, 8, 23, 0.78)',
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-y',
+            paddingTop: 'max(16px, env(safe-area-inset-top))',
+            paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
+          }}
+        >
+          <div className="flex min-h-full w-full items-center justify-center">
+            <div
+              className="w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl border p-5 shadow-2xl sm:p-6"
+              style={{
+                maxHeight: 'calc(100dvh - 32px)',
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+                backgroundColor: temaClaroExclusao ? '#ffffff' : '#081629',
+                borderColor: temaClaroExclusao ? '#fecdd3' : 'rgba(244, 63, 94, 0.3)',
+              }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h2
+                    id="titulo-exclusao"
+                    className="text-lg font-extrabold"
+                    style={{ color: temaClaroExclusao ? '#0f172a' : '#ffffff' }}
+                  >
+                    Solicitar exclusão da conta
+                  </h2>
+                  <p
+                    className="mt-2 text-sm leading-relaxed"
+                    style={{ color: temaClaroExclusao ? '#334155' : '#cbd5e1' }}
+                  >
+                    Sua conta não será apagada imediatamente. A solicitação será registrada para análise e tratamento seguro dos seus dados.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={fecharModalExclusao}
+                  disabled={solicitandoExclusao}
+                  aria-label="Fechar solicitação de exclusão"
+                  className="shrink-0 rounded-lg p-2 transition focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50"
+                  style={{ color: temaClaroExclusao ? '#475569' : '#94a3b8' }}
+                >
+                  <X size={18} aria-hidden="true" />
+                </button>
+              </div>
+              <div
+                className="mt-5 rounded-xl border p-4"
+                style={{
+                  backgroundColor: temaClaroExclusao ? '#fff1f2' : 'rgba(244, 63, 94, 0.10)',
+                  borderColor: temaClaroExclusao ? '#fecdd3' : 'rgba(244, 63, 94, 0.20)',
+                }}
+              >
+                <p
+                  className="text-sm font-semibold leading-6"
+                  style={{
+                    // Cor explícita: evita que estilos globais deixem o aviso rosa-claro no tema claro.
+                    color: temaClaroExclusao ? '#881337' : '#fecdd3',
+                    opacity: 1,
+                  }}
+                >
+                  Registros que precisem ser preservados por obrigação legal, segurança ou auditoria poderão receber tratamento específico antes do encerramento definitivo.
                 </p>
               </div>
-              <button type="button" onClick={fecharModalExclusao} disabled={solicitandoExclusao} aria-label="Fechar solicitação de exclusão" className="shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50">
-                <X size={18} aria-hidden="true" />
-              </button>
-            </div>
-            <div className="mt-5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-4">
-              <p className="text-xs leading-5 text-rose-200">
-                Registros que precisem ser preservados por obrigação legal, segurança ou auditoria poderão receber tratamento específico antes do encerramento definitivo.
-              </p>
-            </div>
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button type="button" onClick={fecharModalExclusao} disabled={solicitandoExclusao} className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50">Cancelar</button>
-              <button type="button" onClick={() => void confirmarSolicitacaoExclusao()} disabled={solicitandoExclusao} className="ev-btn-danger flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:cursor-not-allowed disabled:opacity-60">
-                {solicitandoExclusao && <Loader2 size={15} aria-hidden="true" className="animate-spin" />}
-                {solicitandoExclusao ? 'Enviando...' : 'Confirmar solicitação'}
-              </button>
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={fecharModalExclusao}
+                  disabled={solicitandoExclusao}
+                  className="rounded-xl border px-4 py-2.5 text-xs font-bold transition focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50"
+                  style={{
+                    backgroundColor: temaClaroExclusao ? '#f1f5f9' : '#1e293b',
+                    borderColor: temaClaroExclusao ? '#e2e8f0' : '#334155',
+                    color: temaClaroExclusao ? '#334155' : '#cbd5e1',
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void confirmarSolicitacaoExclusao()}
+                  disabled={solicitandoExclusao}
+                  className="ev-btn-danger flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {solicitandoExclusao && <Loader2 size={15} aria-hidden="true" className="animate-spin" />}
+                  {solicitandoExclusao ? 'Enviando...' : 'Confirmar solicitação'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       {modalReautenticacao && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020817]/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="titulo-reauth">

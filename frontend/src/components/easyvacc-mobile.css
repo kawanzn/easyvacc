@@ -1,15 +1,733 @@
-/* EasyVacc mobile: ajustes de ergonomia inspirados na prévia da landing.
-   Não modifica ações, dados, impressão nem regras de negócio. */
+/*
+ * EasyVacc — aplicativo mobile (branch redesign-mobile)
+ * Referência: interface dentro do celular na Landing (cabeçalho azul + cartões claros).
+ * TODAS as regras visuais ficam limitadas a telas menores que 1024px e à área autenticada.
+ * Não altera desktop, páginas públicas, regras de negócio ou certificado impresso.
+ */
 @media screen and (max-width: 1023px) {
-  html, body, #root { max-width: 100%; overflow-x: clip; }
-  .easyvacc-app main { overflow-wrap: break-word; overscroll-behavior-y: contain; }
-  .easyvacc-app main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),select,textarea) { min-height: 44px; font-size: max(16px, 1em); }
-  .easyvacc-app main :is(button, a, [role="button"]) { touch-action: manipulation; }
-  .easyvacc-app main :is(button, a, input, select, textarea):focus-visible { outline: 3px solid #65b9f3; outline-offset: 2px; }
-  .easyvacc-app main :is(img, svg, video, canvas) { max-width: 100%; }
-  .easyvacc-app main :is(table) { max-width: 100%; }
-  .easyvacc-app main :is([class*="grid-cols-4"], [class*="grid-cols-3"]) { min-width: 0; }
+  .easyvacc-app {
+    --ev-mobile-bg: #081c31;
+    --ev-mobile-surface: #112b46;
+    --ev-mobile-soft: #183857;
+    --ev-mobile-text: #f2f8ff;
+    --ev-mobile-muted: #b3c9dc;
+    --ev-mobile-line: #2a4966;
+    --ev-mobile-shadow: 0 10px 26px rgba(0, 8, 24, .15);
+    --ev-surface: var(--ev-mobile-surface);
+    --ev-surface-alt: var(--ev-mobile-soft);
+    --ev-text: var(--ev-mobile-text);
+    --ev-text-muted: var(--ev-mobile-muted);
+    --ev-border: var(--ev-mobile-line);
+    --ev-radius-card: 20px;
+    --ev-radius-control: 13px;
+    color: var(--ev-mobile-text);
+    background: #0a4678 !important;
+  }
+
+  .easyvacc-app.easyvacc-light {
+    --ev-mobile-bg: #f2f7fc;
+    --ev-mobile-surface: #ffffff;
+    --ev-mobile-soft: #eaf3fb;
+    --ev-mobile-text: #18324d;
+    --ev-mobile-muted: #61758b;
+    --ev-mobile-line: #dce7f1;
+    --ev-mobile-shadow: 0 9px 28px rgba(17, 63, 105, .075);
+  }
+
+  /* Cabeçalho azul, com a mesma hierarquia do app mostrado na Landing. */
+  .easyvacc-app .ev-mobile-hero {
+    position: relative;
+    isolation: isolate;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: calc(13px + env(safe-area-inset-top, 0px)) 20px 43px;
+    background: linear-gradient(140deg, #0b5188 0%, #146eae 53%, #167fbe 100%);
+    color: #fff;
+  }
+  .easyvacc-app .ev-mobile-hero::before,
+  .easyvacc-app .ev-mobile-hero::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 50%;
+  }
+  .easyvacc-app .ev-mobile-hero::before {
+    width: 230px;
+    height: 230px;
+    right: -125px;
+    top: -138px;
+    background: rgba(139, 211, 255, .13);
+  }
+  .easyvacc-app .ev-mobile-hero::after {
+    width: 185px;
+    height: 185px;
+    right: -125px;
+    bottom: -110px;
+    background: rgba(7, 45, 92, .18);
+  }
+  .easyvacc-app .ev-mobile-hero-row,
+  .easyvacc-app .ev-mobile-hero-actions,
+  .easyvacc-app .ev-mobile-brand {
+    display: flex;
+    align-items: center;
+  }
+  .easyvacc-app .ev-mobile-hero-row { justify-content: space-between; gap: 12px; }
+  .easyvacc-app .ev-mobile-brand {
+    min-width: 0;
+    gap: 9px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 850;
+    letter-spacing: -.055em;
+    text-decoration: none;
+  }
+  .easyvacc-app .ev-mobile-brand-accent { color: #d1ecff; }
+  .easyvacc-app .ev-mobile-brand-icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 11px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(4, 32, 61, .16);
+  }
+  .easyvacc-app .ev-mobile-brand-icon img { width: 30px; height: 30px; object-fit: contain; }
+  .easyvacc-app .ev-mobile-hero-actions { gap: 7px; }
+  .easyvacc-app .ev-mobile-hero-action {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 39px;
+    height: 39px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,.23);
+    border-radius: 13px;
+    background: rgba(255,255,255,.10);
+    color: #fff;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .easyvacc-app .ev-mobile-hero-action:active { transform: scale(.97); }
+  .easyvacc-app .ev-mobile-hero-action:hover { background: rgba(255,255,255,.20); }
+  .easyvacc-app .ev-mobile-notification-dot {
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid #146eae;
+    background: #fff;
+  }
+  .easyvacc-app .ev-mobile-hero-copy { padding-top: 24px; max-width: 400px; }
+  .easyvacc-app .ev-mobile-eyebrow {
+    margin: 0 0 5px;
+    color: #c4e5fb;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+  .easyvacc-app .ev-mobile-hero-copy h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(26px, 7.6vw, 33px);
+    font-weight: 850;
+    letter-spacing: -.055em;
+    line-height: 1.16;
+  }
+  .easyvacc-app .ev-mobile-hero-description {
+    max-width: 330px;
+    margin: 7px 0 0;
+    color: #d6edff;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  /* Área clara com cantos arredondados; só o conteúdo rola. */
+  .easyvacc-app .ev-mobile-region {
+    z-index: 1;
+    margin-top: -20px;
+    overflow: hidden;
+    background: var(--ev-mobile-bg);
+    border-radius: 26px 26px 0 0;
+  }
+  .easyvacc-app .ev-wave-surface { display: none !important; }
+  .easyvacc-app main.ev-wave-content.ev-mobile-scroll,
+  .easyvacc-app.easyvacc-light main.ev-wave-content.ev-mobile-scroll {
+    background: var(--ev-mobile-bg) !important;
+    color: var(--ev-mobile-text);
+    border-radius: 26px 26px 0 0;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(107, 139, 167, .25) transparent;
+  }
+  .easyvacc-app main.ev-mobile-scroll::-webkit-scrollbar { width: 4px; }
+  .easyvacc-app main.ev-mobile-scroll::-webkit-scrollbar-thumb { background: rgba(107, 139, 167, .25); border-radius: 999px; }
+  .easyvacc-app main.ev-mobile-scroll > * { max-width: 100%; }
+
+  /* Barra inferior verdadeiramente flutuante, com margem das bordas. */
+  .easyvacc-app .ev-bottom-nav {
+    position: fixed !important;
+    z-index: 30;
+    left: 12px;
+    right: 12px;
+    bottom: calc(11px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    height: 70px;
+    margin: 0 !important;
+    border-radius: 24px !important;
+    border: 1px solid rgba(218, 233, 246, .9) !important;
+    background: rgba(255, 255, 255, .96) !important;
+    box-shadow: 0 10px 34px rgba(7, 35, 67, .18), 0 2px 6px rgba(7, 35, 67, .07);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #526981 !important;
+  }
+  .easyvacc-app:not(.easyvacc-light) .ev-bottom-nav {
+    border-color: #315271 !important;
+    background: rgba(13, 36, 60, .97) !important;
+    color: #b9cde0 !important;
+  }
+  .easyvacc-app .ev-bottom-nav > a,
+  .easyvacc-app .ev-bottom-nav > button {
+    min-width: 0;
+    height: 55px;
+    padding: 3px 0;
+    border-radius: 17px;
+    font-size: clamp(9px, 2.5vw, 10px);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .easyvacc-app.easyvacc-light .ev-bottom-nav > a[aria-current='page'] {
+    background: #e4f2ff !important;
+    color: #126ca8 !important;
+  }
+  .easyvacc-app:not(.easyvacc-light) .ev-bottom-nav > a[aria-current='page'] {
+    background: #194d78 !important;
+    color: #d5eeff !important;
+  }
+  .easyvacc-app .ev-bottom-nav > a svg,
+  .easyvacc-app .ev-bottom-nav > button svg { flex-shrink: 0; }
+
+  /* Páginas internas: mesmo ritmo, cartões e formulários. */
+  .easyvacc-app .ev-mobile-scroll .ev-page {
+    min-width: 0;
+    min-height: 100%;
+    background: transparent !important;
+    color: var(--ev-mobile-text);
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page > .mx-auto,
+  .easyvacc-app .ev-mobile-scroll .ev-page.mx-auto {
+    width: 100%;
+    max-width: 680px;
+    padding: 19px 16px 28px !important;
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page .ev-page-header {
+    margin-bottom: 17px !important;
+    padding-bottom: 0 !important;
+    border-bottom: none !important;
+  }
+  /* O título principal já aparece no cabeçalho azul; preserva os botões e formulários do header. */
+  .easyvacc-app .ev-mobile-scroll .ev-page .ev-page-header .ev-page-title { display: none !important; }
+  .easyvacc-app .ev-mobile-scroll .ev-page .ev-page-header p { line-height: 1.55; }
+  .easyvacc-app .ev-mobile-scroll .ev-page .ev-card,
+  .easyvacc-app .ev-mobile-scroll .ev-page .ev-profile-group {
+    border: 1px solid var(--ev-mobile-line) !important;
+    border-radius: 20px !important;
+    background: var(--ev-mobile-surface) !important;
+    box-shadow: var(--ev-mobile-shadow) !important;
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page .ev-card-subtle {
+    background: var(--ev-mobile-soft) !important;
+    box-shadow: none !important;
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page .ev-empty-state {
+    background: var(--ev-mobile-surface);
+    border-color: var(--ev-mobile-line);
+    border-radius: 20px;
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page :is(input:not([type='checkbox']):not([type='radio']):not([type='file']), select, textarea) {
+    min-height: 46px;
+    max-width: 100%;
+    font-size: 16px;
+    border-radius: 13px;
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page :is(button, a, [role='button']) { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .easyvacc-app .ev-mobile-scroll .ev-page :is(button, a, input, select, textarea):focus-visible,
+  .easyvacc-app .ev-mobile-hero :is(button, a):focus-visible,
+  .easyvacc-app .ev-bottom-nav :is(button, a):focus-visible {
+    outline: 3px solid #69c5ff;
+    outline-offset: 2px;
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page :is(button, a).ev-btn-primary {
+    background: #1478b8 !important;
+    color: #fff !important;
+    min-height: 44px;
+    border-radius: 13px !important;
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page :is(button, a).ev-btn-secondary {
+    border-radius: 13px !important;
+  }
+  .easyvacc-app .ev-mobile-scroll .ev-page :is(img, svg, video, canvas) { max-width: 100%; }
+  .easyvacc-app .ev-mobile-scroll .ev-page :is(.grid, .flex) > * { min-width: 0; }
+  .easyvacc-app .ev-mobile-scroll .ev-page :is(table) { max-width: 100%; }
+  .easyvacc-app .ev-mobile-scroll .ev-page .overflow-x-auto { max-width: 100%; -webkit-overflow-scrolling: touch; }
+  .easyvacc-app .ev-mobile-scroll .ev-page .ev-section-title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -.025em;
+  }
+  .easyvacc-app.easyvacc-light .ev-mobile-scroll .ev-page :is(h2,h3,h4,p).text-white {
+    color: #18324d !important;
+  }
+
+  /* Caderneta: três números pequenos sem cortar os rótulos. */
+  .easyvacc-app .historico-caderneta section.grid-cols-3 { gap: 7px; }
+  .easyvacc-app .historico-caderneta section.grid-cols-3 > div { padding: 12px 9px; }
+  .easyvacc-app .historico-caderneta section.grid-cols-3 p.truncate {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.25;
+  }
+
+  /* Perfil e certificado: não deixar ações ou dados ultrapassarem a tela. */
+  .easyvacc-app .ev-mobile-scroll .ev-profile-group { padding: 15px !important; }
+  .easyvacc-app .ev-mobile-scroll .ev-profile-danger-zone { border-radius: 18px; }
+  .easyvacc-app .ev-mobile-scroll .easyvacc-certificado { max-width: 100%; }
+
+  /* Modal e menu lateral continuam sobre o app, sem serem cobertos pelo rodapé. */
+  .easyvacc-app #menu-principal { z-index: 50; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .easyvacc-app *, .easyvacc-app *::before, .easyvacc-app *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+
+/* Dashboard: layout mobile exclusivo, sem tocar nos cartões desktop. */
+@media screen and (max-width: 1023px) {
+  .easyvacc-app .ev-mobile-dashboard {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 21px 16px 27px;
+    color: var(--ev-mobile-text);
+  }
+  .easyvacc-app .ev-m-home-feature {
+    padding: 18px;
+    border: 1px solid var(--ev-mobile-line);
+    border-radius: 23px;
+    background: var(--ev-mobile-surface);
+    box-shadow: var(--ev-mobile-shadow);
+  }
+  .easyvacc-app .ev-m-home-feature-heading,
+  .easyvacc-app .ev-m-home-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .easyvacc-app .ev-m-home-feature-heading h2,
+  .easyvacc-app .ev-m-home-section-heading h2 {
+    margin: 0;
+    color: var(--ev-mobile-text);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -.025em;
+  }
+  .easyvacc-app .ev-m-home-pill {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--ev-mobile-soft);
+    color: #3485bf;
+    font-size: 10px;
+    font-weight: 750;
+  }
+  .easyvacc-app:not(.easyvacc-light) .ev-m-home-pill { color: #aadfff; }
+  .easyvacc-app .ev-m-home-vaccination {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 76px;
+    margin-top: 16px;
+    padding: 13px;
+    border-radius: 16px;
+    background: var(--ev-mobile-soft);
+    text-decoration: none;
+    color: var(--ev-mobile-text);
+  }
+  .easyvacc-app .ev-m-home-vaccine-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background: #d7eaff;
+    color: #1478b8;
+  }
+  .easyvacc-app:not(.easyvacc-light) .ev-m-home-vaccine-icon { background: #1e4b75; color: #b9e1ff; }
+  .easyvacc-app .ev-m-home-vaccine-copy { display: grid; gap: 4px; flex: 1; min-width: 0; }
+  .easyvacc-app .ev-m-home-vaccine-copy strong { font-size: 14px; font-weight: 800; }
+  .easyvacc-app .ev-m-home-vaccine-copy small { color: var(--ev-mobile-muted); font-size: 11px; }
+  .easyvacc-app .ev-m-home-vaccine-check { color: #1478b8; flex-shrink: 0; }
+  .easyvacc-app:not(.easyvacc-light) .ev-m-home-vaccine-check { color: #8ed3ff; }
+  .easyvacc-app .ev-m-home-owner { margin: 14px 1px 12px; color: var(--ev-mobile-muted); font-size: 12px; }
+  .easyvacc-app .ev-m-home-owner strong { color: var(--ev-mobile-text); font-weight: 700; }
+  .easyvacc-app .ev-m-home-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 47px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: #1478b8;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 6px 15px rgba(20, 120, 184, .22);
+  }
+  .easyvacc-app .ev-m-home-primary:hover { background: #0d639d; }
+  .easyvacc-app .ev-m-home-quick { margin-top: 25px; }
+  .easyvacc-app .ev-m-home-section-heading { margin-bottom: 12px; }
+  .easyvacc-app .ev-m-home-section-heading > span { color: var(--ev-mobile-muted); font-size: 11px; }
+  .easyvacc-app .ev-m-home-quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .easyvacc-app .ev-m-home-quick-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    min-width: 0;
+    min-height: 125px;
+    padding: 15px;
+    border: 1px solid var(--ev-mobile-line);
+    border-radius: 19px;
+    background: var(--ev-mobile-surface);
+    box-shadow: var(--ev-mobile-shadow);
+    color: var(--ev-mobile-text);
+    text-decoration: none;
+  }
+  .easyvacc-app .ev-m-home-quick-card strong { font-size: 13px; font-weight: 750; }
+  .easyvacc-app .ev-m-home-quick-icon { color: #1478b8; }
+  .easyvacc-app:not(.easyvacc-light) .ev-m-home-quick-icon { color: #a2d8ff; }
+  .easyvacc-app .ev-m-home-quick-arrow { position: absolute; bottom: 15px; right: 14px; color: #9db1c3; }
+  .easyvacc-app .ev-m-home-status,
+  .easyvacc-app .ev-m-home-next {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 15px;
+    border: 1px solid var(--ev-mobile-line);
+    border-radius: 18px;
+    background: var(--ev-mobile-surface);
+  }
+  .easyvacc-app .ev-m-home-status-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--ev-mobile-soft);
+    color: #1478b8;
+  }
+  .easyvacc-app .ev-m-home-status-alert { color: #e39b2c; }
+  .easyvacc-app .ev-m-home-status h2 { margin: 0; color: var(--ev-mobile-text); font-size: 13px; font-weight: 800; }
+  .easyvacc-app .ev-m-home-status p,
+  .easyvacc-app .ev-m-home-next p { margin: 4px 0 0; color: var(--ev-mobile-muted); font-size: 11px; line-height: 1.55; }
+  .easyvacc-app .ev-m-home-next { margin-top: 10px; color: #1478b8; }
+  .easyvacc-app .ev-m-home-next strong { color: var(--ev-mobile-text); font-size: 12px; }
+  .easyvacc-app .ev-m-home-other-links { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-top: 16px; }
+  .easyvacc-app .ev-m-home-other-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 10px 7px;
+    border: 1px solid var(--ev-mobile-line);
+    border-radius: 14px;
+    background: var(--ev-mobile-surface);
+    color: var(--ev-mobile-text);
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .easyvacc-app .ev-m-home-other-links a svg:first-child { color: #1478b8; }
+  .easyvacc-app .ev-m-home-other-links a svg:last-child { width: 13px; }
+  .easyvacc-app .ev-m-home-disclaimer { margin: 15px 2px 0; color: var(--ev-mobile-muted); font-size: 11px; line-height: 1.6; }
+  .easyvacc-app .ev-m-home-loading,
+  .easyvacc-app .ev-m-home-error {
+    padding: 20px;
+    border: 1px solid var(--ev-mobile-line);
+    border-radius: 20px;
+    background: var(--ev-mobile-surface);
+    color: var(--ev-mobile-muted);
+  }
+  .easyvacc-app .ev-m-home-loading-line { width: 38%; height: 16px; border-radius: 8px; background: var(--ev-mobile-soft); }
+  .easyvacc-app .ev-m-home-loading-block { height: 85px; margin: 18px 0; border-radius: 15px; background: var(--ev-mobile-soft); }
+  .easyvacc-app .ev-m-home-loading p { margin: 0; font-size: 12px; }
+  .easyvacc-app .ev-m-home-error { display: flex; align-items: flex-start; gap: 10px; color: #d06d63; }
+  .easyvacc-app .ev-m-home-error p { margin: 0; font-size: 13px; }
+}
+
+@media screen and (max-width: 360px) {
+  .easyvacc-app .ev-mobile-hero { padding-left: 16px; padding-right: 16px; }
+  .easyvacc-app .ev-mobile-dashboard { padding-left: 12px; padding-right: 12px; }
+  .easyvacc-app .ev-bottom-nav { left: 8px; right: 8px; }
+  .easyvacc-app .ev-bottom-nav > a,
+  .easyvacc-app .ev-bottom-nav > button { font-size: 9px; }
+}
+
+@media screen and (prefers-reduced-motion: reduce) and (max-width: 1023px) {
+  .easyvacc-app *, .easyvacc-app *::before, .easyvacc-app *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Menu mobile V2: painel inferior nativo de app, sem replicar a sidebar desktop. */
+@media screen and (max-width: 1023px) {
+  .easyvacc-app .ev-mobile-sheet {
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    max-height: min(85dvh, 720px);
+    overflow: hidden;
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
+    border-radius: 30px 30px 0 0;
+    box-shadow: 0 -18px 55px rgba(0, 12, 32, .28);
+    animation: ev-mobile-sheet-enter .22s cubic-bezier(.2, .75, .25, 1) both;
+  }
+  .easyvacc-app .ev-mobile-sheet-light {
+    background: #fff;
+    color: #15334f;
+    border: 1px solid #e2ebf4;
+    border-bottom: 0;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark {
+    background: #0d2239;
+    color: #f2f8ff;
+    border: 1px solid #2c4866;
+    border-bottom: 0;
+  }
+  .easyvacc-app .ev-mobile-sheet-handle {
+    align-self: center;
+    flex-shrink: 0;
+    width: 39px;
+    height: 5px;
+    margin: 11px 0 4px;
+    border-radius: 999px;
+    background: #aabccc;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-handle { background: #53708d; }
+  .easyvacc-app .ev-mobile-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-shrink: 0;
+    padding: 14px 20px 17px;
+  }
+  .easyvacc-app .ev-mobile-sheet-account { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .easyvacc-app .ev-mobile-sheet-avatar {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    background: #e4f2ff;
+    color: #126da8;
+    font-size: 14px;
+    font-weight: 850;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-avatar { background: #1b476e; color: #bfe6ff; }
+  .easyvacc-app .ev-mobile-sheet-eyebrow {
+    margin: 0 0 2px;
+    font-size: 11px;
+    color: #647f98;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-eyebrow { color: #9cb5cc; }
+  .easyvacc-app .ev-mobile-sheet-name { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.025em; }
+  .easyvacc-app .ev-mobile-sheet-close {
+    display: grid;
+    place-items: center;
+    width: 39px;
+    height: 39px;
+    flex-shrink: 0;
+    border: 1px solid #e1eaf3;
+    border-radius: 14px;
+    background: #f4f8fc;
+    color: #385b7a;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-close {
+    border-color: #35536f;
+    background: #19334d;
+    color: #d7e8f7;
+  }
+  .easyvacc-app .ev-mobile-sheet-body {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 5px 20px 18px;
+    scrollbar-width: thin;
+    scrollbar-color: #c1d2df transparent;
+  }
+  .easyvacc-app .ev-mobile-sheet-section-label {
+    margin: 0 0 12px;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .04em;
+    color: #71879b;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-section-label { color: #9db5cc; }
+  .easyvacc-app .ev-mobile-sheet-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+  .easyvacc-app .ev-mobile-sheet-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+    min-width: 0;
+    min-height: 111px;
+    padding: 15px 13px;
+    border: 1px solid #e0ebf5;
+    border-radius: 19px;
+    background: #f4f8fc;
+    color: #244661;
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.3;
+    text-decoration: none;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .easyvacc-app .ev-mobile-sheet-tile:active { transform: scale(.98); }
+  .easyvacc-app .ev-mobile-sheet-tile:hover { background: #e9f4ff; }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-tile {
+    border-color: #2c4966;
+    background: #152f49;
+    color: #e8f3ff;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-tile:hover { background: #1d3c5a; }
+  .easyvacc-app .ev-mobile-sheet-tile-icon {
+    display: grid;
+    place-items: center;
+    width: 37px;
+    height: 37px;
+    border-radius: 12px;
+    background: #dceeff;
+    color: #1478b8;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-tile-icon { background: #204c74; color: #a6dbff; }
+  .easyvacc-app .ev-mobile-sheet-chevron { position: absolute; right: 12px; top: 23px; color: #91a7bb; }
+  .easyvacc-app .ev-mobile-sheet-dependents { margin-top: 23px; }
+  .easyvacc-app .ev-mobile-sheet-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .easyvacc-app .ev-mobile-sheet-section-heading > span { font-size: 11px; color: #7d95aa; }
+  .easyvacc-app .ev-mobile-sheet-chips { display: flex; gap: 9px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+  .easyvacc-app .ev-mobile-sheet-chip {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+    max-width: 200px;
+    min-height: 42px;
+    padding: 5px 12px 5px 6px;
+    border: 1px solid #dce9f4;
+    border-radius: 999px;
+    background: #f6faff;
+    color: #244661;
+    font-size: 12px;
+    font-weight: 650;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-chip { border-color: #34516e; background: #17314b; color: #e4f2ff; }
+  .easyvacc-app .ev-mobile-sheet-chip-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 29px;
+    height: 29px;
+    border-radius: 50%;
+    background: #deefff;
+    color: #1478b8;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-chip-avatar { background: #254f73; color: #c7e9ff; }
+  .easyvacc-app .ev-mobile-sheet-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 17px 0 2px;
+    border-top: 1px solid #e3ecf4;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-footer { border-color: #2c4865; }
+  .easyvacc-app .ev-mobile-sheet-footer > span { font-size: 11px; color: #8295a7; }
+  .easyvacc-app .ev-mobile-sheet-logout {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 39px;
+    padding: 0 12px;
+    border: 1px solid #f4d5d8;
+    border-radius: 13px;
+    background: #fff2f3;
+    color: #bb3c50;
+    font-size: 12px;
+    font-weight: 750;
+  }
+  .easyvacc-app .ev-mobile-sheet-dark .ev-mobile-sheet-logout { border-color: #6b3a4a; background: #382638; color: #ffb4bf; }
+  .easyvacc-app .ev-mobile-sheet :is(button, a):focus-visible { outline: 3px solid #69c5ff; outline-offset: 2px; }
+  @keyframes ev-mobile-sheet-enter { from { opacity: .6; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+}
+@media screen and (max-width: 360px) {
+  .easyvacc-app .ev-mobile-sheet-header { padding-left: 15px; padding-right: 15px; }
+  .easyvacc-app .ev-mobile-sheet-body { padding-left: 15px; padding-right: 15px; }
+  .easyvacc-app .ev-mobile-sheet-grid { gap: 8px; }
+  .easyvacc-app .ev-mobile-sheet-tile { padding: 13px 10px; }
+}
+@media screen and (prefers-reduced-motion: reduce) {
+  .easyvacc-app .ev-mobile-sheet { animation: none !important; }
+}
+
+/* Correção V3 — separação definitiva do menu desktop e painel mobile.
+   Mesmo se outra regra antiga tentar exibir a sidebar, ela fica invisível
+   no celular. Não interfere no layout do computador. */
+@media screen and (max-width: 1023px) {
+  .easyvacc-app #menu-principal.ev-sidebar-desktop-only {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .easyvacc-app .ev-mobile-sheet-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 80 !important;
+  }
+
+  .easyvacc-app .ev-mobile-sheet {
+    position: fixed !important;
+    inset-inline: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    z-index: 90 !important;
+    width: 100% !important;
+    max-width: min(100%, 560px);
+    margin-inline: auto;
+    transform-origin: bottom center;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .easyvacc-app .ev-mobile-sheet,
+  .easyvacc-app .ev-mobile-sheet-backdrop {
+    display: none !important;
+  }
 }

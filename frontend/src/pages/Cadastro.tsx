@@ -305,7 +305,7 @@ export default function Cadastro() {
     'w-full rounded-lg border border-[#405775] bg-[#020817] px-4 py-3.5 text-base text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none';
 
   return (
-    <div className={`ev-ui relative flex min-h-screen items-center justify-center overflow-hidden bg-[#020817] p-4 font-sans text-slate-100 ${temaClaro ? 'easyvacc-cadastro-light' : ''}`}>
+    <div className={`ev-ui easyvacc-cadastro relative flex min-h-screen items-center justify-center overflow-hidden bg-[#020817] p-4 font-sans text-slate-100 ${temaClaro ? 'easyvacc-cadastro-light' : ''}`}>
       <style>{`
         .easyvacc-cadastro-light {
           background: #f8fafc !important;
@@ -379,11 +379,261 @@ export default function Cadastro() {
         .easyvacc-cadastro-light select,
         .easyvacc-cadastro-light textarea { background: #fff !important; color: #102b49 !important; border-color: #cbd5e1 !important; }
         .easyvacc-cadastro-light button[type="submit"] { color: #fff !important; }
+        /* Cadastro: layout exclusivo para celulares. Desktop preservado. */
+        @media screen and (max-width: 767px) {
+          .easyvacc-cadastro {
+            display: block !important;
+            position: relative;
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 100svh;
+            height: auto !important;
+            overflow-x: clip !important;
+            overflow-y: visible !important;
+            padding: 0 0 calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+            background: #071c31 !important;
+          }
+          .easyvacc-cadastro.easyvacc-cadastro-light {
+            background: #f0f6fc !important;
+          }
+          .easyvacc-cadastro::before {
+            content: '';
+            position: absolute;
+            z-index: 0;
+            inset: 0 0 auto;
+            height: 265px;
+            pointer-events: none;
+            background: linear-gradient(145deg, #0b4e85 0%, #126da9 55%, #1987c4 100%);
+            border-radius: 0 0 30px 30px;
+          }
+          .easyvacc-cadastro .ev-cadastro-back {
+            position: relative !important;
+            z-index: 2;
+            top: auto !important;
+            left: auto !important;
+            display: inline-flex;
+            height: 42px;
+            margin: calc(16px + env(safe-area-inset-top, 0px)) 18px 0;
+            padding: 0 14px;
+            border: 1px solid rgba(255,255,255,.30) !important;
+            border-radius: 999px;
+            background: rgba(255,255,255,.13) !important;
+            color: #fff !important;
+            font-size: 13px !important;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+          }
+          .easyvacc-cadastro .ev-cadastro-back:focus-visible,
+          .easyvacc-cadastro .ev-cadastro-form :is(input, button, a):focus-visible {
+            outline: 3px solid #70c9ff;
+            outline-offset: 2px;
+          }
+          .easyvacc-cadastro .ev-cadastro-mobile-intro {
+            position: relative;
+            z-index: 1;
+            display: block;
+            margin: 21px 22px 20px;
+            color: #fff;
+          }
+          .easyvacc-cadastro .ev-cadastro-mobile-brand {
+            margin: 0;
+            color: #fff;
+            font-size: 21px;
+            font-weight: 850;
+            line-height: 1.2;
+            letter-spacing: -.05em;
+          }
+          .easyvacc-cadastro .ev-cadastro-mobile-brand span { color: #c9eaff; }
+          .easyvacc-cadastro .ev-cadastro-mobile-caption {
+            margin: 5px 0 0;
+            color: #dcefff;
+            font-size: 13px;
+            line-height: 1.5;
+          }
+          .easyvacc-cadastro .ev-cadastro-card {
+            position: relative;
+            z-index: 1;
+            box-sizing: border-box;
+            width: calc(100% - 24px) !important;
+            max-width: 560px !important;
+            min-width: 0;
+            margin: 0 auto !important;
+            padding: 25px 19px 28px !important;
+            border: 1px solid #dce7f2 !important;
+            border-radius: 25px !important;
+            background: #fff !important;
+            box-shadow: 0 14px 38px rgba(12, 55, 96, .13) !important;
+            color: #18324d !important;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-card {
+            border-color: #31516d !important;
+            background: #102941 !important;
+            color: #edf7ff !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-heading {
+            margin-bottom: 25px !important;
+            text-align: left !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-heading h2 {
+            margin: 0;
+            color: #173c5e !important;
+            font-size: clamp(24px, 6.4vw, 28px) !important;
+            font-weight: 850;
+            line-height: 1.16;
+            letter-spacing: -.045em;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-heading h2 {
+            color: #f3f9ff !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-heading p {
+            margin-top: 9px !important;
+            color: #60758b !important;
+            font-size: 14px !important;
+            line-height: 1.5;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-heading p {
+            color: #b7cce0 !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-heading a {
+            color: #126da8 !important;
+            text-underline-offset: 3px;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-heading a {
+            color: #91d5ff !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-form { min-width: 0; }
+          .easyvacc-cadastro .ev-cadastro-form > h3 {
+            margin-top: 23px;
+            padding: 0 0 10px !important;
+            border-bottom: 1px solid #dce7f2 !important;
+            color: #155e96 !important;
+            font-size: 14px !important;
+            font-weight: 800;
+            line-height: 1.4;
+          }
+          .easyvacc-cadastro .ev-cadastro-form > h3:first-child { margin-top: 0; }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-form > h3 {
+            border-color: #31516d !important;
+            color: #9ed8ff !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-form label {
+            color: #2c4258 !important;
+            font-size: 14px !important;
+            line-height: 1.4;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-form label {
+            color: #d6e7f6 !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-form :is(input:not([type='checkbox']), select, textarea) {
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            min-height: 51px !important;
+            padding: 12px 14px !important;
+            border: 1px solid #cfdeeb !important;
+            border-radius: 13px !important;
+            background: #f9fbfe !important;
+            color: #18324d !important;
+            font-size: 16px !important;
+            line-height: 1.4;
+          }
+          .easyvacc-cadastro .ev-cadastro-form :is(input:not([type='checkbox']), textarea)::placeholder {
+            color: #778ca0 !important;
+            opacity: 1;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-form :is(input:not([type='checkbox']), select, textarea) {
+            border-color: #35536f !important;
+            background: #0b2035 !important;
+            color: #edf7ff !important;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-form :is(input:not([type='checkbox']), textarea)::placeholder {
+            color: #9ab2c7 !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-form input[type='date'] { max-width: 100%; }
+          .easyvacc-cadastro .ev-cadastro-form .grid { gap: 18px !important; }
+          .easyvacc-cadastro .ev-cadastro-form p.text-xs {
+            color: #637b91 !important;
+            font-size: 12px !important;
+            line-height: 1.55;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-form p.text-xs {
+            color: #b1c8dd !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-form p[role='alert'] {
+            color: #b42335 !important;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-form p[role='alert'] {
+            color: #ffb4bd !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-consents {
+            padding: 16px !important;
+            border: 1px solid #d8e6f2 !important;
+            border-radius: 17px !important;
+            background: #f2f8fd !important;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-consents {
+            border-color: #35536f !important;
+            background: #0b2035 !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-global-error {
+            border-color: #f0b8bd !important;
+            background: #fff1f2 !important;
+            color: #9f2432 !important;
+            text-align: left;
+            line-height: 1.5;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-global-error {
+            border-color: #894550 !important;
+            background: #3c1c29 !important;
+            color: #ffbec6 !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-form input[aria-invalid='true'] {
+            border-color: #c83b4b !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-form input[type='checkbox'] {
+            flex: 0 0 20px;
+            width: 20px;
+            height: 20px;
+            accent-color: #1478b8;
+          }
+          .easyvacc-cadastro .ev-cadastro-form input[type='checkbox'] + span {
+            min-width: 0;
+            font-size: 13px;
+            line-height: 1.6;
+          }
+          .easyvacc-cadastro .ev-cadastro-form button[type='submit'] {
+            min-height: 53px !important;
+            border-radius: 15px !important;
+            background: linear-gradient(110deg, #1378b9, #0c5d98) !important;
+            color: #fff !important;
+            font-size: 15px !important;
+            box-shadow: 0 6px 18px rgba(19, 120, 185, .20);
+          }
+          .easyvacc-cadastro .ev-cadastro-form button[aria-label='Mostrar senha'],
+          .easyvacc-cadastro .ev-cadastro-form button[aria-label='Ocultar senha'] {
+            color: #5c7892 !important;
+          }
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-form button[aria-label='Mostrar senha'],
+          .easyvacc-cadastro:not(.easyvacc-cadastro-light) .ev-cadastro-form button[aria-label='Ocultar senha'] {
+            color: #b8d0e3 !important;
+          }
+          .easyvacc-cadastro .ev-cadastro-form input:focus {
+            border-color: #1478b8 !important;
+            box-shadow: 0 0 0 3px rgba(20, 120, 184, .14);
+          }
+          .easyvacc-cadastro .ev-cadastro-form :is(input, button, a) { touch-action: manipulation; }
+        }
+        @media screen and (max-width: 359px) {
+          .easyvacc-cadastro .ev-cadastro-card { padding: 21px 15px 25px !important; }
+          .easyvacc-cadastro .ev-cadastro-mobile-intro { margin-left: 18px; }
+        }
       `}</style>
 
      <Link
   to="/login"
-  className={`absolute top-6 left-6 z-10 inline-flex h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold backdrop-blur transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+  className={`ev-cadastro-back absolute top-6 left-6 z-10 inline-flex h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold backdrop-blur transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
     temaClaro
       ? "border-slate-300 bg-white/90 text-slate-900 hover:bg-slate-100"
       : "border-white/30 bg-slate-950/25 text-white hover:bg-slate-950/45"
@@ -393,8 +643,13 @@ export default function Cadastro() {
   Voltar ao login
 </Link>
 
-      <div className="ev-card my-8 w-full max-w-xl rounded-[2rem] border border-[#304760] bg-[#081629]/90 p-6 shadow-2xl sm:p-8 md:p-10">
-        <div className="mb-8 text-center">
+      <div className="ev-cadastro-mobile-intro hidden" aria-hidden="true">
+        <p className="ev-cadastro-mobile-brand">Easy<span>Vacc</span></p>
+        <p className="ev-cadastro-mobile-caption">Sua caderneta digital começa aqui.</p>
+      </div>
+
+      <div className="ev-card ev-cadastro-card my-8 w-full max-w-xl rounded-[2rem] border border-[#304760] bg-[#081629]/90 p-6 shadow-2xl sm:p-8 md:p-10">
+        <div className="ev-cadastro-heading mb-8 text-center">
           <h2 className="ev-portal-title text-3xl font-black tracking-tight text-white">
             Criar nova conta
           </h2>
@@ -411,7 +666,7 @@ export default function Cadastro() {
         </div>
 
         <form
-          className="space-y-5"
+          className="ev-cadastro-form space-y-5"
           onSubmit={handleCadastro}
           noValidate
         >
@@ -723,7 +978,7 @@ export default function Cadastro() {
               {erroDeCampo('senhaConfirmacao') && <p id="erro-cadastro-senhaConfirmacao" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('senhaConfirmacao')}</p>}
           </div>
 
-          <div className="space-y-3 rounded-xl border border-[#304760] bg-[#020817]/50 p-4 text-sm leading-6 text-slate-200">
+          <div className="ev-cadastro-consents space-y-3 rounded-xl border border-[#304760] bg-[#020817]/50 p-4 text-sm leading-6 text-slate-200">
             <label className="flex items-start gap-3">
               <input
                 type="checkbox"
@@ -789,7 +1044,7 @@ export default function Cadastro() {
             <div
               role="alert"
               aria-live="polite"
-              className="rounded-lg border border-red-900/50 bg-red-950/50 p-3 text-center text-sm font-semibold text-red-300"
+              className="ev-cadastro-global-error rounded-lg border border-red-900/50 bg-red-950/50 p-3 text-center text-sm font-semibold text-red-300"
             >
               {erro}
             </div>

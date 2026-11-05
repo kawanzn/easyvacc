@@ -163,7 +163,7 @@ export default function LoginProfissional() {
   };
 
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}flex min-h-screen items-center justify-center bg-[#020817] px-4 text-slate-100`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}ev-ui flex min-h-screen items-center justify-center bg-[#020817] px-4 text-slate-100`}>
 
       <style>{`
         .easyvacc-light {
@@ -227,14 +227,14 @@ export default function LoginProfissional() {
         {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
       </button>
 
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-8 shadow-2xl">
+      <div className="ev-card w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-6 shadow-2xl sm:p-8">
 
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-600/20 bg-blue-600/10 text-blue-500">
             <ShieldCheck size={28} />
           </div>
 
-          <h1 className="text-2xl font-black text-white">
+          <h1 className="ev-portal-title text-2xl font-black text-white">
             Acesso profissional
           </h1>
 
@@ -248,7 +248,7 @@ export default function LoginProfissional() {
           className="space-y-5"
         >
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
+            <label htmlFor="login-profissional-email" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
               E-mail profissional
             </label>
 
@@ -259,6 +259,7 @@ export default function LoginProfissional() {
               />
 
               <input
+                id="login-profissional-email"
                 type="email"
                 required
                 value={email}
@@ -272,7 +273,7 @@ export default function LoginProfissional() {
           </div>
 
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
+            <label htmlFor="login-profissional-senha" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
               Senha
             </label>
 
@@ -283,6 +284,7 @@ export default function LoginProfissional() {
               />
 
               <input
+                id="login-profissional-senha"
                 type="password"
                 required
                 value={senha}

@@ -5,13 +5,12 @@ import {
   EyeOff,
   Loader2,
   Plus,
-  ShieldCheck,
   Trash2,
   User,
   UserPlus,
   X,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { supabase } from '../services/supabase';
 import { salvarPessoaAtiva } from '../lib/brasil';
@@ -38,6 +37,7 @@ interface Dependente {
 
 export default function Dependentes() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [temaClaro, setTemaClaro] = useState(() => localStorage.getItem("easyvacc-tema") === "claro");
   useEffect(() => {
     const atualizar = () => setTemaClaro(localStorage.getItem("easyvacc-tema") === "claro");
@@ -51,8 +51,15 @@ export default function Dependentes() {
   const [salvando, setSalvando] = useState(false);
   const [removendoId, setRemovendoId] = useState<number | null>(null);
   const [erro, setErro] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [errosCampos, setErrosCampos] = useState<Partial<Record<'nome' | 'dataNascimento' | 'cns', string>>>({});
+  const [isModalOpen, setIsModalOpen] = useState(() => searchParams.get('adicionar') === '1');
   const [cnsVisivelId, setCnsVisivelId] = useState<number | null>(null);
+
+  // Mantém a rota antiga /adicionar-dependente compatível com o formulário atual.
+  const adicionarPelaUrl = searchParams.get('adicionar') === '1';
+  useEffect(() => {
+    if (adicionarPelaUrl) setIsModalOpen(true);
+  }, [adicionarPelaUrl]);
 
   const [novoDependente, setNovoDependente] = useState({
     nome: '',
@@ -60,6 +67,13 @@ export default function Dependentes() {
     dataNascimento: '',
     cns: '',
   });
+
+  // O menu pode indicar um dependente por ?selecionado=ID.
+  // A lista de cards continua sendo a única tela; o ID apenas destaca o card.
+  const idSelecionado = searchParams.get('selecionado');
+  const dependenteSelecionadoId = idSelecionado && /^\d+$/.test(idSelecionado)
+    ? Number(idSelecionado)
+    : null;
 
   // ==========================================
   // FORMATAR DATA
@@ -189,46 +203,34 @@ export default function Dependentes() {
 
     setErro('');
 
-    // Nome
+    const validacao: Partial<Record<'nome' | 'dataNascimento' | 'cns', string>> = {};
+
     if (!novoDependente.nome.trim()) {
-      setErro('Informe o nome do dependente.');
-      return;
+      validacao.nome = 'Informe o nome completo do dependente.';
     }
 
-    // Data
     if (!novoDependente.dataNascimento) {
-      setErro(
-        'Informe a data de nascimento do dependente.'
-      );
-      return;
+      validacao.dataNascimento = 'Informe a data de nascimento.';
+    } else {
+      const hoje = new Date();
+      const dataAtual = [
+        hoje.getFullYear(),
+        String(hoje.getMonth() + 1).padStart(2, '0'),
+        String(hoje.getDate()).padStart(2, '0'),
+      ].join('-');
+
+      if (novoDependente.dataNascimento > dataAtual) {
+        validacao.dataNascimento = 'A data de nascimento não pode ser futura.';
+      }
     }
 
-    const dataAtual = new Date()
-      .toISOString()
-      .split('T')[0];
-
-    if (novoDependente.dataNascimento > dataAtual) {
-      setErro(
-        'A data de nascimento não pode ser uma data futura.'
-      );
-      return;
+    const cnsLimpo = novoDependente.cns.replace(/\D/g, '');
+    if (cnsLimpo && !/^\d{15}$/.test(cnsLimpo)) {
+      validacao.cns = 'Informe os 15 números do Cartão SUS ou deixe o campo vazio.';
     }
 
-    // CNS
-    const cnsLimpo = novoDependente.cns.replace(
-      /\D/g,
-      ''
-    );
-
-    if (
-      cnsLimpo &&
-      !/^\d{15}$/.test(cnsLimpo)
-    ) {
-      setErro(
-        'O número do Cartão SUS (CNS) deve conter exatamente 15 dígitos numéricos.'
-      );
-      return;
-    }
+    setErrosCampos(validacao);
+    if (Object.keys(validacao).length > 0) return;
 
     setSalvando(true);
 
@@ -243,7 +245,7 @@ export default function Dependentes() {
       }
 
       if (!user) {
-        setErro('Usuário não autenticado.');
+        setErro('Sua sessão expirou. Entre novamente para cadastrar um dependente.');
         return;
       }
 
@@ -270,6 +272,7 @@ export default function Dependentes() {
       });
 
       setIsModalOpen(false);
+      if (adicionarPelaUrl) setSearchParams({}, { replace: true });
 
       await carregarDependentes();
 
@@ -290,9 +293,10 @@ export default function Dependentes() {
       }
 
       if (error?.code === '23514') {
-        setErro(
-          'O CNS informado não é válido.'
-        );
+        setErrosCampos((anteriores) => ({
+          ...anteriores,
+          cns: 'O Cartão SUS informado não foi aceito. Confira os números.',
+        }));
         return;
       }
 
@@ -360,19 +364,21 @@ export default function Dependentes() {
       if (cnsVisivelId === id) {
         setCnsVisivelId(null);
       }
+      if (dependenteSelecionadoId === id) {
+        setSearchParams({}, { replace: true });
+      }
 
       window.dispatchEvent(
         new Event('dependenteAtualizado')
       );
-    } catch (error) {
-      console.error(
-        'Erro ao excluir dependente:',
-        error
-      );
-
-      setErro(
-        'Não foi possível remover o dependente. Tente novamente.'
-      );
+    } catch (error: unknown) {
+      console.error('Erro ao excluir dependente:', error);
+      const codigo = error && typeof error === 'object' && 'code' in error
+        ? String((error as { code?: unknown }).code)
+        : '';
+      setErro(codigo === '23503'
+        ? 'Este dependente possui registros vinculados e não pode ser removido. O histórico deve ser preservado.'
+        : 'Não foi possível remover o dependente. Tente novamente.');
     } finally {
       setRemovendoId(null);
     }
@@ -407,6 +413,7 @@ export default function Dependentes() {
 
   const abrirModal = () => {
     setErro('');
+    setErrosCampos({});
 
     setNovoDependente({
       nome: '',
@@ -424,11 +431,13 @@ export default function Dependentes() {
     }
 
     setErro('');
+    setErrosCampos({});
     setIsModalOpen(false);
+    if (adicionarPelaUrl) setSearchParams({}, { replace: true });
   };
 
   return (
-    <div className={`min-h-full bg-transparent text-slate-100 ${temaClaro ? "easyvacc-light" : ""}`}>
+    <div className={`ev-page min-h-full bg-transparent text-slate-100 ${temaClaro ? "easyvacc-light" : ""}`}>
       <style>{`
         .easyvacc-app .easyvacc-light { background: transparent !important; color: #10243e !important; }
         .easyvacc-light .text-white, .easyvacc-light .text-slate-100, .easyvacc-light .text-slate-200 { color: #10243e !important; }
@@ -440,6 +449,7 @@ export default function Dependentes() {
         .easyvacc-light [class~="border-slate-800"], .easyvacc-light [class~="border-slate-700"] { border-color: #c7d5e5 !important; }
         .easyvacc-light input, .easyvacc-light select, .easyvacc-light textarea { color: #10243e !important; background: #fff !important; border-color: #c7d5e5 !important; }
         .easyvacc-light .text-blue-400, .easyvacc-light .text-blue-300 { color: #175b96 !important; }
+        .easyvacc-light .easyvacc-botao-primario { color: #fff !important; }
 `}</style>
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10">
 
@@ -447,7 +457,7 @@ export default function Dependentes() {
         {/* CABEÇALHO */}
         {/* ================================= */}
 
-        <header className="mb-8 border-b border-slate-800 pb-7">
+        <header className="ev-page-header mb-8 border-b border-slate-800 pb-7">
           <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
             <Link
               to="/dashboard"
@@ -465,20 +475,19 @@ export default function Dependentes() {
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white md:text-[34px]">
-                Gestão de Dependentes
+              <h1 className="ev-page-title text-3xl font-bold tracking-tight text-white md:text-[34px]">
+                Meus dependentes
               </h1>
 
               <p className="mt-2 text-sm leading-6 text-slate-400">
-                Cadastre e acompanhe as cadernetas
-                de vacinação da sua família.
+                Consulte os familiares vinculados à sua conta e acesse a caderneta de cada um.
               </p>
             </div>
 
             <button
               type="button"
               onClick={abrirModal}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:brightness-110"
+              className="ev-btn-primary easyvacc-botao-primario inline-flex items-center justify-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
             >
               <UserPlus size={16} />
               Adicionar dependente
@@ -504,22 +513,20 @@ export default function Dependentes() {
         {/* ================================= */}
 
         {carregando ? (
-          <div
-            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-            aria-label="Carregando dependentes"
-          >
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="h-56 animate-pulse rounded-xl border border-slate-800 bg-slate-900"
-              >
-                <div className="p-5">
-                  <div className="mb-5 h-10 w-10 rounded-lg bg-slate-800" />
-                  <div className="mb-3 h-4 w-1/2 rounded bg-slate-800" />
-                  <div className="h-3 w-1/3 rounded bg-slate-800/70" />
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-col items-center justify-center rounded-xl border border-slate-800 bg-slate-900 p-12 text-slate-400" role="status">
+            <Loader2 size={28} className="animate-spin text-blue-400" />
+            <p className="mt-3 text-sm">Carregando dependentes...</p>
+          </div>
+        ) : erro && dependentes.length === 0 ? (
+          <div className="rounded-xl border border-red-500/20 bg-slate-900 p-8 text-center">
+            <p className="text-sm text-slate-300">Não foi possível mostrar seus dependentes.</p>
+            <button
+              type="button"
+              onClick={() => void carregarDependentes()}
+              className="mt-4 rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800"
+            >
+              Tentar novamente
+            </button>
           </div>
         ) : dependentes.length === 0 ? (
 
@@ -527,7 +534,7 @@ export default function Dependentes() {
           /* VAZIO */
           /* =============================== */
 
-          <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900 p-12 text-center">
+          <div className="ev-empty-state rounded-xl border border-dashed border-slate-700 bg-slate-900 p-12 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-slate-300">
               <User size={24} />
             </div>
@@ -537,14 +544,14 @@ export default function Dependentes() {
             </h3>
 
             <p className="mt-1 text-xs text-slate-400">
-              Adicione filhos ou outros dependentes
-              para gerenciar a imunização deles.
+              Cadastre um familiar para acessar a caderneta dele pela sua conta.
+              As doses de vacina não são adicionadas automaticamente.
             </p>
 
             <button
               type="button"
               onClick={abrirModal}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2 text-xs font-semibold text-slate-950"
+              className="ev-btn-primary easyvacc-botao-primario mt-6 inline-flex items-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2 text-xs font-semibold text-white"
             >
               <Plus size={14} />
               Cadastrar primeiro dependente
@@ -560,7 +567,11 @@ export default function Dependentes() {
             {dependentes.map((dep) => (
               <div
                 key={dep.id}
-                className="flex flex-col justify-between rounded-xl border border-slate-800 bg-slate-900 p-5"
+                className={`ev-card flex flex-col justify-between rounded-xl border bg-slate-900 p-5 ${
+                  dependenteSelecionadoId === dep.id
+                    ? 'ev-card-selected border-blue-500 ring-2 ring-blue-500/20'
+                    : 'border-slate-800'
+                }`}
               >
                 <div>
                   <div className="flex items-start justify-between">
@@ -573,34 +584,17 @@ export default function Dependentes() {
                         <h3 className="font-semibold text-white">
                           {dep.nome}
                         </h3>
+                        {dependenteSelecionadoId === dep.id && (
+                          <span className="mt-1 inline-block rounded-md bg-blue-600/10 px-2 py-0.5 text-[10px] font-semibold text-blue-300">
+                            Selecionado no menu
+                          </span>
+                        )}
 
                         <span className="inline-block rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-300">
                           {dep.parentesco}
                         </span>
                       </div>
                     </div>
-
-                    <button
-                      type="button"
-                      disabled={
-                        removendoId === dep.id
-                      }
-                      onClick={() =>
-                        handleRemove(dep.id)
-                      }
-                      className="rounded-md p-1.5 text-slate-500 transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
-                      title="Remover dependente"
-                      aria-label={`Remover dependente ${dep.nome}`}
-                    >
-                      {removendoId === dep.id ? (
-                        <Loader2
-                          size={16}
-                          className="animate-spin"
-                        />
-                      ) : (
-                        <Trash2 size={16} />
-                      )}
-                    </button>
                   </div>
 
                   <div className="mt-5 space-y-3 border-t border-slate-800 pt-4 text-xs">
@@ -672,31 +666,34 @@ export default function Dependentes() {
                         Situação:
                       </span>
 
-                      <span className="inline-flex items-center gap-1 font-semibold text-slate-300">
-                        <ShieldCheck
-                          size={14}
-                        />
+                      <span className="text-right font-medium text-slate-300">
                         {dep.statusVacinal}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 border-t border-slate-800 pt-3">
+                <div className="mt-6 flex flex-col gap-3 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
                   <button
                     type="button"
-                    onClick={() =>
-                      abrirCaderneta(dep)
-                    }
-                    className="flex w-full items-center justify-between text-xs font-semibold text-slate-300 hover:text-white"
+                    onClick={() => abrirCaderneta(dep)}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-500/30 bg-blue-600/10 px-3 py-2.5 text-xs font-semibold text-blue-300 hover:bg-blue-600/20"
+                    aria-label={`Ver caderneta de ${dep.nome}`}
                   >
-                    <span>
-                      Ver caderneta do dependente
-                    </span>
-
-                    <ChevronRight
-                      size={14}
-                    />
+                    Ver caderneta
+                    <ChevronRight size={15} />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={removendoId === dep.id}
+                    onClick={() => handleRemove(dep.id)}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
+                    aria-label={`Remover dependente ${dep.nome}`}
+                  >
+                    {removendoId === dep.id
+                      ? <Loader2 size={15} className="animate-spin" />
+                      : <Trash2 size={15} />}
+                    Remover
                   </button>
                 </div>
               </div>
@@ -714,14 +711,15 @@ export default function Dependentes() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="titulo-novo-dependente"
+            aria-describedby="descricao-novo-dependente"
           >
-            <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+            <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <h2
                   id="titulo-novo-dependente"
                   className="text-lg font-bold text-white"
                 >
-                  Novo Dependente
+                  Adicionar dependente
                 </h2>
 
                 <button
@@ -735,6 +733,10 @@ export default function Dependentes() {
                   <X size={18} />
                 </button>
               </div>
+
+              <p id="descricao-novo-dependente" className="mt-3 text-xs leading-5 text-slate-400">
+                O dependente será vinculado à sua conta. O cadastro não registra doses de vacina.
+              </p>
 
               {erro && (
                 <div
@@ -752,6 +754,9 @@ export default function Dependentes() {
                 noValidate
                 className="mt-4 space-y-4"
               >
+                <p className="border-b border-slate-800 pb-2 text-sm font-semibold text-slate-200">
+                  Dados do dependente
+                </p>
                 {/* NOME */}
 
                 <div>
@@ -769,19 +774,23 @@ export default function Dependentes() {
                     id="dependente-nome"
                     type="text"
                     autoComplete="name"
-                    placeholder="Ex: Lucas Sampaio"
+                    autoFocus
+                    required
+                    aria-invalid={Boolean(errosCampos.nome)}
+                    aria-describedby={errosCampos.nome ? 'erro-dependente-nome' : undefined}
+                    placeholder="Nome e sobrenome"
                     value={
                       novoDependente.nome
                     }
-                    onChange={(e) =>
-                      setNovoDependente({
-                        ...novoDependente,
-                        nome:
-                          e.target.value,
-                      })
-                    }
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:border-[#1769aa] focus:outline-none"
+                    onChange={(e) => {
+                      setNovoDependente((atual) => ({ ...atual, nome: e.target.value }));
+                      setErrosCampos((atual) => ({ ...atual, nome: undefined }));
+                    }}
+                    className={`mt-1 w-full rounded-lg border bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none ${errosCampos.nome ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
                   />
+                  {errosCampos.nome && (
+                    <p id="erro-dependente-nome" role="alert" className="mt-1 text-xs text-red-300">{errosCampos.nome}</p>
+                  )}
                 </div>
 
                 {/* PARENTESCO */}
@@ -849,25 +858,31 @@ export default function Dependentes() {
                   <input
                     id="dependente-data-nascimento"
                     type="date"
+                    required
+                    aria-invalid={Boolean(errosCampos.dataNascimento)}
+                    aria-describedby={errosCampos.dataNascimento ? 'erro-dependente-data' : undefined}
                     max={
-                      new Date()
+                      new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
                         .toISOString()
                         .split('T')[0]
                     }
                     value={
                       novoDependente.dataNascimento
                     }
-                    onChange={(e) =>
-                      setNovoDependente({
-                        ...novoDependente,
-                        dataNascimento:
-                          e.target.value,
-                      })
-                    }
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-[#1769aa] focus:outline-none"
+                    onChange={(e) => {
+                      setNovoDependente((atual) => ({ ...atual, dataNascimento: e.target.value }));
+                      setErrosCampos((atual) => ({ ...atual, dataNascimento: undefined }));
+                    }}
+                    className={`mt-1 w-full rounded-lg border bg-slate-950 px-3 py-2.5 text-sm text-white focus:outline-none ${errosCampos.dataNascimento ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
                   />
+                  {errosCampos.dataNascimento && (
+                    <p id="erro-dependente-data" role="alert" className="mt-1 text-xs text-red-300">{errosCampos.dataNascimento}</p>
+                  )}
                 </div>
 
+                <p className="border-b border-slate-800 pb-2 pt-2 text-sm font-semibold text-slate-200">
+                  Identificação no SUS (opcional)
+                </p>
                 {/* CNS */}
 
                 <div>
@@ -883,30 +898,25 @@ export default function Dependentes() {
                     type="text"
                     inputMode="numeric"
                     autoComplete="off"
+                    aria-invalid={Boolean(errosCampos.cns)}
+                    aria-describedby={errosCampos.cns ? 'erro-dependente-cns' : 'ajuda-dependente-cns'}
                     maxLength={15}
                     placeholder="15 dígitos"
                     value={
                       novoDependente.cns
                     }
-                    onChange={(e) =>
-                      setNovoDependente({
-                        ...novoDependente,
-                        cns:
-                          e.target.value
-                            .replace(
-                              /\D/g,
-                              ''
-                            )
-                            .slice(
-                              0,
-                              15
-                            ),
-                      })
-                    }
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:border-[#1769aa] focus:outline-none"
+                    onChange={(e) => {
+                      const cns = e.target.value.replace(/\D/g, '').slice(0, 15);
+                      setNovoDependente((atual) => ({ ...atual, cns }));
+                      setErrosCampos((atual) => ({ ...atual, cns: undefined }));
+                    }}
+                    className={`mt-1 w-full rounded-lg border bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none ${errosCampos.cns ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
                   />
+                  {errosCampos.cns && (
+                    <p id="erro-dependente-cns" role="alert" className="mt-1 text-xs text-red-300">{errosCampos.cns}</p>
+                  )}
 
-                  <p className="mt-1.5 text-[11px] leading-4 text-slate-500">
+                  <p id="ajuda-dependente-cns" className="mt-1.5 text-[11px] leading-4 text-slate-500">
                     Opcional. Caso informado,
                     deve conter exatamente 15
                     dígitos. O número ficará
@@ -928,7 +938,7 @@ export default function Dependentes() {
                     type="button"
                     disabled={salvando}
                     onClick={fecharModal}
-                    className="rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+                    className="ev-btn-secondary rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
                   >
                     Cancelar
                   </button>
@@ -936,7 +946,7 @@ export default function Dependentes() {
                   <button
                     type="submit"
                     disabled={salvando}
-                    className="inline-flex items-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="ev-btn-primary easyvacc-botao-primario inline-flex items-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {salvando && (
                       <Loader2

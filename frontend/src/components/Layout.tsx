@@ -481,7 +481,7 @@ export default function Layout() {
 
   return (
     <div
-      className={`easyvacc-app flex h-screen overflow-hidden font-sans ${
+      className={`easyvacc-app flex h-[100dvh] overflow-hidden font-sans ${
         temaClaro
           ? 'easyvacc-light bg-slate-50 text-slate-900'
           : 'bg-[#020817] text-slate-100'
@@ -935,7 +935,7 @@ html::-webkit-scrollbar-button {
         id="menu-principal"
         aria-label="Menu principal"
         className={`
-          fixed inset-y-0 left-0 z-50 flex flex-col
+          ev-sidebar fixed inset-y-0 left-0 z-50 flex flex-col
           border-r
           ${
             temaClaro
@@ -1002,8 +1002,7 @@ html::-webkit-scrollbar-button {
               }
             >
               <div className={`whitespace-nowrap text-[18px] font-extrabold tracking-tight ${temaClaro ? "text-[#102b49]" : "text-white"}`}>
-                Easy{' '}
-                <span className="text-[#1478b8]">
+                Easy<span className="text-[#1478b8]">
                   Vacc
                 </span>
               </div>
@@ -1261,8 +1260,7 @@ html::-webkit-scrollbar-button {
 
                       fecharMenuMobile();
                       navigate(
-                        '/dashboard'
-                      );
+                        `/dependentes?selecionado=${dependente.id}`);
                     }}
                     className={`
                       flex min-h-12 w-full items-center rounded-xl
@@ -1468,25 +1466,28 @@ html::-webkit-scrollbar-button {
       ====================================== */}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* CABEÇALHO MOBILE — identidade visual e ações acessíveis */}
-        <header className="relative z-20 flex h-[76px] shrink-0 items-center justify-between overflow-hidden border-b border-white/15 bg-[linear-gradient(125deg,#0c3b6a,#1478b8)] px-4 text-white shadow-[0_8px_24px_rgba(5,43,85,0.16)] lg:hidden print:hidden">
-          <span aria-hidden="true" className="pointer-events-none absolute -right-12 -top-24 h-52 w-52 rounded-full bg-white/10" />
-          <button type="button" onClick={() => void abrirTitular()} aria-label="Ir para o início" className="flex min-h-11 min-w-0 items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8]">
-            <img src="/logo.png" alt="" className="h-10 w-10 shrink-0 rounded-xl bg-white object-contain p-1" />
-            <span className="text-left">
-              <span className="block whitespace-nowrap text-lg font-extrabold leading-tight tracking-tight">Easy<span className="text-[#bce4ff]">Vacc</span></span>
-              <span className={`block text-[9px] font-semibold uppercase tracking-[0.12em] text-[#dceeff]`}>Caderneta digital</span>
-            </span>
+        {/* No celular, somente ações globais no topo; a navegação fica embaixo. */}
+        <header className="ev-mobile-topbar relative z-20 flex h-[60px] shrink-0 items-center justify-end gap-2 px-4 lg:hidden print:hidden" aria-label="Ações rápidas">
+          <button
+            type="button"
+            onClick={alternarTema}
+            aria-label={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
+            title={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'}
+            className="flex h-11 w-11 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
           </button>
-          <div className="flex shrink-0 items-center gap-2">
-            <button type="button" onClick={alternarTema} aria-label={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'} title={temaClaro ? 'Ativar modo escuro' : 'Ativar modo claro'} className={`flex h-11 w-11 items-center justify-center rounded-full border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] border-white/25 bg-white/15 text-white hover:bg-white/25`}>
-              {temaClaro ? <Moon size={20} /> : <Sun size={20} />}
-            </button>
-            <NavLink to="/notificacoes" aria-label={notificacoesNaoLidas > 0 ? `Notificações: ${notificacoesNaoLidas} não lidas` : 'Notificações'} onClick={fecharMenuMobile} className={`relative flex h-11 w-11 items-center justify-center rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] border-white/25 bg-white/15 text-white hover:bg-white/25`}>
-              <Bell size={20} />
-              {notificacoesNaoLidas > 0 && <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full border-2 border-current bg-[#1478b8]" />}
-            </NavLink>
-          </div>
+          <NavLink
+            to="/notificacoes"
+            aria-label={notificacoesNaoLidas > 0 ? `Notificações: ${notificacoesNaoLidas} não lidas` : 'Notificações'}
+            onClick={fecharMenuMobile}
+            className="relative flex h-11 w-11 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <Bell size={19} />
+            {notificacoesNaoLidas > 0 && (
+              <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-blue-500" />
+            )}
+          </NavLink>
         </header>
 
         {/* Fundo em uma camada fixa na área visível: não rola com o Perfil. */}
@@ -1535,21 +1536,24 @@ html::-webkit-scrollbar-button {
             <Outlet />
           </main>
         </div>
-        {/* Navegação fixa apenas no celular; não interfere na sidebar desktop. */}
-        <nav aria-label="Navegação rápida" className={`relative z-30 grid h-[calc(70px+env(safe-area-inset-bottom))] shrink-0 grid-cols-5 items-start border-t px-1 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_25px_rgba(0,0,0,0.05)] lg:hidden print:hidden ${temaClaro ? 'border-[#dce7f3] bg-white text-[#345371]' : 'border-[#253f5d] bg-[#0b1d33] text-[#c5d9ec]'}`}>
-          <NavLink to="/dashboard" onClick={(e) => { e.preventDefault(); void abrirTitular(); }} className={({isActive}) => `flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+        {/* Navegação inferior flutuante no celular; a sidebar fica escondida até abrir o menu. */}
+        <nav
+          aria-label="Navegação principal no celular"
+          className={`ev-bottom-nav relative z-30 mx-3 mb-[calc(8px+env(safe-area-inset-bottom))] grid h-[70px] shrink-0 grid-cols-5 items-center rounded-[22px] border px-1.5 py-1.5 shadow-[0_10px_35px_rgba(0,0,0,0.18)] lg:hidden print:hidden ${temaClaro ? 'border-[#dce7f3] bg-white/95 text-[#345371]' : 'border-[#294a6b] bg-[#0b1d33]/95 text-[#c5d9ec]'}`}
+        >
+          <NavLink to="/dashboard" onClick={(e) => { e.preventDefault(); void abrirTitular(); }} className={({isActive}) => `flex min-h-[55px] flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
             <LayoutDashboard size={21} strokeWidth={1.9} /><span>Início</span>
           </NavLink>
-          <NavLink to="/historico" onClick={abrirVacinacao} className={({isActive}) => `flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+          <NavLink to="/historico" onClick={abrirVacinacao} className={({isActive}) => `flex min-h-[55px] flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
             <Syringe size={21} strokeWidth={1.9} /><span>Vacinação</span>
           </NavLink>
-          <NavLink to="/certificado" onClick={fecharMenuMobile} className={({isActive}) => `flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+          <NavLink to="/certificado" onClick={fecharMenuMobile} className={({isActive}) => `flex min-h-[55px] flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
             <FileText size={21} strokeWidth={1.9} /><span>Certificado</span>
           </NavLink>
-          <NavLink to="/notificacoes" onClick={fecharMenuMobile} className={({isActive}) => `relative flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
-            <Bell size={21} strokeWidth={1.9} />{notificacoesNaoLidas > 0 && <span className="absolute right-[25%] top-1 h-2 w-2 rounded-full bg-[#1478b8]" />}<span>Avisos</span>
+          <NavLink to="/dependentes" onClick={fecharMenuMobile} className={({isActive}) => `flex min-h-[55px] flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isActive ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+            <UserPlus size={21} strokeWidth={1.9} /><span>Dependentes</span>
           </NavLink>
-          <button type="button" onClick={() => setMobileOpen(true)} aria-label="Abrir menu completo" aria-expanded={mobileOpen} aria-controls="menu-principal" className={`flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1478b8] ${mobileOpen ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
+          <button type="button" onClick={() => setMobileOpen(true)} aria-label="Abrir menu completo" aria-expanded={mobileOpen} aria-controls="menu-principal" className={`flex min-h-[55px] flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${mobileOpen ? (temaClaro ? 'bg-[#eaf4ff] text-[#126ca8]' : 'bg-[#153657] text-[#a9d9ff]') : (temaClaro ? 'hover:bg-[#f1f6fc]' : 'hover:bg-[#132b45]')}`}>
             <Menu size={21} strokeWidth={1.9} /><span>Menu</span>
           </button>
         </nav>

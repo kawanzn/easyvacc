@@ -2,8 +2,8 @@
    Não modifica ações, dados, impressão nem regras de negócio. */
 @media screen and (max-width: 1023px) {
   html, body, #root { max-width: 100%; overflow-x: clip; }
-  .easyvacc-app main { overflow-wrap: anywhere; overscroll-behavior-y: contain; }
-  .easyvacc-app main :is(input,select,textarea) { min-height: 44px; font-size: max(16px, 1em); }
+  .easyvacc-app main { overflow-wrap: break-word; overscroll-behavior-y: contain; }
+  .easyvacc-app main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),select,textarea) { min-height: 44px; font-size: max(16px, 1em); }
   .easyvacc-app main :is(button, a, [role="button"]) { touch-action: manipulation; }
   .easyvacc-app main :is(button, a, input, select, textarea):focus-visible { outline: 3px solid #65b9f3; outline-offset: 2px; }
   .easyvacc-app main :is(img, svg, video, canvas) { max-width: 100%; }

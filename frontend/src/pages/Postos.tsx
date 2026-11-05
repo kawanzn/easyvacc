@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import {
   AlertCircle,
   Building2,
@@ -30,12 +30,18 @@ type Posto = {
   complemento: string | null;
   cep: string | null;
   telefone: string | null;
-  latitude: number;
-  longitude: number;
-  distanciaKm?: number;
-  fonte: string;
+  latitude: number | null;
+  longitude: number | null;
+  distanciaKm?: number | null;
+  fonte?: string | null;
   municipio?: string | null;
   uf?: string | null;
+  // Metadados retornados pela Edge Function buscar-postos-proximos.
+  coordenadasSuspeitas?: boolean;
+  unidadesMesmoPonto?: number;
+  enderecosDistintosNoPonto?: number;
+  usarEnderecoNoMapa?: boolean;
+  enderecoParaBusca?: string | null;
 };
 
 type RespostaPostos = {
@@ -58,9 +64,84 @@ type StatusSincronizacao = {
   postos_ativos: number;
 };
 
+// O backend já restringe a busca a atenção básica e imunização.
+// Esta classificação é apenas para os rótulos e filtros da interface.
+type Categoria = 'basica' | 'imunizacao' | 'outros';
+type FiltroCategoria = 'todos' | 'basica' | 'imunizacao';
+type ClassificacaoVisual = {
+  categoria: Categoria;
+  rotulo: string;
+};
+
+function normalizar(texto: string): string {
+  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+}
+
+function classificarPosto(posto: Posto): ClassificacaoVisual {
+  const nome = normalizar(posto.nome ?? '');
+  const cadastro = normalizar([posto.tipo, posto.classificacao].filter(Boolean).join(' '));
+
+  // Exclusões explícitas: não devem ser apresentadas como UBS ao cidadão
+  // apenas porque o cadastro antigo informou uma classificação genérica.
+  if (/\b(ODONTOCLINICA|ODONTOCLINIC|CENTRO DE ESPECIALIDADES ODONTOLOGICAS|CENTRO SOCIAL|CENTRO INTEGRADO DE EXAMES|CENTRO DE EXAMES|CLINICA DE EXAMES|NEUROFISIOLOGIC|LABORATORIO|CENTRO DE TRIAGEM|CAPS|SAMU|UPA|HOSPITAL|PRONTO ATENDIMENTO|POLICLINICA|CENTRO DE DIAGNOSTICO|CLINICA ESPECIALIZADA|CENTRO DE ESPECIALIDADES|REDE DE FRIO|CENTRAL DE DISTRIBUICAO|ALMOXARIFADO|DEPOSITO DE VACINAS|CONSULTORIO NA RUA)\b/.test(nome)) {
+    return { categoria: 'outros', rotulo: 'Outro serviço' };
+  }
+
+  if (/\b(IMUNIZACAO|VACINACAO|CENTRO DE VACINAS|SALA DE VACINA)\b/.test(nome)) {
+    return { categoria: 'imunizacao', rotulo: 'Imunização' };
+  }
+
+  if (/\b(UBS|ESF|USF|PSF|UNIDADE BASICA DE SAUDE|POSTO DE SAUDE|CENTRO DE SAUDE|SAUDE DA FAMILIA|ESTRATEGIA DE SAUDE DA FAMILIA|UNIDADE DE SAUDE DA FAMILIA)\b/.test(nome)) {
+    return { categoria: 'basica', rotulo: 'Atenção básica' };
+  }
+
+  // Não exigir prefixo ESF/PSF no nome: UBS legítimas podem ter nomes próprios.
+  if (/\b(UNIDADE BASICA DE SAUDE|POSTO DE SAUDE|CENTRO DE SAUDE)\b/.test(cadastro)) {
+    return { categoria: 'basica', rotulo: 'Atenção básica' };
+  }
+
+  return { categoria: 'outros', rotulo: 'Outro serviço' };
+}
+
+function coordenadasValidas(posto: Posto): boolean {
+  const lat = posto.latitude;
+  const lon = posto.longitude;
+  return typeof lat === 'number' && typeof lon === 'number' &&
+    Number.isFinite(lat) && Number.isFinite(lon) &&
+    lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180 &&
+    !(lat === 0 && lon === 0);
+}
+
+// A consulta manual não verifica coordenadas. Por segurança, abre o Maps
+// pelo endereço; no GPS, só permite rota direta quando o backend informou
+// explicitamente que não encontrou suspeita de duplicidade.
+function usarBuscaPorEndereco(posto: Posto, modoBusca: ModoBusca): boolean {
+  return modoBusca !== 'localizacao' ||
+    !coordenadasValidas(posto) ||
+    posto.coordenadasSuspeitas !== false ||
+    posto.usarEnderecoNoMapa === true;
+}
+
+function consultaEnderecoMapa(posto: Posto): string {
+  if (posto.enderecoParaBusca?.trim()) {
+    return posto.enderecoParaBusca.trim();
+  }
+  return [
+    posto.nome,
+    posto.logradouro,
+    posto.numero,
+    posto.complemento,
+    posto.municipio,
+    posto.uf,
+    posto.cep ? `CEP ${posto.cep}` : null,
+    'Brasil',
+  ].filter((valor) => typeof valor === 'string' && valor.trim()).join(', ');
+}
+
 export default function Postos() {
   const [postos, setPostos] = useState<Posto[]>([]);
   const [carregando, setCarregando] = useState(false);
+  const [buscaEmAndamento, setBuscaEmAndamento] = useState<'manual' | 'localizacao' | null>(null);
   const [erro, setErro] = useState('');
   const [modoBusca, setModoBusca] = useState<ModoBusca>(null);
   const [raioKm, setRaioKm] = useState<number | null>(null);
@@ -68,7 +149,29 @@ export default function Postos() {
   const [termoPesquisado, setTermoPesquisado] = useState('');
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState<string | null>(null);
   const [totalPostosAtivos, setTotalPostosAtivos] = useState<number | null>(null);
+  const [filtroCategoria, setFiltroCategoria] = useState<FiltroCategoria>('todos');
 
+  const classificados = useMemo(
+    () => postos.map((posto) => {
+      const info = classificarPosto(posto);
+      // O backend já validou o tipo da unidade. Se a classificação visual
+      // não reconhecer um nome próprio, não ocultar uma UBS legítima.
+      return {
+        posto,
+        info: info.categoria === 'outros'
+          ? { categoria: 'basica' as const, rotulo: 'Atenção básica' }
+          : info,
+      };
+    }),
+    [postos]
+  );
+  const contagens = useMemo(() => ({
+    basica: classificados.filter((item) => item.info.categoria === 'basica').length,
+    imunizacao: classificados.filter((item) => item.info.categoria === 'imunizacao').length,
+  }), [classificados]);
+  const exibidos = classificados.filter(
+    (item) => filtroCategoria === 'todos' || item.info.categoria === filtroCategoria
+  );
   useEffect(() => {
     void carregarStatusSincronizacao();
   }, []);
@@ -123,7 +226,7 @@ export default function Postos() {
     });
   }
 
-  function formatarDistancia(distanciaKm?: number) {
+  function formatarDistancia(distanciaKm?: number | null) {
     if (
       distanciaKm === undefined ||
       distanciaKm === null ||
@@ -199,7 +302,7 @@ export default function Postos() {
             body: {
               latitude,
               longitude,
-              limite: 10,
+              limite: 30,
             },
           }
         );
@@ -223,6 +326,7 @@ export default function Postos() {
       }
 
       setPostos(data.postos ?? []);
+      setFiltroCategoria('todos');
       setRaioKm(data.raioKm ?? null);
       setModoBusca('localizacao');
       setTermoPesquisado('');
@@ -243,12 +347,14 @@ export default function Postos() {
       );
     } finally {
       setCarregando(false);
+      setBuscaEmAndamento(null);
     }
   }
 
   function usarMinhaLocalizacao() {
     setErro('');
     setCarregando(true);
+    setBuscaEmAndamento('localizacao');
 
     if (!navigator.geolocation) {
       setErro(
@@ -256,6 +362,7 @@ export default function Postos() {
       );
 
       setCarregando(false);
+      setBuscaEmAndamento(null);
       return;
     }
 
@@ -263,12 +370,6 @@ export default function Postos() {
       (position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
-        
-        console.log('LOCALIZAÇÃO DO NAVEGADOR:', {
-  latitude,
-  longitude,
-  precisao: position.coords.accuracy,
-});
 
         void buscarPostos(
           latitude,
@@ -301,6 +402,7 @@ export default function Postos() {
 
         setErro(mensagem);
         setCarregando(false);
+        setBuscaEmAndamento(null);
       },
       {
         enableHighAccuracy: true,
@@ -325,13 +427,14 @@ export default function Postos() {
     }
 
     setCarregando(true);
+    setBuscaEmAndamento('manual');
 
     try {
       const { data, error } = await supabase.rpc(
         'buscar_postos_manual',
         {
           termo_busca: termo,
-          limite_resultados: 30,
+          limite_resultados: 50,
         }
       );
 
@@ -349,6 +452,7 @@ export default function Postos() {
       const resultado = (data ?? []) as Posto[];
 
       setPostos(resultado);
+      setFiltroCategoria('todos');
       setRaioKm(null);
       setModoBusca('manual');
       setTermoPesquisado(termo);
@@ -369,6 +473,7 @@ export default function Postos() {
       );
     } finally {
       setCarregando(false);
+      setBuscaEmAndamento(null);
     }
   }
 
@@ -378,33 +483,17 @@ export default function Postos() {
     setPostos([]);
     setRaioKm(null);
     setModoBusca(null);
+    setFiltroCategoria('todos');
     setErro('');
   }
 
   function abrirRota(posto: Posto) {
-    if (
-      typeof posto.latitude !== 'number' ||
-      typeof posto.longitude !== 'number'
-    ) {
-      setErro(
-        'Esta unidade não possui coordenadas disponíveis para abrir a rota.'
-      );
-      return;
-    }
+    const buscarEndereco = usarBuscaPorEndereco(posto, modoBusca);
+    const url = buscarEndereco
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consultaEnderecoMapa(posto))}`
+      : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${posto.latitude},${posto.longitude}`)}`;
 
-    const destino =
-      `${posto.latitude},${posto.longitude}`;
-
-    const url =
-      `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-        destino
-      )}`;
-
-    window.open(
-      url,
-      '_blank',
-      'noopener,noreferrer'
-    );
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   function ligar(telefone: string) {
@@ -416,13 +505,13 @@ export default function Postos() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-transparent text-slate-100 antialiased">
+    <div className="ev-page relative min-h-screen w-full bg-transparent text-slate-100 antialiased">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-blue-600/10 via-[#126ca8]/15 to-blue-600/10 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-8 pb-20 sm:px-6 lg:px-8">
-        <div className="mb-6 rounded-2xl border border-slate-800 bg-[#081629]/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
+        <div className="ev-card ev-page-header mb-6 rounded-2xl border border-slate-800 bg-[#081629]/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
           <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-medium text-[#126ca8]">
             <Sparkles size={13} />
             <span>
@@ -430,8 +519,8 @@ export default function Postos() {
             </span>
           </div>
 
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            Postos de Saúde e UBS
+          <h1 className="ev-page-title text-3xl font-bold tracking-tight text-white">
+            Encontre unidades de saúde
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
@@ -440,9 +529,12 @@ export default function Postos() {
             bairro, logradouro ou nome da unidade.
           </p>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_auto]">
+          <label htmlFor="busca-posto" className="mt-6 mb-2 block text-xs font-semibold text-slate-300">
+            Pesquisar por CEP, cidade, bairro ou unidade
+          </label>
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
             <form
-              onSubmit={(event) =>
+              onSubmit={(event: FormEvent<HTMLFormElement>) =>
                 void buscarManual(event)
               }
               className="flex flex-col gap-2 sm:flex-row"
@@ -454,9 +546,10 @@ export default function Postos() {
                 />
 
                 <input
+                  id="busca-posto"
                   type="search"
                   value={termoBusca}
-                  onChange={(event) =>
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
                     setTermoBusca(
                       event.target.value
                     )
@@ -471,10 +564,9 @@ export default function Postos() {
               <button
                 type="submit"
                 disabled={carregando}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-5 text-sm font-bold text-white transition hover:bg-[#126ca8] disabled:cursor-not-allowed disabled:opacity-60"
+                className="ev-btn-primary inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-5 text-sm font-bold text-white transition hover:bg-[#126ca8] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {carregando &&
-                modoBusca !== 'localizacao' ? (
+                {carregando && buscaEmAndamento === 'manual' ? (
                   <Loader2
                     size={18}
                     className="animate-spin"
@@ -493,8 +585,7 @@ export default function Postos() {
               disabled={carregando}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-blue-600/30 bg-blue-600/10 px-5 text-sm font-bold text-[#126ca8] transition hover:bg-blue-600/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {carregando &&
-              modoBusca !== 'manual' ? (
+              {carregando && buscaEmAndamento === 'localizacao' ? (
                 <>
                   <Loader2
                     size={18}
@@ -517,8 +608,8 @@ export default function Postos() {
           </div>
 
           <p className="mt-3 text-xs leading-5 text-slate-500">
-            A busca manual não exige acesso à localização do
-            dispositivo.
+            A busca manual não exige acesso à localização do dispositivo.
+            Os resultados dependem da cobertura e qualidade do cadastro disponível.
           </p>
         </div>
 
@@ -535,8 +626,8 @@ export default function Postos() {
 
             <p className="mt-0.5 text-xs leading-5 text-slate-400">
               Fonte: Ministério da Saúde / CNES.
-              As unidades exibidas pelo EasyVacc são
-              sincronizadas a partir dessa base oficial.
+              Os registros foram importados de fontes do Ministério da Saúde.
+              Tipo de serviço, endereço e funcionamento podem exigir confirmação.
             </p>
 
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
@@ -551,7 +642,7 @@ export default function Postos() {
 
               {totalPostosAtivos !== null && (
                 <span>
-                  Unidades ativas:{' '}
+                  Registros ativos no banco:{' '}
                   <strong className="font-semibold text-slate-300">
                     {totalPostosAtivos.toLocaleString(
                       'pt-BR'
@@ -564,8 +655,8 @@ export default function Postos() {
             <p className="mt-2 text-[11px] leading-4 text-slate-600">
               A data acima corresponde à última
               sincronização registrada pelo EasyVacc e
-              não necessariamente à data de atualização
-              original de cada estabelecimento no CNES.
+              não à data de atualização original do CNES. Cadastro
+              ativo não confirma funcionamento atual ou oferta de vacinação.
             </p>
           </div>
         </div>
@@ -612,7 +703,7 @@ export default function Postos() {
         {!carregando &&
           modoBusca === null &&
           !erro && (
-            <div className="rounded-2xl border border-dashed border-slate-800 bg-[#081629]/30 p-10 text-center sm:p-12">
+            <div className="ev-empty-state rounded-2xl border border-dashed border-slate-800 bg-[#081629]/30 p-10 text-center sm:p-12">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-800 bg-[#081629] text-slate-500">
                 <MapPinned size={28} />
               </div>
@@ -631,19 +722,19 @@ export default function Postos() {
 
         {!carregando &&
           modoBusca !== null &&
-          postos.length > 0 && (
+          classificados.length > 0 && (
             <>
               <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
                 <div>
-                  <h2 className="font-semibold text-white">
+                  <h2 className="ev-section-title font-semibold text-white">
                     {modoBusca === 'localizacao'
                       ? 'Unidades próximas'
                       : 'Resultado da busca'}
                   </h2>
 
                   <p className="mt-0.5 text-xs text-slate-500">
-                    {postos.length}{' '}
-                    {postos.length === 1
+                    {classificados.length}{' '}
+                    {classificados.length === 1
                       ? 'unidade encontrada'
                       : 'unidades encontradas'}
 
@@ -657,6 +748,11 @@ export default function Postos() {
                         </>
                       )}
                   </p>
+                  {postos.length >= (modoBusca === 'localizacao' ? 30 : 50) && (
+                    <p className="mt-1 text-xs text-amber-300/90">
+                      A consulta atingiu o limite de resultados. Pode haver outras unidades cadastradas.
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -680,42 +776,90 @@ export default function Postos() {
                 </div>
               </div>
 
+              {contagens.basica > 0 && contagens.imunizacao > 0 && (
+              <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Filtrar resultados por tipo de serviço">
+                {([
+                  { id: 'todos', nome: 'Todos', total: classificados.length },
+                  { id: 'basica', nome: 'Atenção básica', total: contagens.basica },
+                  { id: 'imunizacao', nome: 'Imunização', total: contagens.imunizacao },
+                ] as const).map((filtro) => (
+                  <button
+                    key={filtro.id}
+                    type="button"
+                    onClick={() => setFiltroCategoria(filtro.id)}
+                    aria-pressed={filtroCategoria === filtro.id}
+                    className={`rounded-full border px-3 py-2 text-xs font-semibold transition ${
+                      filtroCategoria === filtro.id
+                        ? 'border-blue-500/60 bg-blue-600/20 text-blue-100'
+                        : 'border-slate-700 bg-[#081629]/60 text-slate-400 hover:border-blue-500/40 hover:text-slate-200'
+                    }`}
+                  >
+                    {filtro.nome} ({filtro.total})
+                  </button>
+                ))}
+              </div>
+              )}
+
+              <p className="mb-4 text-xs leading-5 text-slate-500">
+                Antes de visitar uma unidade, confirme o endereço e o horário de atendimento.
+                {modoBusca === 'manual' && ' Nesta pesquisa, o mapa é aberto pelo endereço cadastrado.'}
+              </p>
+
+              {exibidos.length === 0 && (
+                <p className="mb-4 rounded-xl border border-slate-800 p-5 text-sm text-slate-400">
+                  Nenhum resultado desta consulta corresponde ao filtro escolhido.
+                  Selecione “Todos” para visualizar as unidades encontradas.
+                </p>
+              )}
+
               <div className="space-y-4">
-                {postos.map(
-                  (posto, index) => {
-                    const distancia =
-                      formatarDistancia(
-                        posto.distanciaKm
-                      );
+                {exibidos.map(
+                  ({ posto, info }) => {
+                    const buscarEndereco = usarBuscaPorEndereco(posto, modoBusca);
+                    const rotaDireta = !buscarEndereco;
+                    const distancia = rotaDireta ? formatarDistancia(posto.distanciaKm) : null;
+                    const localizacaoSuspeita = modoBusca === 'localizacao' &&
+                      (posto.coordenadasSuspeitas === true || posto.usarEnderecoNoMapa === true);
+                    const localizacaoNaoAvaliada = modoBusca === 'localizacao' &&
+                      posto.coordenadasSuspeitas == null;
 
                     return (
                       <div
                         key={
-                          posto.id ??
-                          posto.cnes ??
-                          `${posto.latitude}-${posto.longitude}`
+                          posto.cnes || posto.id
                         }
-                        className="rounded-2xl border border-slate-800 bg-[#081629]/60 p-6 shadow-xl backdrop-blur-md transition-all hover:border-slate-700 md:p-7"
+                        className="ev-card rounded-2xl border border-slate-800 bg-[#081629]/60 p-6 shadow-xl backdrop-blur-md transition-all hover:border-slate-700 md:p-7"
                       >
                         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
                           <div className="min-w-0 flex-1">
                             <div className="mb-3 flex flex-wrap items-center gap-2">
+                              <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-200">
+                                {info.rotulo}
+                              </span>
+
                               {modoBusca === 'localizacao' &&
                                 distancia && (
                                   <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-[#126ca8]">
                                     <Navigation
                                       size={12}
                                     />
-                                    {distancia} de você
+                                    {distancia} (estimativa)
                                   </span>
                                 )}
 
-                              {modoBusca === 'localizacao' &&
-                                index === 0 && (
-                                  <span className="rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-300">
-                                    Mais próxima
-                                  </span>
-                                )}
+                              {localizacaoSuspeita && (
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-200">
+                                  <AlertCircle size={12} />
+                                  Localização a confirmar
+                                </span>
+                              )}
+
+                              {localizacaoNaoAvaliada && (
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-200">
+                                  <AlertCircle size={12} />
+                                  Localização não verificada
+                                </span>
+                              )}
 
                               {modoBusca === 'manual' &&
                                 posto.municipio && (
@@ -735,14 +879,6 @@ export default function Postos() {
                               {posto.nome}
                             </h2>
 
-                            {(posto.classificacao ||
-                              posto.tipo) && (
-                              <p className="mt-1 text-xs text-slate-500">
-                                {posto.classificacao ||
-                                  posto.tipo}
-                              </p>
-                            )}
-
                             <div className="mt-4 space-y-2.5">
                               <p className="flex items-start gap-2 text-sm text-slate-300">
                                 <MapPin
@@ -756,6 +892,19 @@ export default function Postos() {
                                   )}
                                 </span>
                               </p>
+
+                              {localizacaoSuspeita && (
+                                <p className="flex items-start gap-2 text-xs leading-5 text-amber-200/90">
+                                  <AlertCircle size={15} className="mt-0.5 shrink-0" />
+                                  As coordenadas cadastradas podem estar incorretas. O mapa será aberto pelo endereço informado; confirme o local antes de sair.
+                                </p>
+                              )}
+
+                              {localizacaoNaoAvaliada && (
+                                <p className="text-xs leading-5 text-amber-200/90">
+                                  Não foi possível verificar as coordenadas. Consulte o endereço no mapa antes de visitar.
+                                </p>
+                              )}
 
                               {posto.telefone && (
                                 <button
@@ -807,7 +956,7 @@ export default function Postos() {
                               <Navigation
                                 size={17}
                               />
-                              Como chegar
+                              {rotaDireta ? 'Como chegar' : 'Ver no mapa'}
                               <ExternalLink
                                 size={14}
                               />
@@ -824,7 +973,7 @@ export default function Postos() {
 
         {!carregando &&
           modoBusca !== null &&
-          postos.length === 0 &&
+          classificados.length === 0 &&
           !erro && (
             <div className="rounded-2xl border border-dashed border-slate-800 p-12 text-center">
               <Building2
@@ -834,8 +983,8 @@ export default function Postos() {
 
               <p className="mt-3 text-sm font-medium text-slate-400">
                 {modoBusca === 'manual'
-                  ? 'Nenhuma unidade foi encontrada para essa busca.'
-                  : 'Nenhuma UBS foi encontrada próxima à sua localização.'}
+                  ? 'Nenhuma UBS, ESF, PSF ou unidade de imunização foi encontrada nesta busca.'
+                  : 'Nenhuma unidade de atenção básica ou imunização foi encontrada nesta região.'}
               </p>
 
               {modoBusca === 'manual' && (

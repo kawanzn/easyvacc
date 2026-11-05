@@ -329,7 +329,7 @@ export default function Campanhas() {
   }
 
   return (
-    <div className={`relative min-h-screen w-full bg-transparent text-slate-100 antialiased easyvacc-campanhas ${temaClaro ? "easyvacc-light" : ""}`}>
+    <div className={`ev-page relative min-h-screen w-full bg-transparent text-slate-100 antialiased easyvacc-campanhas ${temaClaro ? "easyvacc-light" : ""}`}>
 
 
       <style>{`
@@ -364,7 +364,7 @@ export default function Campanhas() {
       </div>
 
       <div className="mx-auto max-w-5xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
-        <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
+        <div className="ev-card ev-page-header mb-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
           <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-[#1769aa]">
             <Sparkles size={13}  aria-hidden="true" />
             <span>
@@ -372,8 +372,8 @@ export default function Campanhas() {
             </span>
           </div>
 
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            Campanhas de Vacinação
+          <h1 className="ev-page-title text-3xl font-bold tracking-tight text-white">
+            Campanhas de vacinação
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">
@@ -568,9 +568,9 @@ export default function Campanhas() {
                           ] =
                             elemento;
                         }}
-                        className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-slate-900/60 shadow-xl backdrop-blur-md transition-all duration-500 hover:-translate-y-0.5 hover:shadow-2xl ${
+                        className={`ev-card group relative flex flex-col overflow-hidden rounded-2xl border bg-slate-900/60 shadow-xl backdrop-blur-md transition-all duration-500 hover:-translate-y-0.5 hover:shadow-2xl ${
                           selecionada
-                            ? 'scale-[1.01] border-blue-400 ring-2 ring-blue-400/50 shadow-blue-500/10'
+                            ? 'ev-card-selected scale-[1.01] border-blue-400 ring-2 ring-blue-400/50 shadow-blue-500/10'
                             : campanha.destaque
                               ? 'border-blue-800/80 hover:border-blue-700'
                               : 'border-slate-800 hover:border-slate-700'
@@ -800,7 +800,7 @@ export default function Campanhas() {
                   }
                 )
               ) : (
-                <div className="col-span-full rounded-2xl border border-dashed border-slate-800 p-12 text-center">
+                <div className="ev-empty-state col-span-full rounded-2xl border border-dashed border-slate-800 p-12 text-center">
                   <Megaphone
                     size={32}
                     className="mx-auto text-slate-600"
@@ -814,9 +814,12 @@ export default function Campanhas() {
                   <p className="mt-1 text-sm text-slate-500">
                     Não há campanhas
                     ativas cadastradas no
-                    EasyVacc neste
-                    momento.
+                    EasyVacc neste momento. Você pode atualizar a lista para conferir novamente.
                   </p>
+                  <button type="button" onClick={() => void carregarDados()} className="ev-btn-secondary mt-5 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold">
+                    <RefreshCw size={16} aria-hidden="true" />
+                    Atualizar lista
+                  </button>
                 </div>
               )}
             </div>

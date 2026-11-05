@@ -643,7 +643,7 @@ const [proximaDose, setProximaDose] =
   // JSX
   // ===================================================
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-[#081629] p-8 font-sans text-slate-100`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}ev-ui ev-professional min-h-screen bg-[#081629] px-4 py-6 font-sans sm:p-8 text-slate-100`}>
 
       <style>{`
         .easyvacc-light {
@@ -710,14 +710,14 @@ const [proximaDose, setProximaDose] =
       {/* =================================================
           CABEÇALHO
       ================================================= */}
-      <div className="mx-auto mb-8 flex max-w-4xl items-center justify-between border-b border-slate-800 pb-6">
+      <div className="ev-portal-header mx-auto mb-8 flex max-w-4xl flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
           <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-500">
             <ShieldAlert size={16} />
             Painel profissional
           </div>
-          <h1 className="text-3xl font-black text-white">
-            Portal de Vacinação
+          <h1 className="ev-portal-title text-3xl font-black text-white">
+            Portal de vacinação
           </h1>
           <p className="mt-2 text-sm text-slate-400">
             Registro de imunizações na caderneta EasyVacc.
@@ -732,7 +732,7 @@ const [proximaDose, setProximaDose] =
           Sair
         </button>
       </div>
-      <div className="mx-auto max-w-4xl rounded-3xl border border-slate-700/80 bg-slate-800/80 p-8 shadow-2xl backdrop-blur-md">
+      <div className="ev-card mx-auto max-w-4xl rounded-3xl border border-slate-700/80 bg-slate-800/80 p-5 shadow-2xl backdrop-blur-md sm:p-8">
         {/* =================================================
             AVISO
         ================================================= */}
@@ -750,19 +750,20 @@ const [proximaDose, setProximaDose] =
         {/* =================================================
             BUSCA CPF
         ================================================= */}
-        <div className="mb-7 rounded-2xl border border-slate-700 bg-[#081629]/60 p-5">
-          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-blue-500">
-            CPF e código de atendimento
-          </label>
+        <div className="ev-card ev-card-subtle mb-7 rounded-2xl border border-slate-700 bg-[#081629]/60 p-5">
+          <h2 className="mb-2 text-sm font-bold text-white">Localizar cidadão autorizado</h2>
           <p className="mb-3 text-xs text-slate-400">
             O cidadão deve gerar o código em Meu Perfil → Autorizar atendimento.
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_220px_auto]">
-            <div className="relative">
+            <div className="space-y-1.5">
+              <label htmlFor="cpf-atendimento" className="block text-xs font-semibold text-slate-300">CPF do cidadão</label>
+              <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                 <CreditCard className="h-5 w-5 text-blue-500" />
               </div>
               <input
+                id="cpf-atendimento"
                 type="text"
                 value={cpfCidadao}
                 onChange={(e) => {
@@ -797,8 +798,12 @@ const [proximaDose, setProximaDose] =
                 placeholder="000.000.000-00"
                 aria-label="CPF do cidadão responsável"
               />
+              </div>
             </div>
+            <div className="space-y-1.5">
+              <label htmlFor="codigo-atendimento" className="block text-xs font-semibold text-slate-300">Código de atendimento</label>
             <input
+              id="codigo-atendimento"
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
@@ -827,6 +832,7 @@ const [proximaDose, setProximaDose] =
               className="w-full rounded-xl border border-slate-700 bg-[#081629] px-4 py-3.5 text-center font-mono text-lg tracking-[0.3em] text-white outline-none transition placeholder:tracking-normal focus:border-blue-600 focus:ring-2 focus:ring-blue-600"
               placeholder="Código de 6 dígitos"
             />
+            </div>
             <button
               type="button"
               onClick={() =>
@@ -835,7 +841,7 @@ const [proximaDose, setProximaDose] =
               disabled={
                 buscandoPaciente
               }
-              className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 font-bold text-slate-950 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="ev-btn-primary flex items-center justify-center self-end gap-2 rounded-xl bg-blue-600 px-6 py-3.5 font-bold text-slate-950 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {buscandoPaciente ? (
                 <>
@@ -864,7 +870,7 @@ const [proximaDose, setProximaDose] =
                 size={18}
                 className="text-blue-500"
               />
-              <h2 className="font-bold text-white">
+              <h2 className="ev-section-title font-bold text-white">
                 Selecione o paciente
               </h2>
             </div>
@@ -978,7 +984,7 @@ const [proximaDose, setProximaDose] =
                   <History size={20} />
                 </div>
                 <div>
-                  <h2 className="font-bold text-white">
+                  <h2 className="ev-section-title font-bold text-white">
                     Histórico de vacinação
                   </h2>
                   <p className="mt-1 text-sm text-slate-400">
@@ -1091,7 +1097,7 @@ const [proximaDose, setProximaDose] =
                                 <button
                                   type="button"
                                   onClick={() => abrirCorrecao(vacina)}
-                                  className="flex items-center gap-1.5 rounded-lg border border-amber-700/70 bg-amber-950/30 px-3 py-2 text-xs font-bold text-amber-300 transition hover:bg-amber-950/60"
+                                  className="ev-btn-secondary flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-300 transition hover:border-blue-500"
                                 >
                                   <Pencil size={14} />
                                   Corrigir
@@ -1473,10 +1479,11 @@ const [proximaDose, setProximaDose] =
               </div>
             )}
             <div className="mt-5">
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
+              <label htmlFor="motivo-alteracao" className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">
                 Motivo {modoModal === 'corrigir' ? 'da correção' : 'do cancelamento'} *
               </label>
               <textarea
+                id="motivo-alteracao"
                 value={motivoAlteracao}
                 onChange={(e) => setMotivoAlteracao(e.target.value)}
                 rows={4}
@@ -1497,7 +1504,7 @@ const [proximaDose, setProximaDose] =
                 type="button"
                 onClick={fecharModal}
                 disabled={processandoAlteracao}
-                className="rounded-xl border border-slate-700 bg-slate-800 px-5 py-3 font-bold text-slate-300 transition hover:text-white disabled:opacity-50"
+                className="ev-btn-secondary rounded-xl border border-slate-700 bg-slate-800 px-5 py-3 font-bold text-slate-300 transition hover:text-white disabled:opacity-50"
               >
                 Voltar
               </button>
@@ -1507,8 +1514,8 @@ const [proximaDose, setProximaDose] =
                 disabled={processandoAlteracao}
                 className={`flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-black transition disabled:cursor-not-allowed disabled:opacity-50 ${
                   modoModal === 'cancelar'
-                    ? 'bg-rose-500 text-white hover:bg-rose-400'
-                    : 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                    ? 'ev-btn-danger bg-rose-600 text-white hover:bg-rose-500'
+                    : 'ev-btn-primary bg-blue-600 text-white hover:bg-blue-500'
                 }`}
               >
                 {processandoAlteracao ? (

@@ -939,7 +939,7 @@ export default function Perfil() {
   // =====================================================
   if (carregando) {
   return (
-    <div className="mx-auto min-h-screen max-w-5xl bg-transparent p-4 pb-20 text-slate-100 sm:p-8">
+    <div className="ev-page mx-auto min-h-screen max-w-5xl bg-transparent p-4 pb-20 text-slate-100 sm:p-8">
       <div
         role="status"
         aria-live="polite"
@@ -1006,7 +1006,7 @@ export default function Perfil() {
   return (
     <div
       className="
-        mx-auto min-h-screen
+        ev-page mx-auto min-h-screen
         max-w-5xl
         bg-transparent
         p-4 pb-20
@@ -1019,7 +1019,7 @@ export default function Perfil() {
       {/* CABEÇALHO */}
       <div
         className="
-          mb-8 flex flex-col
+          ev-page-header mb-8 flex flex-col
           items-start justify-between
           gap-4
           border-b border-slate-800
@@ -1029,14 +1029,14 @@ export default function Perfil() {
       >
         <div>
           <h1
-            className="
+            className="ev-page-title 
               text-3xl
               font-extrabold
               tracking-tight
               text-white
             "
           >
-            Meu Perfil
+            Meu perfil
           </h1>
           <p
             className="
@@ -1142,7 +1142,7 @@ export default function Perfil() {
       {/* CARD */}
       <div
         className="
-          relative overflow-hidden
+          ev-card relative overflow-hidden
           rounded-3xl
           border border-slate-800
           bg-[#081629]/90
@@ -1346,11 +1346,11 @@ export default function Perfil() {
               border-slate-800
               pt-8
               md:grid-cols-2
-              lg:grid-cols-3
+              lg:grid-cols-2
             "
           >
-            {/* IDENTIFICAÇÃO */}
-            <div className="space-y-6">
+            {/* DADOS PESSOAIS */}
+            <section className="ev-profile-group space-y-6">
               <h3
                 className="
                   flex items-center
@@ -1367,7 +1367,7 @@ export default function Perfil() {
                   aria-hidden="true"
                   className="text-[#126ca8]"
                 />
-                Identificação
+                Dados pessoais
               </h3>
               <div>
                 <p className="text-xs font-medium text-slate-400">
@@ -1441,9 +1441,9 @@ export default function Perfil() {
                     'Não informada'}
                 </p>
               </div>
-            </div>
+            </section>
             {/* CONTATO */}
-            <div className="space-y-6">
+            <section className="ev-profile-group space-y-6">
               <h3
                 className="
                   flex items-center
@@ -1460,7 +1460,7 @@ export default function Perfil() {
                   aria-hidden="true"
                   className="text-[#126ca8]"
                 />
-                Contato e Endereço
+                Contato e endereço
               </h3>
               {/* EMAIL */}
               <div>
@@ -1623,9 +1623,9 @@ export default function Perfil() {
                   </p>
                 )}
               </div>
-            </div>
-            {/* DADOS CLÍNICOS */}
-            <div className="space-y-6">
+            </section>
+            {/* DADOS DE SAÚDE */}
+            <section className="ev-profile-group space-y-6 md:col-span-2">
               <h3
                 className="
                   flex items-center
@@ -1642,7 +1642,7 @@ export default function Perfil() {
                   aria-hidden="true"
                   className="text-[#126ca8]"
                 />
-                Dados Clínicos (Restrito)
+                Informações de saúde
               </h3>
               {/* TIPO SANGUÍNEO */}
               <div>
@@ -1922,8 +1922,13 @@ export default function Perfil() {
                   </>
                 )}
               </div>
-            </div>
+            </section>
           </div>
+
+          {/* SEGURANÇA E AUTORIZAÇÕES */}
+          <div className="ev-profile-security" aria-labelledby="titulo-seguranca-perfil">
+            <h3 id="titulo-seguranca-perfil" className="ev-section-title">Segurança e autorizações</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-400">Controle o acesso de profissionais durante o atendimento e gerencie seus dispositivos de entrada.</p>
           {/* AUTORIZAÇÃO DE ATENDIMENTO */}
           <section className="mt-10 rounded-2xl border border-blue-600/20 bg-blue-600/5 p-5">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -1937,7 +1942,7 @@ export default function Perfil() {
                 type="button"
                 onClick={() => void gerarAutorizacaoAtendimento()}
                 disabled={gerandoAutorizacao}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="ev-btn-primary inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {gerandoAutorizacao ? <Loader2 size={15} className="animate-spin" aria-hidden="true" /> : <CheckCircle size={15} aria-hidden="true" />}
                 {gerandoAutorizacao ? 'Gerando...' : codigoAutorizacao ? 'Gerar novo código' : 'Gerar código'}
@@ -2024,7 +2029,7 @@ export default function Perfil() {
                 type="button"
                 onClick={() => void cadastrarPasskey()}
                 disabled={!passkeysDisponiveis() || salvandoPasskey || carregandoPasskeys || Boolean(removendoPasskey)}
-                className="ev-passkey-register inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#105b90] disabled:cursor-not-allowed disabled:opacity-50"
+                className="ev-btn-primary ev-passkey-register inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#105b90] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {salvandoPasskey ? <Loader2 size={16} className="animate-spin" /> : <Fingerprint size={16} />}
                 {salvandoPasskey ? 'Cadastrando...' : 'Cadastrar biometria'}
@@ -2067,6 +2072,7 @@ export default function Perfil() {
               </div>
             )}
           </section>
+          </div>
           {/* AÇÕES */}
           <div
             className="
@@ -2092,7 +2098,7 @@ export default function Perfil() {
                 type="button"
                 onClick={() => void baixarDadosPdf()}
                 disabled={salvando || exportandoDados}
-                className="flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="ev-btn-secondary flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 {exportandoDados ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <FileText size={14} className="text-[#126ca8]" aria-hidden="true" />}
                 Baixar PDF
@@ -2101,35 +2107,12 @@ export default function Perfil() {
                 type="button"
                 onClick={() => void baixarDadosJson()}
                 disabled={salvando || exportandoDados}
-                className="flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="ev-btn-secondary flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <Download size={14} className="text-[#126ca8]" aria-hidden="true" />
                 Baixar JSON
               </button>
-              <button
-                type="button"
-                disabled={salvando || solicitandoExclusao || Boolean(statusExclusao)}
-                onClick={abrirModalExclusao}
-                className="
-                  px-3 py-2
-                  text-xs
-                  font-medium
-                  text-rose-400
-                  transition
-                  hover:text-rose-300
-                  disabled:cursor-not-allowed
-                  disabled:opacity-60
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-rose-400
-                "
-              >
-                {statusExclusao === 'em_analise'
-                  ? 'Exclusão em análise'
-                  : statusExclusao === 'pendente'
-                    ? 'Exclusão solicitada'
-                    : 'Solicitar Exclusão'}
-              </button>
+
             </div>
             {/* BOTÕES DE EDIÇÃO */}
             {editando ? (
@@ -2246,6 +2229,41 @@ export default function Perfil() {
               </button>
             )}
           </div>
+          <section className="ev-profile-danger-zone" aria-labelledby="titulo-zona-exclusao">
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <h3 id="titulo-zona-exclusao" className="text-sm font-extrabold">Exclusão da conta</h3>
+                <p className="mt-2 max-w-xl text-xs leading-5 text-slate-400">
+                  Esta opção fica separada das ações comuns para evitar solicitações acidentais.
+                  A exclusão exige confirmação e passa por análise.
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={salvando || solicitandoExclusao || Boolean(statusExclusao)}
+                onClick={abrirModalExclusao}
+                className="ev-btn-danger inline-flex items-center justify-center gap-2
+                  px-4 py-2.5
+                  text-xs
+                  font-medium
+                  text-white
+                  transition
+                  hover:bg-red-700
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-rose-400
+                "
+              >
+                {statusExclusao === 'em_analise'
+                  ? 'Exclusão em análise'
+                  : statusExclusao === 'pendente'
+                    ? 'Exclusão solicitada'
+                    : 'Solicitar exclusão'}
+              </button>
+            </div>
+          </section>
         </div>
       </div>
       {modalExclusao && (
@@ -2269,7 +2287,7 @@ export default function Perfil() {
             </div>
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button type="button" onClick={fecharModalExclusao} disabled={solicitandoExclusao} className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50">Cancelar</button>
-              <button type="button" onClick={() => void confirmarSolicitacaoExclusao()} disabled={solicitandoExclusao} className="flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:cursor-not-allowed disabled:opacity-60">
+              <button type="button" onClick={() => void confirmarSolicitacaoExclusao()} disabled={solicitandoExclusao} className="ev-btn-danger flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:cursor-not-allowed disabled:opacity-60">
                 {solicitandoExclusao && <Loader2 size={15} aria-hidden="true" className="animate-spin" />}
                 {solicitandoExclusao ? 'Enviando...' : 'Confirmar solicitação'}
               </button>

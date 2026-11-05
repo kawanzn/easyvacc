@@ -103,7 +103,7 @@ export default function ValidarCertificado() {
 
   if (carregando) {
     return (
-      <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] text-white`}>
+      <div className={`ev-ui ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] text-white`}>
       <style>{`
         .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
         .ev-public-light [class~="bg-[#020817]"],
@@ -148,7 +148,7 @@ export default function ValidarCertificado() {
 
   if (erro) {
     return (
-      <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] px-6`}>
+      <div className={`ev-ui ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] px-6`}>
       <style>{`
         .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
         .ev-public-light [class~="bg-[#020817]"],
@@ -196,7 +196,7 @@ export default function ValidarCertificado() {
 
   if (!certificado) {
     return (
-      <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] px-6`}>
+      <div className={`ev-ui ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#090d16] px-6`}>
       <style>{`
         .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
         .ev-public-light [class~="bg-[#020817]"],
@@ -226,7 +226,7 @@ export default function ValidarCertificado() {
           .ev-public-page input {font-size:16px;}
         }
 `}</style>
-        <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-[#111827] p-5 sm:p-8 text-center">
+        <div className="ev-card w-full max-w-md rounded-2xl border border-slate-800 bg-[#111827] p-5 sm:p-8 text-center">
           <XCircle
             size={45}
             className="mx-auto text-red-400"
@@ -257,7 +257,7 @@ export default function ValidarCertificado() {
     status === 'revogado';
 
   return (
-    <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} min-h-screen bg-[#090d16] px-5 py-10 text-slate-100`}>
+    <div className={`ev-ui ev-public-page ${temaClaro ? "ev-public-light" : ""} min-h-screen bg-[#090d16] px-5 py-10 text-slate-100`}>
       <style>{`
         .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
         .ev-public-light [class~="bg-[#020817]"],

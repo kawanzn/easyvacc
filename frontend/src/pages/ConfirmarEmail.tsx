@@ -33,7 +33,7 @@ export default function ConfirmarEmail() {
   const email = state.email || '';
 
   return (
-    <div className={`flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100 ${temaClaro ? "easyvacc-light" : ""}`}>
+    <div className={`ev-ui flex min-h-screen items-center justify-center bg-slate-950 p-4 text-slate-100 ${temaClaro ? "easyvacc-light" : ""}`}>
       <style>{`
         .easyvacc-light { background: #edf3f9 !important; color: #10243e !important; }
         .easyvacc-light .text-white, .easyvacc-light .text-slate-100, .easyvacc-light .text-slate-200 { color: #10243e !important; }
@@ -46,7 +46,7 @@ export default function ConfirmarEmail() {
         .easyvacc-light input, .easyvacc-light select, .easyvacc-light textarea { color: #10243e !important; background: #fff !important; border-color: #c7d5e5 !important; }
         .easyvacc-light .text-blue-400, .easyvacc-light .text-blue-300 { color: #175b96 !important; }
 `}</style>
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+      <div className="ev-card w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
 
         {/* Ícone */}
         <div className="mb-6 flex justify-center">
@@ -60,7 +60,7 @@ export default function ConfirmarEmail() {
         </div>
 
         {/* Título */}
-        <h1 className="text-center text-2xl font-bold text-white">
+        <h1 className="ev-portal-title text-center text-2xl font-bold text-white">
           Verifique seu e-mail
         </h1>
 

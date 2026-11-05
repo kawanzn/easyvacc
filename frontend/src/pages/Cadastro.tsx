@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -103,9 +103,21 @@ function mensagemErroCadastro(error: unknown): string {
 }
 
 export default function Cadastro() {
-  const [temaClaro] = useState(() => {
+  const [temaClaro, setTemaClaro] = useState(() => {
     return localStorage.getItem('easyvacc-tema') === 'claro';
   });
+
+  useEffect(() => {
+    const sincronizarTema = () => setTemaClaro(localStorage.getItem('easyvacc-tema') === 'claro');
+    window.addEventListener('storage', sincronizarTema);
+    window.addEventListener('easyvacc-tema-atualizado', sincronizarTema);
+    window.addEventListener('easyvaccTemaAtualizado', sincronizarTema);
+    return () => {
+      window.removeEventListener('storage', sincronizarTema);
+      window.removeEventListener('easyvacc-tema-atualizado', sincronizarTema);
+      window.removeEventListener('easyvaccTemaAtualizado', sincronizarTema);
+    };
+  }, []);
 
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
@@ -275,11 +287,25 @@ export default function Cadastro() {
     }
   };
 
+  // A validação permanece a mesma; apenas posicionamos a mensagem ao lado do campo.
+  const campoComErro = !erro ? ''
+    : /nome completo/i.test(erro) ? 'nome'
+    : /\bCPF\b/i.test(erro) && !/CNS|ou e-mail/i.test(erro) ? 'cpf'
+    : /\bCNS\b|Cartão Nacional de Saúde/i.test(erro) && !/CPF, CNS ou/i.test(erro) ? 'cns'
+    : /e-mails.*não coincidem/i.test(erro) ? 'emailConfirmacao'
+    : /e-mail/i.test(erro) && !/CPF, CNS ou/i.test(erro) ? 'email'
+    : /sua cidade/i.test(erro) ? 'cidade'
+    : /data de nascimento/i.test(erro) ? 'dataNascimento'
+    : /senhas.*idênticas/i.test(erro) ? 'senhaConfirmacao'
+    : /a senha|senha informada/i.test(erro) ? 'senha'
+    : '';
+  const erroDeCampo = (campo: string) => campoComErro === campo ? erro : '';
+
   const campo =
     'w-full rounded-lg border border-[#405775] bg-[#020817] px-4 py-3.5 text-base text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none';
 
   return (
-    <div className={`relative flex min-h-screen items-center justify-center overflow-hidden bg-[#020817] p-4 font-sans text-slate-100 ${temaClaro ? 'easyvacc-cadastro-light' : ''}`}>
+    <div className={`ev-ui relative flex min-h-screen items-center justify-center overflow-hidden bg-[#020817] p-4 font-sans text-slate-100 ${temaClaro ? 'easyvacc-cadastro-light' : ''}`}>
       <style>{`
         .easyvacc-cadastro-light {
           background: #f8fafc !important;
@@ -355,17 +381,21 @@ export default function Cadastro() {
         .easyvacc-cadastro-light button[type="submit"] { color: #fff !important; }
       `}</style>
 
-      <Link
-        to="/login"
-        className="absolute top-6 left-6 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#020817]"
-      >
-        <ArrowLeft size={16} aria-hidden="true" />
-        Voltar ao login
-      </Link>
+     <Link
+  to="/login"
+  className={`absolute top-6 left-6 z-10 inline-flex h-10 items-center gap-2 rounded-full border px-3 text-sm font-semibold backdrop-blur transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+    temaClaro
+      ? "border-slate-300 bg-white/90 text-slate-900 hover:bg-slate-100"
+      : "border-white/30 bg-slate-950/25 text-white hover:bg-slate-950/45"
+  }`}
+>
+  <ArrowLeft size={16} aria-hidden="true" />
+  Voltar ao login
+</Link>
 
-      <div className="my-8 w-full max-w-xl rounded-[2rem] border border-[#304760] bg-[#081629]/90 p-8 shadow-2xl md:p-10">
+      <div className="ev-card my-8 w-full max-w-xl rounded-[2rem] border border-[#304760] bg-[#081629]/90 p-6 shadow-2xl sm:p-8 md:p-10">
         <div className="mb-8 text-center">
-          <h2 className="text-3xl font-black tracking-tight text-white">
+          <h2 className="ev-portal-title text-3xl font-black tracking-tight text-white">
             Criar nova conta
           </h2>
 
@@ -385,6 +415,7 @@ export default function Cadastro() {
           onSubmit={handleCadastro}
           noValidate
         >
+          <h3 className="border-b border-slate-700 pb-2 text-sm font-bold text-slate-200">Dados pessoais e identificação</h3>
           <div>
             <label
               htmlFor="nome"
@@ -403,7 +434,10 @@ export default function Cadastro() {
               className={campo}
               placeholder="Seu nome completo"
               autoComplete="name"
+            aria-invalid={Boolean(erroDeCampo('nome'))}
+              aria-describedby={erroDeCampo('nome') ? 'erro-cadastro-nome' : undefined}
             />
+              {erroDeCampo('nome') && <p id="erro-cadastro-nome" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('nome')}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -430,7 +464,10 @@ export default function Cadastro() {
                 className={campo}
                 placeholder="000.000.000-00"
                 autoComplete="off"
-              />
+              aria-invalid={Boolean(erroDeCampo('cpf'))}
+              aria-describedby={erroDeCampo('cpf') ? 'erro-cadastro-cpf' : undefined}
+            />
+              {erroDeCampo('cpf') && <p id="erro-cadastro-cpf" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('cpf')}</p>}
 
               <p className="mt-1 text-xs leading-5 text-slate-300">
                 Identifica sua conta e o acesso.
@@ -459,7 +496,10 @@ export default function Cadastro() {
                 className={campo}
                 placeholder="000 0000 0000 0000"
                 autoComplete="off"
-              />
+              aria-invalid={Boolean(erroDeCampo('cns'))}
+              aria-describedby={erroDeCampo('cns') ? 'erro-cadastro-cns' : undefined}
+            />
+              {erroDeCampo('cns') && <p id="erro-cadastro-cns" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('cns')}</p>}
 
               <p className="mt-1 text-xs leading-5 text-slate-300">
                 Opcional. Se informado, deve conter um CNS válido com 15 dígitos.
@@ -467,6 +507,7 @@ export default function Cadastro() {
             </div>
           </div>
 
+          <h3 className="border-b border-slate-700 pb-2 pt-2 text-sm font-bold text-slate-200">Contato e localização</h3>
           <div>
             <label
               htmlFor="email"
@@ -488,7 +529,10 @@ export default function Cadastro() {
               className={campo}
               placeholder="seu@email.com"
               autoComplete="email"
+            aria-invalid={Boolean(erroDeCampo('email'))}
+              aria-describedby={erroDeCampo('email') ? 'erro-cadastro-email' : undefined}
             />
+              {erroDeCampo('email') && <p id="erro-cadastro-email" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('email')}</p>}
           </div>
 
           <div>
@@ -514,7 +558,10 @@ export default function Cadastro() {
               className={campo}
               placeholder="Repita o e-mail"
               autoComplete="email"
+            aria-invalid={Boolean(erroDeCampo('emailConfirmacao'))}
+              aria-describedby={erroDeCampo('emailConfirmacao') ? 'erro-cadastro-emailConfirmacao' : undefined}
             />
+              {erroDeCampo('emailConfirmacao') && <p id="erro-cadastro-emailConfirmacao" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('emailConfirmacao')}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -538,7 +585,10 @@ export default function Cadastro() {
                 className={campo}
                 placeholder="Sua cidade"
                 autoComplete="address-level2"
-              />
+              aria-invalid={Boolean(erroDeCampo('cidade'))}
+              aria-describedby={erroDeCampo('cidade') ? 'erro-cadastro-cidade' : undefined}
+            />
+              {erroDeCampo('cidade') && <p id="erro-cadastro-cidade" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('cidade')}</p>}
             </div>
 
             <div>
@@ -562,10 +612,14 @@ export default function Cadastro() {
                 }
                 className={campo}
                 autoComplete="bday"
-              />
+              aria-invalid={Boolean(erroDeCampo('dataNascimento'))}
+              aria-describedby={erroDeCampo('dataNascimento') ? 'erro-cadastro-dataNascimento' : undefined}
+            />
+              {erroDeCampo('dataNascimento') && <p id="erro-cadastro-dataNascimento" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('dataNascimento')}</p>}
             </div>
           </div>
 
+          <h3 className="border-b border-slate-700 pb-2 pt-2 text-sm font-bold text-slate-200">Segurança da conta</h3>
           <div>
             <label
               htmlFor="senha"
@@ -592,7 +646,8 @@ export default function Cadastro() {
                 className={`${campo} pr-12`}
                 placeholder="Mínimo 8 caracteres, letras e números"
                 autoComplete="new-password"
-                aria-describedby="senha-requisitos"
+                aria-invalid={Boolean(erroDeCampo('senha'))}
+                aria-describedby={erroDeCampo('senha') ? 'senha-requisitos erro-cadastro-senha' : 'senha-requisitos'}
               />
 
               <button
@@ -625,6 +680,7 @@ export default function Cadastro() {
                 )}
               </button>
             </div>
+            {erroDeCampo('senha') && <p id="erro-cadastro-senha" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('senha')}</p>}
 
             <p
               id="senha-requisitos"
@@ -661,7 +717,10 @@ export default function Cadastro() {
               className={campo}
               placeholder="Repita a senha"
               autoComplete="new-password"
+            aria-invalid={Boolean(erroDeCampo('senhaConfirmacao'))}
+              aria-describedby={erroDeCampo('senhaConfirmacao') ? 'erro-cadastro-senhaConfirmacao' : undefined}
             />
+              {erroDeCampo('senhaConfirmacao') && <p id="erro-cadastro-senhaConfirmacao" role="alert" className="mt-1.5 text-xs font-semibold text-red-300">{erroDeCampo('senhaConfirmacao')}</p>}
           </div>
 
           <div className="space-y-3 rounded-xl border border-[#304760] bg-[#020817]/50 p-4 text-sm leading-6 text-slate-200">
@@ -726,7 +785,7 @@ export default function Cadastro() {
             </label>
           </div>
 
-          {erro && (
+          {erro && !campoComErro && (
             <div
               role="alert"
               aria-live="polite"
@@ -740,7 +799,7 @@ export default function Cadastro() {
             type="submit"
             disabled={carregando}
             aria-busy={carregando}
-            className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-700 to-blue-800 text-base font-bold text-white hover:from-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#081629] disabled:cursor-not-allowed disabled:opacity-50"
+            className="ev-btn-primary mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-700 to-blue-800 text-base font-bold text-white hover:from-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-[#081629] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {carregando && (
               <Loader2

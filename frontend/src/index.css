@@ -1,8 +1,9 @@
 @import "tailwindcss";
+@import "./styles/easyvacc-design-system.css";
 
 /* Força a nova fonte em todo o site e melhora a renderização */
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--ev-font, 'Plus Jakarta Sans', Inter, system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

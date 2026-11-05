@@ -563,7 +563,7 @@ export default function Notificacoes() {
   ).length;
 
   return (
-    <div className="relative min-h-screen bg-transparent pb-16 font-sans text-slate-100 antialiased">
+    <div className="ev-page relative min-h-screen bg-transparent pb-16 font-sans text-slate-100 antialiased">
       <style>{`
         /* Badge de notificação lida: contraste próprio em cada tema. */
         .easyvacc-light .ev-lida-badge {
@@ -577,7 +577,7 @@ export default function Notificacoes() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 rounded-2xl border border-slate-800 bg-[#081629]/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+        <header className="ev-page-header ev-card mb-8 rounded-2xl border border-slate-800 bg-[#081629]/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
               <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-medium text-[#126ca8]">
@@ -591,8 +591,8 @@ export default function Notificacoes() {
                 <span>EasyVacc</span>
               </div>
 
-              <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                Notificações e Alertas
+              <h1 className="ev-page-title text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                Notificações e alertas
               </h1>
 
               <p className="mt-1 text-sm text-slate-400">
@@ -694,9 +694,9 @@ export default function Notificacoes() {
                   onClick={() =>
                     void abrirNotificacao(notif)
                   }
-                  className={`relative block w-full overflow-hidden rounded-2xl border p-5 text-left transition-all duration-200 sm:p-6 ${
+                  className={`ev-card relative block w-full overflow-hidden rounded-2xl border p-5 text-left transition-all duration-200 sm:p-6 ${
                     notif.lida
-                      ? 'border-slate-800/80 bg-[#020817]/40 text-slate-400 hover:border-slate-700'
+                      ? 'ev-card-subtle border-slate-800/80 bg-[#020817]/40 text-slate-400 hover:border-slate-700'
                       : 'border-blue-600/30 bg-[#081629]/90 text-white shadow-xl shadow-[#126ca8]/5 backdrop-blur-xl hover:border-blue-600/50'
                   } disabled:cursor-wait disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950`}
                 >
@@ -785,7 +785,7 @@ export default function Notificacoes() {
                 </button>
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-[#081629]/60 p-12 text-center shadow-2xl backdrop-blur-xl">
+              <div className="ev-empty-state flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-[#081629]/60 p-12 text-center shadow-2xl backdrop-blur-xl">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#126ca8]/20 bg-[#126ca8]/10 text-[#126ca8]">
                   <Inbox size={24} aria-hidden="true" />
                 </div>
@@ -795,9 +795,13 @@ export default function Notificacoes() {
                 </h3>
 
                 <p className="mt-1 max-w-sm text-sm text-slate-400">
-                  Você está em dia com todos os alertas e
-                  lembretes da sua caderneta de vacinação.
+                  Quando houver novos avisos ou lembretes cadastrados, eles aparecerão aqui.
+                  Enquanto isso, você pode consultar sua caderneta.
                 </p>
+                <button type="button" onClick={() => navigate('/historico')} className="ev-btn-secondary mt-5 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold">
+                  <Syringe size={16} aria-hidden="true" />
+                  Ver minha caderneta
+                </button>
               </div>
             )}
           </div>

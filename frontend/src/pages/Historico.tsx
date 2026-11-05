@@ -4,6 +4,8 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock3,
+  CloudDownload,
+  ClipboardCheck,
   Loader2,
   Search,
   ShieldCheck,
@@ -301,7 +303,7 @@ export default function Historico() {
 
   return (
     <div
-      className={`historico-caderneta min-h-full overflow-x-hidden ${
+      className={`ev-page historico-caderneta min-h-full overflow-x-hidden ${
         temaClaro ? 'bg-transparent text-slate-900' : 'bg-transparent text-slate-100'
       }`}
     >
@@ -327,10 +329,10 @@ export default function Historico() {
 
           /* Cards de resumo no modo escuro */
           .historico-caderneta .bg-blue-50 {
-            background-color: rgb(6 78 59 / 0.18) !important;
+            background-color: rgb(23 78 132 / 0.20) !important;
           }
           .historico-caderneta .border-blue-100 {
-            border-color: rgb(16 185 129 / 0.28) !important;
+            border-color: rgb(59 130 246 / 0.28) !important;
           }
           .historico-caderneta .bg-amber-50 {
             background-color: rgb(120 53 15 / 0.18) !important;
@@ -351,7 +353,7 @@ export default function Historico() {
             color: rgb(248 250 252) !important;
           }
           .historico-caderneta .bg-blue-50 .text-slate-600 {
-            color: rgb(110 231 183) !important;
+            color: rgb(147 197 253) !important;
           }
           .historico-caderneta .bg-amber-50 .text-slate-600 {
             color: rgb(252 211 77) !important;
@@ -362,13 +364,13 @@ export default function Historico() {
         `}</style>
       )}
       <div className="mx-auto w-full max-w-[1180px] px-3 py-5 sm:px-5 lg:px-6">
-        <header className="mb-4">
+        <header className="ev-page-header mb-4">
           <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-blue-700">
             <ShieldCheck size={15} />
             Caderneta Digital
           </div>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
-            Caderneta de Vacinação
+          <h1 className="ev-page-title mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+            Caderneta de vacinação
           </h1>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-500 sm:text-sm">
             Histórico de imunizações e próximos retornos registrados no EasyVacc.
@@ -384,7 +386,7 @@ export default function Historico() {
           </div>
         )}
 
-        <section className="mb-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <section className="ev-card mb-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="flex min-w-0 items-center gap-4">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-blue-50 bg-slate-100 shadow-sm sm:h-[72px] sm:w-[72px]">
               {fotoPerfil ? (
@@ -452,7 +454,7 @@ export default function Historico() {
           </div>
         </section>
 
-        <section className="mb-3 rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
+        <section className="ev-card mb-3 rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
           <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
             {botoesFiltro.map((botao) => {
               const ativo = filtro === botao.valor;
@@ -477,10 +479,10 @@ export default function Historico() {
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section className="ev-card overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-base font-black text-slate-950">Vacinas registradas</h2>
+              <h2 className="ev-section-title text-base font-black text-slate-950">Vacinas registradas</h2>
               <p className="mt-0.5 text-[11px] font-medium text-slate-500">
                 {vacinasFiltradas.length}{' '}
                 {vacinasFiltradas.length === 1 ? 'registro encontrado' : 'registros encontrados'}
@@ -488,12 +490,12 @@ export default function Historico() {
             </div>
 
             <div className="relative w-full sm:w-72">
-              <label htmlFor="busca-vacina" className="sr-only">
-                Buscar vacina
+              <label htmlFor="busca-vacina" className="mb-1 block text-xs font-semibold text-slate-500">
+                Buscar nos registros
               </label>
               <Search
                 size={15}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-3 bottom-[15px] text-slate-400"
               />
               <input
                 id="busca-vacina"
@@ -681,14 +683,82 @@ export default function Historico() {
                   ? 'Altere a busca ou o filtro para consultar outros registros.'
                   : `Ainda não existem registros de vacinação para ${pessoaNome || 'esta pessoa'}.`}
               </p>
+              {!busca.trim() && filtro === 'todos' && (
+                <p className="mx-auto mt-3 max-w-md text-xs leading-5 text-slate-500">
+                  Veja abaixo as opções para uma futura importação do SUS ou apresentar
+                  comprovantes de vacinação a um profissional de saúde.
+                </p>
+              )}
             </div>
           )}
         </section>
 
-        <p className="mt-3 px-1 text-[10px] leading-4 text-slate-400">
-          <strong className="font-bold text-slate-500">Importante:</strong> a situação considera
-          os registros e a próxima dose cadastrada no EasyVacc. “Em dia” significa apenas que
-          não há retorno vencido registrado.
+        <section
+          aria-labelledby="opcoes-registro-vacinas"
+          className="ev-card mt-7 mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+        >
+          <h2 id="opcoes-registro-vacinas" className="ev-section-title text-base font-black text-slate-950">
+            Como incluir vacinas na caderneta?
+          </h2>
+          <p className="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">
+            Você pode escolher como buscar a inclusão de doses já recebidas. Nenhuma vacina é
+            adicionada automaticamente ao criar uma conta ou cadastrar um dependente.
+          </p>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <article className="flex h-full flex-col rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <CloudDownload size={22} className="text-blue-500" aria-hidden="true" />
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-extrabold text-amber-700">
+                  Em desenvolvimento
+                </span>
+              </div>
+              <h3 className="mt-3 text-sm font-extrabold text-slate-950">
+                Importar registros do SUS
+              </h3>
+              <p className="mt-2 flex-1 text-xs leading-5 text-slate-600 sm:text-sm">
+                Planejamos permitir a consulta de vacinas disponíveis nos sistemas oficiais.
+                Essa integração dependerá de acesso autorizado e, quando aplicável, da
+                autorização do titular ou responsável.
+              </p>
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                className="mt-4 w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2.5 text-xs font-bold text-slate-500 opacity-80"
+              >
+                Importação ainda não disponível
+              </button>
+              <p className="mt-2 text-[11px] leading-4 text-slate-500">
+                O EasyVacc ainda não consulta nem importa dados do SUS.
+              </p>
+            </article>
+
+            <article className="flex h-full flex-col rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <ClipboardCheck size={22} className="text-blue-500" aria-hidden="true" />
+              <h3 className="mt-3 text-sm font-extrabold text-slate-950">
+                Levar comprovantes à unidade de saúde
+              </h3>
+              <p className="mt-2 text-xs leading-5 text-slate-600 sm:text-sm">
+                Se você ou seu dependente já recebeu vacinas, leve a caderneta ou os
+                comprovantes de aplicação a uma unidade de saúde e solicite a conferência
+                dos registros por um profissional.
+              </p>
+              <p className="mt-3 text-xs leading-5 text-slate-600 sm:text-sm">
+                Para aparecer no EasyVacc, a dose precisará ser registrada por um profissional
+                autorizado na plataforma ou importada por uma integração futura. A visita
+                à unidade não atualiza o aplicativo automaticamente.
+              </p>
+            </article>
+          </div>
+        </section>
+
+
+        <p className="mt-5 border-t border-slate-200 px-1 pt-4 text-xs leading-5 text-slate-500">
+          <strong className="font-bold text-slate-700">Sobre sua caderneta:</strong>{' '}
+          o EasyVacc exibe apenas as vacinas registradas no sistema. A ausência de doses
+          atrasadas não significa que a vacinação esteja completa. Em caso de dúvida,
+          procure uma unidade de saúde.
         </p>
       </div>
     </div>

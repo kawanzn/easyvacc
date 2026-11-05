@@ -21,7 +21,7 @@ export default function CartaoVacina({ nome, tipo, status, data, lote }: CartaoV
   };
 
   return (
-    <article className={`easyvacc-vaccine-card bg-white rounded-2xl p-5 shadow-sm border border-slate-200 border-l-4 ${coresBorda[status]} transition-all hover:shadow-md`}>
+    <article className={`ev-card easyvacc-vaccine-card bg-white rounded-2xl p-5 shadow-sm border border-slate-200 border-l-4 ${coresBorda[status]} transition-all hover:shadow-md`}>
       <div className="flex justify-between items-start mb-2">
         <div>
           <h3 className="font-bold text-lg vaccine-title text-slate-800">{nome}</h3>

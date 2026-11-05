@@ -49,8 +49,8 @@ export default function Landing() {
   };
 
   return (
-    <div className={`relative flex min-h-[100dvh] flex-col overflow-x-hidden font-sans antialiased transition-colors duration-300 ${
-      temaClaro ? 'bg-[#f8fbff] text-[#102b49]' : 'bg-[#020817] text-white'
+    <div className={`ev-ui ev-landing ev-public-scroll relative flex h-[100dvh] flex-col overflow-y-auto overflow-x-hidden font-sans antialiased transition-colors duration-300 ${
+      temaClaro ? 'easyvacc-light bg-[#f8fbff] text-[#102b49]' : 'bg-[#020817] text-white'
     }`}>
       {/* Navegação limpa, sem borda ao redor da marca. */}
       <header className={`relative z-20 border-b ${
@@ -95,7 +95,7 @@ export default function Landing() {
       </header>
 
       {/* Hero inspirado na referência: área editorial à esquerda, formas grandes à direita e celular em destaque. */}
-      <main className="relative flex flex-1 items-center overflow-hidden">
+      <main className="relative flex min-h-max flex-1 items-center overflow-hidden">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className={`absolute inset-y-0 right-0 w-full lg:w-[59%] ${temaClaro ? 'bg-[#e8f1ff]' : 'bg-[#07172d]'}`} />
           <div className="absolute -right-[14%] -top-[26%] h-[95%] w-[88%] rotate-[-24deg] rounded-[100px] bg-[#126ca8] lg:right-[-10%] lg:top-[-35%] lg:h-[125%] lg:w-[62%] lg:rounded-[160px]" />

@@ -150,7 +150,7 @@ export default function RedefinirSenha() {
 
   if (verificando) {
     return (
-      <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] text-slate-100`}>
+      <div className={`ev-ui ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] text-slate-100`}>
       <style>{`
         .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
         .ev-public-light [class~="bg-[#020817]"],
@@ -196,7 +196,7 @@ export default function RedefinirSenha() {
 
   if (!acessoValido) {
     return (
-      <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] p-4 text-slate-100`}>
+      <div className={`ev-ui ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] p-4 text-slate-100`}>
       <style>{`
         .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
         .ev-public-light [class~="bg-[#020817]"],
@@ -226,13 +226,13 @@ export default function RedefinirSenha() {
           .ev-public-page input {font-size:16px;}
         }
 `}</style>
-        <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-5 sm:p-8 text-center">
+        <div className="ev-card w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-5 sm:p-8 text-center">
           <KeyRound
             className="mx-auto text-slate-500"
             size={32}
           />
 
-          <h1 className="mt-4 text-xl font-bold text-white">
+          <h1 className="ev-portal-title mt-4 text-xl font-bold text-white">
             Link inválido ou expirado
           </h1>
 
@@ -254,7 +254,7 @@ export default function RedefinirSenha() {
   }
 
   return (
-    <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] p-4 text-slate-100`}>
+    <div className={`ev-ui ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] p-4 text-slate-100`}>
       <style>{`
         .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
         .ev-public-light [class~="bg-[#020817]"],
@@ -284,12 +284,12 @@ export default function RedefinirSenha() {
           .ev-public-page input {font-size:16px;}
         }
 `}</style>
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-5 sm:p-8 shadow-2xl">
+      <div className="ev-card w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-5 sm:p-8 shadow-2xl">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600/10 text-blue-500">
           <KeyRound size={22} />
         </div>
 
-        <h1 className="mt-5 text-2xl font-bold text-white">
+        <h1 className="ev-portal-title mt-5 text-2xl font-bold text-white">
           {conviteProfissional ? 'Crie sua senha profissional' : 'Criar nova senha'}
         </h1>
 
@@ -326,7 +326,7 @@ export default function RedefinirSenha() {
 
               <Link
                 to="/login-profissional"
-                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-4 text-center font-bold text-white transition hover:bg-blue-500"
+                className="ev-btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-4 text-center font-bold text-white transition hover:bg-blue-500"
               >
                 Acessar Portal Profissional <ExternalLink size={17} />
               </Link>
@@ -393,7 +393,7 @@ export default function RedefinirSenha() {
             <button
               type="submit"
               disabled={carregando}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] font-bold text-white transition hover:bg-blue-500 disabled:opacity-50"
+              className="ev-btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] font-bold text-white transition hover:bg-blue-500 disabled:opacity-50"
             >
               {carregando && (
                 <Loader2

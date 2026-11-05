@@ -424,7 +424,7 @@ export default function PainelAdministrador() {
   };
 
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-[#020817] text-slate-100`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}ev-ui ev-admin min-h-screen bg-[#020817] text-slate-100`}>
 
       <style>{`
         .easyvacc-light {
@@ -521,10 +521,10 @@ export default function PainelAdministrador() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-8">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold">
+            <h2 className="ev-portal-title text-2xl font-bold">
               Painel administrativo
             </h2>
 
@@ -540,7 +540,7 @@ export default function PainelAdministrador() {
               void carregarDados()
             }
             disabled={carregando}
-            className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-slate-950 transition hover:bg-blue-500 disabled:opacity-50"
+            className="ev-btn-primary flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-slate-950 transition hover:bg-blue-500 disabled:opacity-50"
           >
             <RefreshCw
               size={17}
@@ -565,14 +565,14 @@ export default function PainelAdministrador() {
         )}
 
         <div className="grid gap-5 md:grid-cols-2">
-          <section className="rounded-2xl border border-slate-800 bg-[#081629] p-6">
+          <section className="ev-card rounded-2xl border border-slate-800 bg-[#081629] p-6">
             <div className="mb-5 flex items-center gap-3">
               <Database
                 className="text-blue-500"
                 size={24}
               />
 
-              <h3 className="font-semibold">
+              <h3 className="ev-section-title font-semibold">
                 Postos de saúde — CNES
               </h3>
             </div>
@@ -626,14 +626,14 @@ export default function PainelAdministrador() {
             )}
           </section>
 
-          <section className="rounded-2xl border border-slate-800 bg-[#081629] p-6">
+          <section className="ev-card rounded-2xl border border-slate-800 bg-[#081629] p-6">
             <div className="mb-5 flex items-center gap-3">
               <Database
                 className="text-blue-500"
                 size={24}
               />
 
-              <h3 className="font-semibold">
+              <h3 className="ev-section-title font-semibold">
                 Campanhas oficiais
               </h3>
             </div>
@@ -686,7 +686,7 @@ export default function PainelAdministrador() {
           </section>
         </div>
 
-        <section id="gerenciar-profissionais" className="mt-6 rounded-2xl border border-slate-800 bg-[#081629] p-4 sm:p-6">
+        <section id="gerenciar-profissionais" className="ev-card mt-6 rounded-2xl border border-slate-800 bg-[#081629] p-4 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <Users className="mt-0.5 shrink-0 text-blue-500" size={23} />
@@ -698,7 +698,7 @@ export default function PainelAdministrador() {
               </div>
             </div>
             <button type="button" onClick={abrirCadastro}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#126ca8] px-4 text-sm font-bold text-white hover:bg-[#105b90]">
+              className="ev-btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#126ca8] px-4 text-sm font-bold text-white hover:bg-[#105b90]">
               <UserPlus size={17} /> Novo profissional
             </button>
           </div>
@@ -738,24 +738,26 @@ export default function PainelAdministrador() {
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
                 <button type="submit" disabled={salvandoProfissional}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#126ca8] px-5 font-bold text-white disabled:opacity-50">
+                  className="ev-btn-primary inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#126ca8] px-5 font-bold text-white disabled:opacity-50">
                   {salvandoProfissional && <Loader2 size={17} className="animate-spin" />}
                   {editandoId === null ? 'Enviar convite' : 'Salvar alterações'}
                 </button>
                 <button type="button" onClick={() => setMostrarFormulario(false)}
-                  className="min-h-11 rounded-xl border border-slate-700 px-5 text-sm font-semibold">Cancelar</button>
+                  className="ev-btn-secondary min-h-11 rounded-xl border border-slate-700 px-5 text-sm font-semibold">Cancelar</button>
               </div>
             </form>
           )}
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-            <label className="relative block w-full sm:max-w-sm">
+          <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
+            <div className="w-full sm:max-w-sm">
+              <label htmlFor="busca-profissionais" className="mb-2 block text-xs font-semibold text-slate-300">Buscar profissionais</label>
+              <div className="relative">
               <Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <span className="sr-only">Buscar profissionais</span>
-              <input value={buscaProfissional} onChange={(e) => setBuscaProfissional(e.target.value)}
+              <input id="busca-profissionais" value={buscaProfissional} onChange={(e) => setBuscaProfissional(e.target.value)}
                 placeholder="Buscar profissional ou unidade"
                 className="min-h-11 w-full rounded-xl border border-slate-700 bg-[#020817] py-2 pl-10 pr-3 text-base text-slate-100" />
-            </label>
+              </div>
+            </div>
             <button type="button" onClick={() => void carregarProfissionais()} disabled={carregandoProfissionais}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-700 px-4 text-sm font-semibold disabled:opacity-50">
               <RefreshCw size={16} className={carregandoProfissionais ? 'animate-spin' : ''}/> Atualizar lista
@@ -837,7 +839,7 @@ export default function PainelAdministrador() {
                     type="button"
                     onClick={() => void processarExclusao(solicitacao)}
                     disabled={processandoExclusao === solicitacao.id}
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="ev-btn-danger inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {processandoExclusao === solicitacao.id ? (
                       <Loader2 size={16} className="animate-spin" />

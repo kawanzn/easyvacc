@@ -1,0 +1,334 @@
+/*
+ * EasyVacc — sistema visual compartilhado
+ * Escopo: área do cidadão, telas públicas e portais de atendimento.
+ * Nenhuma regra altera dados, permissões, navegação ou impressão do certificado.
+ */
+:root {
+  --ev-brand: #1478b8;
+  --ev-brand-hover: #0e639d;
+  --ev-brand-soft: rgba(20, 120, 184, .13);
+  --ev-radius-card: 20px;
+  --ev-radius-control: 12px;
+  --ev-font: 'Plus Jakarta Sans', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Tokens compartilhados entre as áreas autenticadas e as páginas avulsas. */
+.easyvacc-app, .ev-ui {
+  --ev-surface: #0c223b;
+  --ev-surface-alt: #102b49;
+  --ev-input-bg: #07192c;
+  --ev-text: #f1f7fd;
+  --ev-text-muted: #aec1d5;
+  --ev-border: #284561;
+  --ev-shadow: 0 10px 28px rgba(0, 7, 21, .17);
+  --ev-focus: rgba(48, 154, 220, .32);
+  font-family: var(--ev-font);
+}
+.easyvacc-app.easyvacc-light, .ev-ui.easyvacc-light, .ev-ui.ev-public-light,
+.ev-ui.easyvacc-cadastro-light {
+  --ev-surface: #ffffff;
+  --ev-surface-alt: #f0f6fc;
+  --ev-input-bg: #ffffff;
+  --ev-text: #102b49;
+  --ev-text-muted: #4d637c;
+  --ev-border: #d5e2ef;
+  --ev-shadow: 0 8px 26px rgba(15, 43, 73, .06);
+  --ev-focus: rgba(20, 120, 184, .2);
+}
+
+/* Hierarquia e espaçamento das páginas internas. */
+.easyvacc-app .ev-page {
+  min-width: 0;
+  font-family: var(--ev-font);
+  letter-spacing: normal;
+}
+.easyvacc-app main .ev-page-title {
+  font-family: var(--ev-font);
+  font-size: clamp(1.65rem, 2.5vw, 2.125rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: -.035em !important;
+  line-height: 1.2 !important;
+  text-wrap: balance;
+  color: var(--ev-text) !important;
+}
+.easyvacc-app main .ev-page-header {
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--ev-border);
+}
+.easyvacc-app main .ev-page-header p {
+  line-height: 1.65;
+}
+.easyvacc-app main .ev-section-title {
+  font-size: 1.125rem;
+  font-weight: 750;
+  letter-spacing: -.02em;
+  line-height: 1.4;
+  color: var(--ev-text);
+}
+
+/* Superfícies: apenas os componentes explicitamente marcados como cartão. */
+.easyvacc-app main .ev-page .ev-card,
+.ev-ui .ev-card {
+  border: 1px solid var(--ev-border) !important;
+  border-radius: var(--ev-radius-card) !important;
+  background-color: var(--ev-surface) !important;
+  box-shadow: var(--ev-shadow);
+}
+.easyvacc-app main .ev-page .ev-card.ev-card-subtle,
+.ev-ui .ev-card.ev-card-subtle {
+  background-color: var(--ev-surface-alt) !important;
+  box-shadow: none;
+}
+.easyvacc-app main .ev-page .ev-card.ev-card-selected {
+  border-color: var(--ev-brand) !important;
+  box-shadow: 0 0 0 2px var(--ev-focus);
+}
+.easyvacc-app main .ev-page .ev-empty-state {
+  border: 1px dashed var(--ev-border);
+  border-radius: var(--ev-radius-card);
+  padding: clamp(1.5rem, 5vw, 3rem);
+  text-align: center;
+  background: var(--ev-surface);
+}
+.easyvacc-app main .ev-page .ev-empty-state p { line-height: 1.65; }
+
+/* Ações: primária, secundária e destrutiva. Sem estilizar abas, ícones ou chips. */
+.easyvacc-app main .ev-page :is(button, a).ev-btn-primary,
+.ev-ui :is(button, a).ev-btn-primary,
+.easyvacc-app main .ev-page :is(button, a):not([aria-pressed])[class~="bg-blue-600"],
+.ev-ui :is(button, a):not([aria-pressed])[class~="bg-blue-600"] {
+  background: var(--ev-brand) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  border-radius: var(--ev-radius-control) !important;
+  font-weight: 700;
+  min-height: 42px;
+  box-shadow: 0 5px 14px rgba(20, 120, 184, .15);
+}
+.easyvacc-app main .ev-page :is(button, a).ev-btn-primary:hover:not(:disabled),
+.ev-ui :is(button, a).ev-btn-primary:hover:not(:disabled),
+.easyvacc-app main .ev-page :is(button, a):not([aria-pressed])[class~="bg-blue-600"]:hover:not(:disabled),
+.ev-ui :is(button, a):not([aria-pressed])[class~="bg-blue-600"]:hover:not(:disabled) {
+  background: var(--ev-brand-hover) !important;
+  color: #ffffff !important;
+}
+.easyvacc-app main .ev-page :is(button, a).ev-btn-secondary,
+.ev-ui :is(button, a).ev-btn-secondary {
+  background: var(--ev-surface-alt) !important;
+  border: 1px solid var(--ev-border) !important;
+  color: var(--ev-text) !important;
+  border-radius: var(--ev-radius-control) !important;
+  min-height: 42px;
+  font-weight: 650;
+  box-shadow: none;
+}
+.easyvacc-app main .ev-page :is(button, a).ev-btn-secondary:hover:not(:disabled),
+.ev-ui :is(button, a).ev-btn-secondary:hover:not(:disabled) {
+  border-color: var(--ev-brand) !important;
+}
+.easyvacc-app main .ev-page :is(button, a).ev-btn-danger,
+.ev-ui :is(button, a).ev-btn-danger {
+  background: #b91c1c !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  border-radius: var(--ev-radius-control) !important;
+  font-weight: 700;
+  min-height: 42px;
+}
+.easyvacc-app main .ev-page :is(button, a).ev-btn-danger:hover:not(:disabled),
+.ev-ui :is(button, a).ev-btn-danger:hover:not(:disabled) { background: #991b1b !important; }
+.easyvacc-app main .ev-page :is(button, a):disabled,
+.ev-ui :is(button, a):disabled { cursor: not-allowed; }
+
+/* Controles: mesmo tamanho, raio, contraste e foco em todos os formulários. */
+.easyvacc-app main .ev-page :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), select, textarea),
+.ev-ui :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), select, textarea) {
+  min-height: 44px;
+  border-radius: var(--ev-radius-control);
+  font-family: var(--ev-font);
+  border-color: var(--ev-border);
+}
+.easyvacc-app main .ev-page :is(input, select, textarea):focus-visible,
+.ev-ui :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--ev-brand);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--ev-focus);
+}
+.easyvacc-app main .ev-page :is(input, select, textarea)[aria-invalid="true"],
+.ev-ui :is(input, select, textarea)[aria-invalid="true"] {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, .12);
+}
+.easyvacc-app main .ev-page label[for]:not(.sr-only),
+.ev-ui label[for]:not(.sr-only) {
+  font-size: .8125rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.easyvacc-app main .ev-page :is(button, a):focus-visible,
+.ev-ui :is(button, a):focus-visible {
+  outline: 2px solid var(--ev-brand);
+  outline-offset: 3px;
+}
+
+/* Perfil: três áreas separadas e ações destrutivas afastadas. */
+.easyvacc-app main .ev-profile-group {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--ev-border);
+  border-radius: var(--ev-radius-card);
+  background: var(--ev-surface-alt);
+}
+.easyvacc-app main .ev-profile-group h3 {
+  font-size: .875rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  color: var(--ev-text) !important;
+}
+.easyvacc-app main .ev-profile-security {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ev-border);
+}
+.easyvacc-app main .ev-profile-danger-zone {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(225, 29, 72, .32);
+  border-radius: var(--ev-radius-card);
+  background: rgba(225, 29, 72, .055);
+}
+.easyvacc-app main .ev-profile-danger-zone h3 { color: #fda4af; }
+.easyvacc-app.easyvacc-light main .ev-profile-danger-zone h3 { color: #9f1239; }
+
+/* Cabeçalho e barra de navegação móveis, sem cabeçalho de marca duplicado. */
+.easyvacc-app .ev-mobile-topbar {
+  background: transparent;
+  border-bottom: 1px solid var(--ev-border);
+  box-shadow: none;
+}
+.easyvacc-app .ev-mobile-topbar button,
+.easyvacc-app .ev-mobile-topbar a {
+  color: var(--ev-text);
+  background: var(--ev-surface);
+  border-color: var(--ev-border);
+}
+.easyvacc-app .ev-bottom-nav { backdrop-filter: blur(18px); }
+.easyvacc-app .ev-sidebar { font-family: var(--ev-font); }
+
+/* Preferências de movimento e impressão. */
+@media (max-width: 640px) {
+  .easyvacc-app main .ev-page-header { margin-bottom: 1.25rem; padding-bottom: 1rem; }
+  .easyvacc-app main .ev-page :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+  .ev-ui :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 16px; }
+  .easyvacc-app main .ev-profile-group { padding: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .easyvacc-app .ev-page *, .ev-ui * { scroll-behavior: auto !important; }
+}
+@media print {
+  .easyvacc-app main .ev-page .ev-card,
+  .easyvacc-app main .ev-page .ev-page-title,
+  .easyvacc-app main .ev-page .ev-page-header {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: inherit !important;
+    border-color: transparent !important;
+  }
+  .easyvacc-app .ev-mobile-topbar, .easyvacc-app .ev-bottom-nav { display: none !important; }
+}
+
+/* Portais profissional/administrativo e autenticação: mesma hierarquia. */
+.ev-ui .ev-portal-title {
+  font-family: var(--ev-font);
+  font-size: clamp(1.65rem, 2.5vw, 2.125rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: -.035em;
+  line-height: 1.2;
+  color: var(--ev-text) !important;
+}
+.ev-ui .ev-portal-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--ev-border);
+}
+.ev-ui.easyvacc-light .ev-card,
+.ev-ui.ev-public-light .ev-card,
+.ev-ui.easyvacc-cadastro-light .ev-card {
+  background-color: var(--ev-surface) !important;
+  border-color: var(--ev-border) !important;
+}
+.ev-ui :is(button, a).ev-btn-primary,
+.ev-ui :is(button, a).ev-btn-secondary,
+.ev-ui :is(button, a).ev-btn-danger {
+  text-decoration: none;
+}
+.ev-ui :is(button, a).ev-btn-primary:disabled,
+.ev-ui :is(button, a).ev-btn-secondary:disabled,
+.ev-ui :is(button, a).ev-btn-danger:disabled {
+  opacity: .55;
+}
+
+/* Erros legíveis também nos fundos claros. */
+.ev-ui:is(.easyvacc-light, .ev-public-light, .easyvacc-cadastro-light) [role="alert"],
+.easyvacc-app.easyvacc-light main .ev-page [role="alert"] {
+  color: #a61b30 !important;
+}
+
+.ev-ui .ev-section-title {
+  font-size: 1.125rem;
+  font-weight: 750;
+  letter-spacing: -.02em;
+  line-height: 1.4;
+  color: var(--ev-text);
+}
+
+
+/*
+ * Barras de rolagem: o Dashboard rola em .easyvacc-app main.
+ * Login e Landing rolam em seus containers de página (.ev-public-scroll),
+ * encostados na borda direita da janela. Nenhuma barra dentro do card de login.
+ */
+html,
+.easyvacc-app main,
+.ev-public-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, .34) transparent;
+}
+html::-webkit-scrollbar,
+.easyvacc-app main::-webkit-scrollbar,
+.ev-public-scroll::-webkit-scrollbar { width: 5px; }
+html::-webkit-scrollbar-track,
+.easyvacc-app main::-webkit-scrollbar-track,
+.ev-public-scroll::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb,
+.easyvacc-app main::-webkit-scrollbar-thumb,
+.ev-public-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, .30);
+  border-radius: 999px;
+}
+html::-webkit-scrollbar-thumb:hover,
+.easyvacc-app main::-webkit-scrollbar-thumb:hover,
+.ev-public-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, .50);
+}
+html::-webkit-scrollbar-button,
+.easyvacc-app main::-webkit-scrollbar-button,
+.ev-public-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.easyvacc-app.easyvacc-light main,
+.ev-public-scroll.easyvacc-light {
+  scrollbar-color: rgba(100, 116, 139, .32) transparent;
+}
+.easyvacc-app.easyvacc-light main::-webkit-scrollbar-thumb,
+.ev-public-scroll.easyvacc-light::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, .30);
+}
+.ev-public-scroll {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}

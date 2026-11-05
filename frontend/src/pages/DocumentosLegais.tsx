@@ -63,7 +63,7 @@ function CabecalhoLegal({ temaClaro }: { temaClaro: boolean }) {
 export function PoliticaPrivacidade() {
   const { temaClaro, alternarTema } = useTemaEasyVacc();
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-slate-950 text-slate-200`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}ev-ui min-h-screen bg-slate-950 text-slate-200`}>
 
       <style>{`
         .easyvacc-light {
@@ -477,7 +477,7 @@ export function PoliticaPrivacidade() {
 export function TermosUso() {
   const { temaClaro, alternarTema } = useTemaEasyVacc();
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}min-h-screen bg-slate-950 text-slate-200`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}ev-ui min-h-screen bg-slate-950 text-slate-200`}>
 
       <style>{`
         .easyvacc-light {

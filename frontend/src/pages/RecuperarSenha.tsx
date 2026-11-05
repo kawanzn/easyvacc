@@ -103,7 +103,7 @@ export default function RecuperarSenha() {
   };
 
   return (
-    <div className={`ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] p-4 text-slate-100`}>
+    <div className={`ev-ui ev-public-page ${temaClaro ? "ev-public-light" : ""} flex min-h-screen items-center justify-center bg-[#020817] p-4 text-slate-100`}>
       <style>{`
         .ev-public-light { background:#f5f9ff !important; color:#102b49 !important; }
         .ev-public-light [class~="bg-[#020817]"],
@@ -133,7 +133,7 @@ export default function RecuperarSenha() {
           .ev-public-page input {font-size:16px;}
         }
 `}</style>
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-5 sm:p-8 shadow-2xl">
+      <div className="ev-card w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-5 sm:p-8 shadow-2xl">
         <Link
           to="/login"
           className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-slate-300 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
@@ -147,7 +147,7 @@ export default function RecuperarSenha() {
             <Mail size={22} aria-hidden="true" />
           </div>
 
-          <h1 className="mt-5 text-2xl font-bold text-white">
+          <h1 className="ev-portal-title mt-5 text-2xl font-bold text-white">
             Recuperar senha
           </h1>
 
@@ -192,7 +192,7 @@ export default function RecuperarSenha() {
               type="submit"
               disabled={carregando}
               aria-busy={carregando}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] font-bold text-white transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+              className="ev-btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] font-bold text-white transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {carregando && (
                 <Loader2

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -675,7 +676,7 @@ export default function Certificado() {
           .easyvacc-certificado.easyvacc-light .print\:bg-white { background-color: #fff !important; }
         }
       `}</style>
-      <div className={`min-h-[70vh] bg-transparent px-6 py-8 text-slate-100 md:px-10 md:py-10 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
+      <div className={`ev-page min-h-[70vh] bg-transparent px-6 py-8 text-slate-100 md:px-10 md:py-10 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
         <div
           className="mx-auto max-w-7xl"
           role="status"
@@ -780,12 +781,12 @@ export default function Certificado() {
         }
       `}</style>
 
-      <div className={`min-h-full bg-transparent text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900 easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
+      <div className={`min-h-full bg-transparent text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900 ev-page easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10 print:max-w-none print:p-0">
 
         {/* CABEÇALHO */}
 
-        <header className="mb-7 border-b border-slate-800 pb-7 print:hidden">
+        <header className="ev-page-header mb-7 border-b border-slate-800 pb-7 print:hidden">
           <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
             <span>
               Caderneta digital
@@ -802,7 +803,7 @@ export default function Certificado() {
 
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white md:text-[34px]">
+              <h1 className="ev-page-title text-3xl font-bold tracking-tight text-white md:text-[34px]">
                 Certificado de vacinação
               </h1>
 
@@ -842,7 +843,7 @@ export default function Certificado() {
                 <button
                   type="button"
                   onClick={gerarPDF}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-blue-400"
+                  className="ev-btn-primary inline-flex items-center justify-center gap-2 rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-blue-400"
                 >
                   <Download
                     size={17}
@@ -864,7 +865,7 @@ export default function Certificado() {
               className="text-blue-400"
             />
 
-            <h2 className="text-sm font-bold text-white">
+            <h2 className="ev-section-title text-sm font-bold text-white">
               Selecione a pessoa
             </h2>
           </div>
@@ -977,14 +978,14 @@ export default function Certificado() {
 
         {!erro &&
           !possuiVacinas && (
-            <section className="rounded-2xl border border-amber-500/20 bg-[#111827] p-8 text-center print:hidden">
+            <section className="ev-card rounded-2xl border border-amber-500/20 bg-[#111827] p-8 text-center print:hidden">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-amber-400">
                 <AlertTriangle
                   size={27}
                 />
               </div>
 
-              <h2 className="mt-5 text-xl font-bold text-white">
+              <h2 className="ev-section-title mt-5 text-xl font-bold text-white">
                 Certificado indisponível
               </h2>
 
@@ -998,6 +999,10 @@ export default function Certificado() {
               <p className="mx-auto mt-3 max-w-xl text-xs leading-5 text-slate-500">
                 Nenhum certificado será emitido até que exista pelo menos um registro de vacinação ativo para esta pessoa.
               </p>
+              <Link to="/historico" className="ev-btn-secondary mt-5 inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold print:hidden">
+                <Syringe size={16} aria-hidden="true" />
+                Como incluir vacinas
+              </Link>
             </section>
           )}
 

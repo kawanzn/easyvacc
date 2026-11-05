@@ -169,15 +169,15 @@ export default function Login() {
   };
 
   return (
-    <main className={`relative isolate h-[100dvh] overflow-hidden font-sans ${temaClaro ? "bg-slate-100 text-slate-900" : "bg-[#020817] text-white"}`}>
+    <main className={`ev-ui ev-login ev-public-scroll relative isolate h-[100dvh] overflow-y-auto overflow-x-hidden font-sans ${temaClaro ? "easyvacc-light bg-slate-100 text-slate-900" : "bg-[#020817] text-white"}`}>
       {/* Coloque uma foto de vacinação em public/login-fundo.jpg */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-20 bg-[url('/login-fundo.jpg')] bg-cover bg-center"
+        className="pointer-events-none fixed inset-0 -z-20 bg-[url('/login-fundo.jpg')] bg-cover bg-center"
       />
-      <div aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 ${temaClaro ? "bg-gradient-to-r from-[#163451]/75 via-[#345775]/30 to-[#102a45]/45" : "bg-gradient-to-r from-[#020817]/95 via-[#031626]/75 to-[#020817]/85"}`} />
+      <div aria-hidden="true" className={`pointer-events-none fixed inset-0 -z-10 ${temaClaro ? "bg-gradient-to-r from-[#163451]/75 via-[#345775]/30 to-[#102a45]/45" : "bg-gradient-to-r from-[#020817]/95 via-[#031626]/75 to-[#020817]/85"}`} />
 
-      <div className="mx-auto flex h-full w-full max-w-[1600px] flex-col px-4 py-2 sm:px-7 lg:px-10 lg:py-3">
+      <div className="mx-auto flex min-h-full w-full max-w-[1600px] flex-col px-4 py-2 sm:px-7 lg:px-10 lg:py-3">
         <header className="flex shrink-0 items-center justify-between gap-3">
           <Link to="/" className="inline-flex items-center gap-3" aria-label="EasyVacc - página inicial">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1 shadow-md">
@@ -195,7 +195,7 @@ export default function Login() {
           </div>
         </header>
 
-        <div className="grid min-h-0 flex-1 items-center gap-4 py-1 lg:grid-cols-[minmax(0,1fr)_minmax(340px,460px)] lg:gap-8">
+        <div className="grid min-h-max flex-1 items-center gap-4 py-1 lg:grid-cols-[minmax(0,1fr)_minmax(340px,460px)] lg:gap-8">
           <section className={`hidden min-h-0 flex-col justify-center lg:flex text-white`}>
             <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-[#061d3a]/45 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md">
               <ShieldCheck size={18} className="text-[#1478b8]" /> Sua saúde, organizada em um só lugar
@@ -214,7 +214,7 @@ export default function Login() {
             </div>
           </section>
 
-          <section aria-labelledby="login-title" className={`mx-auto w-full max-w-[460px] min-h-0 max-h-full overflow-y-auto rounded-[24px] border p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-5 lg:p-5 ${temaClaro ? "border-white/85 bg-white/95 text-[#102b49]" : "border-[#304760] bg-[#081629]/95 text-white"}`}>
+          <section aria-labelledby="login-title" className={`ev-login-card mx-auto w-full max-w-[460px] rounded-[24px] border p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-5 lg:p-5 ${temaClaro ? "border-white/85 bg-white/95 text-[#102b49]" : "border-[#304760] bg-[#081629]/95 text-white"}`}>
             <div className="mb-3 text-center">
               <div className="mb-2 flex items-center justify-center gap-2.5">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-100"><img src="/logo.png" alt="" className="h-full w-full object-contain" /></span>
@@ -244,7 +244,7 @@ export default function Login() {
               </div>
 
               {erro && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">{erro}</div>}
-              <button type="submit" disabled={carregando} className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#126ca8] px-4 font-bold text-white transition hover:bg-[#105b90] focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60">
+              <button type="submit" disabled={carregando} className="ev-btn-primary flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#126ca8] px-4 font-bold text-white transition hover:bg-[#105b90] focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60">
                 {carregando ? <><Loader2 size={18} className="animate-spin" /> Entrando...</> : <>Entrar na caderneta <ArrowRight size={18} /></>}
               </button>
             </form>
@@ -253,7 +253,7 @@ export default function Login() {
               type="button"
               onClick={() => void entrarComBiometria()}
               disabled={carregando || entrandoComPasskey || !passkeysDisponiveis()}
-              className={`mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-lg border px-4 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${temaClaro ? 'border-[#126ca8] bg-blue-50 text-[#105b90] hover:bg-blue-100' : 'border-[#3186c0] bg-[#102b49] text-white hover:bg-[#183e65]'}`}
+              className={`ev-btn-secondary mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-lg border px-4 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${temaClaro ? 'border-[#126ca8] bg-blue-50 text-[#105b90] hover:bg-blue-100' : 'border-[#3186c0] bg-[#102b49] text-white hover:bg-[#183e65]'}`}
             >
               {entrandoComPasskey ? <Loader2 size={18} className="animate-spin" /> : <Fingerprint size={19} />}
               {entrandoComPasskey ? 'Verificando biometria...' : 'Entrar com biometria / Face ID'}
@@ -265,7 +265,7 @@ export default function Login() {
             )}
 
             <div className={`my-2 flex items-center gap-3 text-[10px] font-semibold tracking-wide ${temaClaro ? "text-slate-500" : "text-slate-300"}`}><span className={`h-px flex-1 ${temaClaro ? "bg-slate-300" : "bg-white/25"}`} />AINDA NÃO TEM CONTA?<span className={`h-px flex-1 ${temaClaro ? "bg-slate-300" : "bg-white/25"}`} /></div>
-            <Link to="/cadastro" className={`flex h-10 w-full items-center justify-center rounded-lg border border-[#126ca8] text-sm font-bold transition ${temaClaro ? "bg-white text-[#105b90] hover:bg-blue-50" : "bg-[#102b49] text-white hover:bg-[#183e65]"}`}>Criar minha conta</Link>
+            <Link to="/cadastro" className={`ev-btn-secondary flex h-10 w-full items-center justify-center rounded-lg border border-[#126ca8] text-sm font-bold transition ${temaClaro ? "bg-white text-[#105b90] hover:bg-blue-50" : "bg-[#102b49] text-white hover:bg-[#183e65]"}`}>Criar minha conta</Link>
             <div className={`mt-2 flex flex-wrap justify-center gap-x-5 gap-y-2 border-t pt-3 text-xs font-medium ${temaClaro ? "border-slate-200 text-[#126ca8]" : "border-white/20 text-[#83caff]"}`}><Link to="/privacidade" className="hover:underline">Política de Privacidade</Link><Link to="/termos" className="hover:underline">Termos de Uso</Link></div>
           </section>
         </div>

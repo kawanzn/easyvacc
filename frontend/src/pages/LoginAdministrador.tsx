@@ -90,7 +90,7 @@ export default function LoginAdministrador() {
   };
 
   return (
-    <div className={`${temaClaro ? 'easyvacc-light ' : ''}flex min-h-screen items-center justify-center bg-[#020817] px-4`}>
+    <div className={`${temaClaro ? 'easyvacc-light ' : ''}ev-ui flex min-h-screen items-center justify-center bg-[#020817] px-4`}>
 
       <style>{`
         .easyvacc-light {
@@ -154,13 +154,13 @@ export default function LoginAdministrador() {
         {temaClaro ? <Moon size={19} /> : <Sun size={19} />}
       </button>
 
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-8 shadow-2xl">
+      <div className="ev-card w-full max-w-md rounded-3xl border border-slate-800 bg-[#081629] p-6 shadow-2xl sm:p-8">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600/10 text-blue-500">
             <ShieldCheck size={32} />
           </div>
 
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="ev-portal-title text-2xl font-bold text-white">
             Administração EasyVacc
           </h1>
 

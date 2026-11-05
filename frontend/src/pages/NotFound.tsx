@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#020817] px-4 text-slate-200">
+    <main className="ev-ui flex min-h-screen items-center justify-center bg-[#020817] px-4 text-slate-200">
       <section className="w-full max-w-lg text-center">
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#126ca8]">Erro 404</p>
         <h1 className="mt-4 text-4xl font-bold text-white sm:text-5xl">Página não encontrada</h1>

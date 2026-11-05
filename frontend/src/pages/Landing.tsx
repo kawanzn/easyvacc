@@ -49,7 +49,7 @@ export default function Landing() {
   };
 
   return (
-    <div className={`ev-ui ev-landing ev-public-scroll relative flex h-[100dvh] flex-col overflow-y-auto overflow-x-hidden font-sans antialiased transition-colors duration-300 ${
+    <div className={`ev-ui ev-landing ev-public-scroll relative flex min-h-[100dvh] flex-col overflow-x-clip overflow-y-visible touch-pan-y font-sans antialiased transition-colors duration-300 lg:h-[100dvh] lg:overflow-x-hidden lg:overflow-y-auto ${
       temaClaro ? 'easyvacc-light bg-[#f8fbff] text-[#102b49]' : 'bg-[#020817] text-white'
     }`}>
       {/* Navegação limpa, sem borda ao redor da marca. */}

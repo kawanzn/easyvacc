@@ -13,6 +13,7 @@ import {
   Megaphone,
   Sparkles,
   Syringe,
+  Trash2,
 } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { lerPessoaAtiva } from '../lib/brasil';
@@ -90,6 +91,7 @@ export default function Notificacoes() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
   const [marcandoTodas, setMarcandoTodas] = useState(false);
+  const [excluindoLidas, setExcluindoLidas] = useState(false);
   const [abrindoId, setAbrindoId] = useState<number | null>(null);
 
   const carregarNotificacoes = useCallback(async () => {
@@ -288,7 +290,8 @@ export default function Notificacoes() {
         .select(
           'id, titulo, mensagem, tipo, referencia, lida, created_at'
         )
-        .eq('usuario_id', user.id);
+        .eq('usuario_id', user.id)
+        .eq('excluida', false);
 
       if (dependenteId !== null) {
         queryNotificacoes = queryNotificacoes.eq(
@@ -502,6 +505,38 @@ export default function Notificacoes() {
     }
   };
 
+  const excluirNotificacoesLidas = async () => {
+    const ids = notificacoes.filter((item) => item.lida).map((item) => item.id);
+    if (!ids.length || excluindoLidas) return;
+    if (!window.confirm(`Excluir ${ids.length} notificação(ões) lida(s)? Essa ação não pode ser desfeita.`)) return;
+
+    setExcluindoLidas(true);
+    setErro('');
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user) throw new Error('Sessão expirada. Entre novamente.');
+      const pessoaAtiva = lerPessoaAtiva();
+      const dependenteId = pessoaAtiva?.tipo === 'dependente' ? Number(pessoaAtiva.id) : null;
+      let query = supabase.from('notificacoes')
+        .update({ excluida: true })
+        .eq('usuario_id', user.id)
+        .eq('lida', true)
+        .in('id', ids);
+      if (dependenteId !== null) query = query.eq('dependente_id', dependenteId);
+      else query = query.is('dependente_id', null);
+      const { error } = await query;
+      if (error) throw error;
+      setNotificacoes((anteriores) => anteriores.filter((item) => !ids.includes(item.id)));
+      window.dispatchEvent(new Event('notificacaoAtualizada'));
+    } catch (error) {
+      console.error('Erro ao excluir notificações lidas:', error);
+      setErro('Não foi possível excluir as notificações lidas. Verifique se a atualização do banco foi aplicada.');
+    } finally {
+      setExcluindoLidas(false);
+    }
+  };
+
   const iconeNotificacao = (
     notificacao: Notificacao
   ) => {
@@ -565,6 +600,53 @@ export default function Notificacoes() {
   return (
     <div className="ev-page relative min-h-screen bg-transparent pb-16 font-sans text-slate-100 antialiased">
       <style>{`
+        /* Respiro do cartão de apresentação no celular. */
+        @media (max-width: 639px) {
+          .easyvacc-app .ev-notificacoes-intro {
+            padding: 20px 18px !important;
+            margin-bottom: 18px !important;
+            border-radius: 20px !important;
+            min-height: 128px;
+          }
+          .easyvacc-app .ev-notificacoes-intro-conteudo {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 0;
+          }
+          .easyvacc-app .ev-notificacoes-intro-etiqueta {
+            margin: 0 !important;
+            max-width: 100%;
+            flex-wrap: wrap;
+            line-height: 1.4;
+            padding: 7px 12px;
+          }
+          .easyvacc-app .ev-notificacoes-intro-descricao {
+            margin: 0 !important;
+            line-height: 1.7 !important;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+          }
+        }
+        /* Barra de ações legível no tema claro, sem alterar o layout. */
+        .easyvacc-light .ev-notificacoes-acoes {
+          background-color: #ffffff !important;
+          border-color: #cbd5e1 !important;
+        }
+        .easyvacc-light .ev-notificacoes-status {
+          color: #334155 !important;
+        }
+        .easyvacc-light .ev-notificacoes-marcar {
+          background-color: #eff6ff !important;
+          border-color: #bfdbfe !important;
+          color: #1d4ed8 !important;
+        }
+        .easyvacc-light .ev-notificacoes-excluir {
+          background-color: #fff1f2 !important;
+          border-color: #fecdd3 !important;
+          color: #be123c !important;
+        }
         /* Badge de notificação lida: contraste próprio em cada tema. */
         .easyvacc-light .ev-lida-badge {
           background-color: #e8f2fc !important;
@@ -577,10 +659,10 @@ export default function Notificacoes() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="ev-page-header ev-card mb-8 rounded-2xl border border-slate-800 bg-[#081629]/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+        <header className="ev-notificacoes-intro ev-page-header ev-card mb-8 rounded-2xl border border-slate-800 bg-[#081629]/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+          <div className="ev-notificacoes-intro-conteudo flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-medium text-[#126ca8]">
+              <div className="ev-notificacoes-intro-etiqueta mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-600/30 bg-blue-600/10 px-3 py-1 text-xs font-medium text-[#126ca8]">
                 <Sparkles size={13} aria-hidden="true" />
                 <span>Central de Avisos</span>
                 <ChevronRight
@@ -595,57 +677,41 @@ export default function Notificacoes() {
                 Notificações e alertas
               </h1>
 
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="ev-notificacoes-intro-descricao mt-1 text-sm text-slate-400">
                 Avisos e lembretes importantes da sua
                 caderneta e das campanhas de vacinação.
               </p>
             </div>
 
-            {!carregando &&
-              notificacoes.length > 0 && (
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-[#020817]/60 px-4 py-2.5">
-                    <div
-                      className={`h-2.5 w-2.5 rounded-full ${
-                        naoLidas > 0
-                          ? 'animate-pulse bg-[#126ca8]'
-                          : 'bg-slate-600'
-                      }`}
-                    />
-
-                    <span className="text-xs font-semibold text-slate-300">
-                      {naoLidas > 0
-                        ? `${naoLidas} não lida(s)`
-                        : 'Todas lidas'}
-                    </span>
-                  </div>
-
-                  {naoLidas > 0 && (
-                    <button
-                      type="button"
-                      disabled={marcandoTodas}
-                      onClick={() =>
-                        void marcarTodasComoLidas()
-                      }
-                      className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-blue-600/30 bg-blue-600/10 px-4 text-xs font-bold text-[#126ca8] transition hover:bg-blue-600/20 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
-                    >
-                      {marcandoTodas ? (
-                        <Loader2
-                          size={15}
-                          className="animate-spin"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <Check size={15} aria-hidden="true" />
-                      )}
-
-                      Marcar todas como lidas
-                    </button>
-                  )}
-                </div>
-              )}
           </div>
         </header>
+
+        {!carregando && notificacoes.length > 0 && (
+          <div className="ev-notificacoes-acoes mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-700/60 bg-[#081629]/95 p-3 sm:p-4">
+            <span className="ev-notificacoes-status inline-flex items-center gap-2 text-xs font-semibold text-slate-200">
+              <span className={`h-2 w-2 rounded-full ${naoLidas > 0 ? 'bg-blue-400' : 'bg-slate-500'}`} />
+              {naoLidas > 0 ? `${naoLidas} não lida(s)` : 'Todas lidas'}
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              {naoLidas > 0 && (
+                <button type="button" disabled={marcandoTodas || excluindoLidas}
+                  onClick={() => void marcarTodasComoLidas()}
+                  className="ev-notificacoes-marcar inline-flex min-h-10 items-center gap-2 rounded-xl border border-blue-500/40 bg-blue-600/20 px-3 text-xs font-semibold text-blue-200 hover:bg-blue-600/30 disabled:opacity-50">
+                  {marcandoTodas ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+                  Marcar todas como lidas
+                </button>
+              )}
+              {notificacoes.some((item) => item.lida) && (
+                <button type="button" disabled={excluindoLidas || marcandoTodas}
+                  onClick={() => void excluirNotificacoesLidas()}
+                  className="ev-notificacoes-excluir inline-flex min-h-10 items-center gap-2 rounded-xl border border-red-400/40 bg-red-500/10 px-3 text-xs font-semibold text-red-200 hover:bg-red-500/20 disabled:opacity-50">
+                  {excluindoLidas ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+                  Excluir lidas
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {erro && (
           <div

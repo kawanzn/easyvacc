@@ -778,9 +778,19 @@ export default function PainelAdministrador() {
                       {p.tipo_profissional} · {p.conselho || 'Sem conselho'} {p.registro_profissional}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">{p.estabelecimento || 'Unidade não informada'}</p>
-                    <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-bold ${
-                      p.ativo ? 'bg-blue-500/15 text-blue-400' : 'bg-slate-700 text-slate-300'
-                    }`}>{p.ativo ? 'Ativo' : 'Inativo'}</span>
+                    <span
+  className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-bold ${
+    p.ativo
+      ? temaClaro
+        ? 'bg-blue-100 text-blue-800'
+        : 'bg-blue-500/15 text-blue-400'
+      : temaClaro
+        ? 'bg-slate-200 text-slate-700'
+        : 'bg-slate-700 text-slate-300'
+  }`}
+>
+  {p.ativo ? 'Ativo' : 'Inativo'}
+</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button type="button" onClick={() => abrirEdicao(p)}

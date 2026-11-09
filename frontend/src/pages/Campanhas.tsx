@@ -391,21 +391,20 @@ export default function Campanhas() {
 
           <div className="min-w-0">
             <p className="text-sm font-semibold text-blue-200">
-              Dados de campanhas de vacinação
+              Informações sobre as campanhas
             </p>
 
             <p className="mt-0.5 text-xs leading-5 text-slate-400">
-              Fonte: Ministério da Saúde.
-              As campanhas exibidas nesta
-              página são sincronizadas pelo
-              EasyVacc a partir de páginas
-              públicas oficiais.
+              Aqui você encontra campanhas de vacinação divulgadas pelo Ministério da Saúde.
+            </p>
+
+            <p className="mt-2 text-xs leading-5 text-slate-400">
+              Algumas campanhas podem não ter datas informadas. Por isso, consulte a fonte oficial para saber se estão acontecendo e obter mais detalhes.
             </p>
 
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
               <span>
-                Última sincronização registrada
-                no EasyVacc:{' '}
+                Última atualização:{' '}
                 <strong className="font-semibold text-slate-300">
                   {formatarDataSincronizacao(
                     ultimaAtualizacao
@@ -425,25 +424,6 @@ export default function Campanhas() {
                 </span>
               )}
             </div>
-
-            <p className="mt-2 text-[11px] leading-4 text-slate-600">
-              Classificação: "Em breve" indica início futuro;
-              "Em andamento" exige datas de início e fim que
-              incluam hoje; "Encerrada" indica término passado.
-              "Campanha oficial" significa que as datas disponíveis
-              não permitem confirmar a vigência. O total disponível
-              não representa necessariamente campanhas em andamento.
-            </p>
-
-            <p className="mt-2 text-[11px] leading-4 text-slate-600">
-              A data acima corresponde à
-              última sincronização registrada
-              pelo EasyVacc e não
-              necessariamente à data de
-              publicação ou atualização
-              original da campanha pelo
-              Ministério da Saúde.
-            </p>
           </div>
         </div>
 

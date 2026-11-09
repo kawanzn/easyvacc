@@ -1,50 +1,88 @@
+
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 
 export default function RotaProtegida() {
   const [carregando, setCarregando] = useState(true);
-  const [autenticado, setAutenticado] = useState(false);
+  const [autorizado, setAutorizado] = useState(false);
 
   useEffect(() => {
     let ativo = true;
+    let versaoVerificacao = 0;
 
     const verificarUsuario = async () => {
+      const versaoAtual = ++versaoVerificacao;
+
+      if (ativo) {
+        setCarregando(true);
+        setAutorizado(false);
+      }
+
       try {
         const {
           data: { user },
-          error,
+          error: authError,
         } = await supabase.auth.getUser();
 
-        if (!ativo) return;
+        if (authError || !user) {
+          if (ativo && versaoAtual === versaoVerificacao) {
+            setAutorizado(false);
+          }
+          return;
+        }
 
-        setAutenticado(!error && !!user);
+        // Confirma que a conta autenticada pertence
+        // a um cidadão cadastrado no EasyVacc.
+        const { data: cidadao, error: perfilError } =
+          await supabase
+            .from('users')
+            .select('id')
+            .eq('id', user.id)
+            .maybeSingle();
+
+        if (ativo && versaoAtual === versaoVerificacao) {
+          setAutorizado(
+            !perfilError &&
+            cidadao?.id === user.id
+          );
+        }
       } catch (error) {
-        console.error('Erro ao verificar autenticação:', error);
+        console.error(
+          'Erro ao verificar acesso do cidadão:',
+          error
+        );
 
-        if (ativo) {
-          setAutenticado(false);
+        if (ativo && versaoAtual === versaoVerificacao) {
+          setAutorizado(false);
         }
       } finally {
-        if (ativo) {
+        if (ativo && versaoAtual === versaoVerificacao) {
           setCarregando(false);
         }
       }
     };
 
-    void verificarUsuario();
-
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(() => {
       if (!ativo) return;
 
-      setAutenticado(!!session?.user);
-      setCarregando(false);
+      // Revalida o acesso quando a sessão muda.
+      // O adiamento evita chamadas Supabase
+      // diretamente dentro do callback de autenticação.
+      setTimeout(() => {
+        if (ativo) {
+          void verificarUsuario();
+        }
+      }, 0);
     });
+
+    void verificarUsuario();
 
     return () => {
       ativo = false;
+      versaoVerificacao++;
       subscription.unsubscribe();
     };
   }, []);
@@ -59,7 +97,7 @@ export default function RotaProtegida() {
     );
   }
 
-  if (!autenticado) {
+  if (!autorizado) {
     return <Navigate to="/login" replace />;
   }
 

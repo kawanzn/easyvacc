@@ -736,7 +736,7 @@ const [proximaDose, setProximaDose] =
         {/* =================================================
             AVISO
         ================================================= */}
-        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-blue-800/50 bg-blue-950/50 p-4 text-sm text-blue-300">
+        <div className={`mb-6 flex items-center gap-3 rounded-2xl border p-4 text-sm ${temaClaro ? 'border-blue-200 bg-blue-50 text-[#174A78]' : 'border-blue-800/50 bg-blue-950/50 text-blue-300'}`}>
           <UserCheck
             size={20}
             className="shrink-0"

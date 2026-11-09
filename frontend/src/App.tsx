@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Routes,
@@ -55,9 +56,10 @@ import PainelAdministrador from './pages/PainelAdministrador';
 import RotaAdministrador from './components/RotaAdministrador';
 
 // ============================================
-// LAYOUT
+// PROTEÇÃO E LAYOUT
 // ============================================
 
+import RotaProtegida from './components/RotaProtegida';
 import Layout from './components/Layout';
 
 function App() {
@@ -65,6 +67,7 @@ function App() {
     <BrowserRouter>
       <DependentesProvider>
         <Routes>
+
           {/* ======================================
               ROTAS PÚBLICAS
           ====================================== */}
@@ -152,54 +155,64 @@ function App() {
 
           {/* ======================================
               ÁREA DO CIDADÃO
+              PROTEGIDA POR AUTENTICAÇÃO
           ====================================== */}
 
-          <Route element={<Layout />}>
-            <Route
-              path="/dashboard"
-              element={<Dashboard />}
-            />
+          <Route element={<RotaProtegida />}>
+            <Route element={<Layout />}>
 
-            <Route
-              path="/historico"
-              element={<Historico />}
-            />
+              <Route
+                path="/dashboard"
+                element={<Dashboard />}
+              />
 
-            <Route
-              path="/perfil"
-              element={<Perfil />}
-            />
+              <Route
+                path="/historico"
+                element={<Historico />}
+              />
 
-            <Route
-              path="/certificado"
-              element={<Certificado />}
-            />
+              <Route
+                path="/perfil"
+                element={<Perfil />}
+              />
 
-            <Route
-              path="/dependentes"
-              element={<Dependentes />}
-            />
+              <Route
+                path="/certificado"
+                element={<Certificado />}
+              />
 
-            <Route
-              path="/adicionar-dependente"
-              element={<AdicionarDependente />}
-            />
+              <Route
+                path="/dependentes"
+                element={<Dependentes />}
+              />
 
-            <Route
-              path="/notificacoes"
-              element={<Notificacoes />}
-            />
+              <Route
+                path="/adicionar-dependente"
+                element={<AdicionarDependente />}
+              />
 
-            <Route
-              path="/campanhas"
-              element={<Campanhas />}
-            />
+              <Route
+                path="/notificacoes"
+                element={<Notificacoes />}
+              />
 
-            <Route
-              path="/postos"
-              element={<Postos />}
-            />
+              <Route
+                path="/campanhas"
+                element={<Campanhas />}
+              />
+
+              <Route
+                path="/postos"
+                element={<Postos />}
+              />
+
+            </Route>
           </Route>
+
+          {/* ======================================
+              PÁGINA NÃO ENCONTRADA
+          ====================================== */}
+
           <Route
             path="*"
             element={<NotFound />}

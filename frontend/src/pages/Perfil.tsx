@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import {
   User,
   Mail,
+  BellRing,
   Phone,
   MapPin,
   CreditCard,
@@ -132,6 +133,12 @@ export default function Perfil() {
   const [removendoPasskey, setRemovendoPasskey] = useState<string | null>(null);
   const [erroPasskey, setErroPasskey] = useState('');
   const [sucessoPasskey, setSucessoPasskey] = useState('');
+  const [emailAlertaAtivo, setEmailAlertaAtivo] = useState(false);
+  const [carregandoPreferencia, setCarregandoPreferencia] = useState(true);
+  const [salvandoPreferencia, setSalvandoPreferencia] = useState(false);
+  const [erroPreferencia, setErroPreferencia] = useState('');
+  const [preferenciaDisponivel, setPreferenciaDisponivel] = useState(false);
+  const [sucessoPreferencia, setSucessoPreferencia] = useState('');
   // =====================================================
   // CARREGAR PERFIL
   // =====================================================
@@ -226,6 +233,22 @@ export default function Perfil() {
             ),
         };
         setUsuario(perfil);
+        // Preferência de lembretes por e-mail (desativada por padrão).
+        const { data: preferencia, error: erroConsultaPreferencia } = await supabase
+          .from('preferencias_alertas')
+          .select('email_ativo')
+          .eq('usuario_id', user.id)
+          .maybeSingle();
+        if (erroConsultaPreferencia) {
+          console.error('Erro ao consultar preferência de alertas:', erroConsultaPreferencia);
+          setErroPreferencia('Não foi possível carregar sua preferência de e-mail. Reabra o perfil para tentar novamente.');
+          setPreferenciaDisponivel(false);
+        } else {
+          setEmailAlertaAtivo(preferencia?.email_ativo === true);
+          setPreferenciaDisponivel(true);
+          setErroPreferencia('');
+        }
+        setCarregandoPreferencia(false);
         const { data: solicitacaoExclusao, error: erroSolicitacaoExclusao } = await supabase
           .from('solicitacoes_exclusao')
           .select('status')
@@ -272,11 +295,42 @@ export default function Perfil() {
             'Não foi possível carregar seu perfil.'
         );
       } finally {
+        setCarregandoPreferencia(false);
         setCarregando(false);
       }
     };
     void carregarPerfil();
   }, []);
+  const alterarPreferenciaEmail = async (ativar: boolean) => {
+    if (salvandoPreferencia || carregandoPreferencia || !usuario.id) return;
+    setSalvandoPreferencia(true);
+    setErroPreferencia('');
+    setSucessoPreferencia('');
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user || user.id !== usuario.id) {
+        throw new Error('Sua sessão expirou. Entre novamente para continuar.');
+      }
+      const { error } = await supabase
+        .from('preferencias_alertas')
+        .upsert({
+          usuario_id: user.id,
+          email_ativo: ativar,
+          atualizado_em: new Date().toISOString(),
+        }, { onConflict: 'usuario_id' });
+      if (error) throw error;
+      setEmailAlertaAtivo(ativar);
+      setSucessoPreferencia(ativar
+        ? 'Lembretes por e-mail ativados com sucesso.'
+        : 'Lembretes por e-mail desativados com sucesso.');
+    } catch (error) {
+      console.error('Erro ao salvar preferência de e-mail:', error);
+      setErroPreferencia('Não foi possível salvar sua escolha. Tente novamente.');
+    } finally {
+      setSalvandoPreferencia(false);
+    }
+  };
+
   // =====================================================
   // PASSKEYS / BIOMETRIA
   // =====================================================
@@ -1965,6 +2019,27 @@ export default function Perfil() {
 
           {/* Ajustes exclusivos do tema claro para o painel de biometria. */}
           <style>{`
+            .easyvacc-app.easyvacc-light .ev-alerta-email-section {
+              background: rgba(255, 255, 255, 0.94) !important;
+              border-color: #cbd5e1 !important;
+              box-shadow: 0 8px 26px rgba(15, 43, 73, 0.07);
+            }
+            .easyvacc-app.easyvacc-light .ev-alerta-email-title {
+              color: #102b49 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-alerta-email-description,
+            .easyvacc-app.easyvacc-light .ev-alerta-email-address {
+              color: #475569 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-alerta-email-toggle {
+              color: #1e293b !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-alerta-email-success {
+              color: #075985 !important;
+            }
+            .easyvacc-app.easyvacc-light .ev-alerta-email-error {
+              color: #9f1239 !important;
+            }
             .easyvacc-app.easyvacc-light .ev-passkey-section {
               background: rgba(255, 255, 255, 0.94) !important;
               border-color: #cbd5e1 !important;
@@ -2016,6 +2091,46 @@ export default function Perfil() {
               color: #92400e !important;
             }
           `}</style>
+          {/* EASYVACC ALERTA — PREFERÊNCIA DE E-MAIL */}
+          <section className="ev-alerta-email-section mt-8 rounded-2xl border border-blue-500/25 bg-[#081629]/85 p-5" aria-labelledby="titulo-alerta-email">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <h3 id="titulo-alerta-email" className="ev-alerta-email-title flex items-center gap-2 text-sm font-bold text-white">
+                  <BellRing size={19} className="text-[#4da7e2]" aria-hidden="true" />
+                  EasyVacc Alerta — lembretes por e-mail
+                </h3>
+                <p className="ev-alerta-email-description mt-2 max-w-2xl text-xs leading-5 text-slate-400">
+                  Deseja receber e-mails quando uma próxima dose de vacinação estiver chegando ou atrasada?
+                  Os lembretes também podem incluir vacinas dos seus dependentes.
+                  Você pode mudar sua escolha a qualquer momento.
+                </p>
+                <p className="ev-alerta-email-address mt-1 break-all text-[11px] text-slate-400">
+                  E-mail cadastrado: {usuario.email || 'Não informado'}
+                </p>
+              </div>
+              <label className="ev-alerta-email-toggle inline-flex shrink-0 items-center gap-3 text-xs font-semibold text-slate-200">
+                <span>{carregandoPreferencia ? 'Carregando...' : emailAlertaAtivo ? 'Ativado' : 'Desativado'}</span>
+                <input
+                  type="checkbox"
+                  role="switch"
+                  aria-label="Receber lembretes de vacinação por e-mail"
+                  checked={emailAlertaAtivo}
+                  disabled={carregandoPreferencia || salvandoPreferencia || !usuario.id || !preferenciaDisponivel}
+                  onChange={(e) => void alterarPreferenciaEmail(e.target.checked)}
+                  className="ev-alerta-email-input peer sr-only"
+                />
+                <span
+                  aria-hidden="true"
+                  className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border shadow-inner transition-colors duration-200 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#4da7e2] peer-disabled:opacity-50 ${emailAlertaAtivo ? 'border-[#126ca8] bg-[#126ca8]' : 'border-slate-500/50 bg-slate-500'}`}
+                >
+                  <span className={`absolute left-[3px] top-[3px] h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${emailAlertaAtivo ? 'translate-x-6' : 'translate-x-0'}`} />
+                </span>
+                {salvandoPreferencia && <Loader2 size={15} className="animate-spin text-[#4da7e2]" aria-hidden="true" />}
+              </label>
+            </div>
+            {erroPreferencia && <p role="alert" className="ev-alerta-email-error mt-3 text-xs text-rose-300">{erroPreferencia}</p>}
+            {sucessoPreferencia && <p role="status" className="ev-alerta-email-success mt-3 text-xs text-blue-300">{sucessoPreferencia}</p>}
+          </section>
           {/* SEGURANÇA: FACE ID / BIOMETRIA */}
           <section className="ev-passkey-section mt-8 rounded-2xl border border-blue-500/25 bg-[#081629]/85 p-5" aria-labelledby="titulo-passkeys">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

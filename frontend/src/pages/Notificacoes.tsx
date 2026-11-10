@@ -434,7 +434,8 @@ export default function Notificacoes() {
 
       if (
         notificacao.tipo === 'dose_atrasada' ||
-        notificacao.tipo === 'proxima_dose'
+        notificacao.tipo === 'proxima_dose' ||
+        notificacao.tipo === 'alerta_vacinal'
       ) {
         navigate('/historico');
       }
@@ -568,7 +569,8 @@ export default function Notificacoes() {
 
     if (
       notificacao.tipo === 'dose_atrasada' ||
-      notificacao.tipo === 'proxima_dose'
+      notificacao.tipo === 'proxima_dose' ||
+        notificacao.tipo === 'alerta_vacinal'
     ) {
       return 'Registro interno do EasyVacc';
     }
@@ -585,7 +587,8 @@ export default function Notificacoes() {
 
     if (
       notificacao.tipo === 'dose_atrasada' ||
-      notificacao.tipo === 'proxima_dose'
+      notificacao.tipo === 'proxima_dose' ||
+        notificacao.tipo === 'alerta_vacinal'
     ) {
       return 'Ver caderneta';
     }

@@ -362,8 +362,8 @@ export default function Campanhas() {
         <div className="absolute -top-40 left-1/2 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-blue-500/10 via-[#1769aa]/15 to-blue-500/10 blur-3xl" />
       </div>
 
-      <div className="mx-auto max-w-5xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
-        <div className="ev-card ev-page-header mb-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-xl md:p-8">
+      <div className="mx-auto w-full min-w-0 max-w-5xl px-3 pb-20 pt-4 sm:px-6 sm:pt-8 lg:px-8">
+        <div className="ev-card ev-page-header mb-4 hidden min-w-0 rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-2xl backdrop-blur-xl sm:mb-6 sm:block sm:p-6 md:p-8">
           <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-[#1769aa]">
             <Sparkles size={13}  aria-hidden="true" />
             <span>
@@ -371,11 +371,11 @@ export default function Campanhas() {
             </span>
           </div>
 
-          <h1 className="ev-page-title text-3xl font-bold tracking-tight text-white">
+          <h1 className="ev-page-title break-words text-xl font-bold leading-tight tracking-tight text-white sm:text-3xl">
             Campanhas de vacinação
           </h1>
 
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">
+          <p className="mt-2 max-w-2xl break-words text-xs leading-relaxed text-slate-400 sm:text-sm">
             Consulte campanhas e ações de
             vacinação disponibilizadas no
             EasyVacc a partir de fontes

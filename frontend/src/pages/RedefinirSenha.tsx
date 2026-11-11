@@ -138,11 +138,34 @@ export default function RedefinirSenha() {
     } catch (error) {
       console.error('Erro ao redefinir senha:', error);
 
-      setErro(
-        error instanceof Error
-          ? error.message
-          : 'Não foi possível alterar sua senha.'
-      );
+      // Mensagens do Supabase Auth podem chegar em inglês.
+      // Traduzimos os erros conhecidos sem expor mensagens técnicas ao usuário.
+      const erroAuth = error as { code?: string; message?: string } | null;
+      const codigo = erroAuth?.code?.toLowerCase() ?? '';
+      const mensagem = erroAuth?.message?.toLowerCase() ?? '';
+
+      if (
+        codigo === 'same_password' ||
+        mensagem.includes('same password') ||
+        mensagem.includes('different from the old password') ||
+        mensagem.includes('different from the current password')
+      ) {
+        setErro('A nova senha deve ser diferente da senha anterior. Escolha outra senha.');
+      } else if (codigo === 'weak_password' || mensagem.includes('password should be')) {
+        setErro('A senha não atende aos requisitos de segurança. Use pelo menos 8 caracteres, com letras e números.');
+      } else if (
+        codigo === 'session_not_found' ||
+        codigo === 'session_expired' ||
+        codigo === 'invalid_jwt' ||
+        mensagem.includes('session') ||
+        mensagem.includes('expired')
+      ) {
+        setErro('Sua sessão expirou. Solicite um novo link para redefinir sua senha.');
+      } else if (mensagem.includes('network') || mensagem.includes('fetch')) {
+        setErro('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.');
+      } else {
+        setErro('Não foi possível alterar sua senha. Tente novamente ou solicite um novo link.');
+      }
     } finally {
       setCarregando(false);
     }

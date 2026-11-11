@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 
 import { supabase } from '../services/supabase';
+import ChatbotGemini from './ChatbotGemini';
 import { lerPessoaAtiva, salvarPessoaAtiva } from '../lib/brasil';
 
 export default function Layout() {
@@ -1749,6 +1750,7 @@ html::-webkit-scrollbar-button {
           </button>
         </nav>
       </div>
+      <ChatbotGemini />
     </div>
   );
 }

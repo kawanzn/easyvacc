@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ChevronRight,
   Eye,
@@ -450,6 +451,12 @@ export default function Dependentes() {
         .easyvacc-light input, .easyvacc-light select, .easyvacc-light textarea { color: #10243e !important; background: #fff !important; border-color: #c7d5e5 !important; }
         .easyvacc-light .text-blue-400, .easyvacc-light .text-blue-300 { color: #175b96 !important; }
         .easyvacc-light .easyvacc-botao-primario { color: #fff !important; }
+        .easyvacc-dependente-modal input, .easyvacc-dependente-modal select { box-sizing: border-box; min-width: 0; font-size: 16px; }
+        .easyvacc-dependente-modal input[type="date"] { color-scheme: dark; min-height: 48px; }
+        .easyvacc-dependente-modal input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 1em; }
+        .easyvacc-dependente-modal input[type="date"]::-webkit-calendar-picker-indicator { opacity: 1; cursor: pointer; filter: invert(1); }
+        .easyvacc-dependente-modal.easyvacc-light input[type="date"] { color-scheme: light; }
+        .easyvacc-dependente-modal.easyvacc-light input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
 `}</style>
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10">
 
@@ -705,19 +712,19 @@ export default function Dependentes() {
         {/* MODAL */}
         {/* ================================= */}
 
-        {isModalOpen && (
+        {isModalOpen && createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+            className={`easyvacc-dependente-modal ${temaClaro ? 'easyvacc-light' : ''} fixed inset-0 z-[99999] flex min-w-0 items-center justify-center overflow-hidden bg-black/70 p-3 backdrop-blur-sm sm:p-4`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="titulo-novo-dependente"
             aria-describedby="descricao-novo-dependente"
           >
-            <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="w-full min-w-0 max-w-[360px] max-h-[min(78dvh,610px)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 shadow-2xl sm:max-h-[min(85dvh,650px)] sm:px-5 sm:py-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <h2
                   id="titulo-novo-dependente"
-                  className="text-lg font-bold text-white"
+                  className="text-base font-bold text-white"
                 >
                   Adicionar dependente
                 </h2>
@@ -734,7 +741,7 @@ export default function Dependentes() {
                 </button>
               </div>
 
-              <p id="descricao-novo-dependente" className="mt-3 text-xs leading-5 text-slate-400">
+              <p id="descricao-novo-dependente" className="mt-2 text-[11px] leading-4 text-slate-400">
                 O dependente será vinculado à sua conta. O cadastro não registra doses de vacina.
               </p>
 
@@ -752,9 +759,9 @@ export default function Dependentes() {
                   handleAddDependente
                 }
                 noValidate
-                className="mt-4 space-y-4"
+                className="mt-3 min-w-0 space-y-3"
               >
-                <p className="border-b border-slate-800 pb-2 text-sm font-semibold text-slate-200">
+                <p className="border-b border-slate-800 pb-1 text-xs font-semibold text-slate-200">
                   Dados do dependente
                 </p>
                 {/* NOME */}
@@ -786,7 +793,7 @@ export default function Dependentes() {
                       setNovoDependente((atual) => ({ ...atual, nome: e.target.value }));
                       setErrosCampos((atual) => ({ ...atual, nome: undefined }));
                     }}
-                    className={`mt-1 w-full rounded-lg border bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none ${errosCampos.nome ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
+                    className={`mt-1 block w-full min-w-0 max-w-full rounded-lg border bg-slate-950 px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none ${errosCampos.nome ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
                   />
                   {errosCampos.nome && (
                     <p id="erro-dependente-nome" role="alert" className="mt-1 text-xs text-red-300">{errosCampos.nome}</p>
@@ -818,7 +825,7 @@ export default function Dependentes() {
                           e.target.value,
                       })
                     }
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-[#1769aa] focus:outline-none"
+                    className="mt-1 block w-full min-w-0 max-w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-[#1769aa] focus:outline-none"
                   >
                     <option value="Filho(a)">
                       Filho(a)
@@ -873,14 +880,14 @@ export default function Dependentes() {
                       setNovoDependente((atual) => ({ ...atual, dataNascimento: e.target.value }));
                       setErrosCampos((atual) => ({ ...atual, dataNascimento: undefined }));
                     }}
-                    className={`mt-1 w-full rounded-lg border bg-slate-950 px-3 py-2.5 text-sm text-white focus:outline-none ${errosCampos.dataNascimento ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
+                    className={`mt-1 block w-full min-w-0 max-w-full rounded-lg border bg-slate-950 px-3 py-2 text-sm text-white focus:outline-none ${errosCampos.dataNascimento ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
                   />
                   {errosCampos.dataNascimento && (
                     <p id="erro-dependente-data" role="alert" className="mt-1 text-xs text-red-300">{errosCampos.dataNascimento}</p>
                   )}
                 </div>
 
-                <p className="border-b border-slate-800 pb-2 pt-2 text-sm font-semibold text-slate-200">
+                <p className="border-b border-slate-800 pb-1 pt-1 text-xs font-semibold text-slate-200">
                   Identificação no SUS (opcional)
                 </p>
                 {/* CNS */}
@@ -910,13 +917,13 @@ export default function Dependentes() {
                       setNovoDependente((atual) => ({ ...atual, cns }));
                       setErrosCampos((atual) => ({ ...atual, cns: undefined }));
                     }}
-                    className={`mt-1 w-full rounded-lg border bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none ${errosCampos.cns ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
+                    className={`mt-1 block w-full min-w-0 max-w-full rounded-lg border bg-slate-950 px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none ${errosCampos.cns ? 'border-red-400 focus:border-red-400' : 'border-slate-700 focus:border-[#1769aa]'}`}
                   />
                   {errosCampos.cns && (
                     <p id="erro-dependente-cns" role="alert" className="mt-1 text-xs text-red-300">{errosCampos.cns}</p>
                   )}
 
-                  <p id="ajuda-dependente-cns" className="mt-1.5 text-[11px] leading-4 text-slate-500">
+                  <p id="ajuda-dependente-cns" className="mt-1 text-[11px] leading-4 text-slate-400">
                     Opcional. Caso informado,
                     deve conter exatamente 15
                     dígitos. O número ficará
@@ -933,12 +940,12 @@ export default function Dependentes() {
 
                 {/* BOTÕES */}
 
-                <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-800 pt-4">
+                <div className="mt-3 flex flex-wrap items-center justify-end gap-2 border-t border-slate-800 pt-3">
                   <button
                     type="button"
                     disabled={salvando}
                     onClick={fecharModal}
-                    className="ev-btn-secondary rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+                    className="ev-btn-secondary min-h-11 rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
                   >
                     Cancelar
                   </button>
@@ -946,7 +953,7 @@ export default function Dependentes() {
                   <button
                     type="submit"
                     disabled={salvando}
-                    className="ev-btn-primary easyvacc-botao-primario inline-flex items-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className="ev-btn-primary easyvacc-botao-primario inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#1769aa] px-4 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {salvando && (
                       <Loader2
@@ -962,7 +969,8 @@ export default function Dependentes() {
                 </div>
               </form>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </div>

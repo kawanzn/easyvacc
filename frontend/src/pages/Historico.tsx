@@ -89,7 +89,19 @@ function calcularSituacao(proximaDose: string | null): SituacaoVacina {
   const hoje = dataLocalISO();
 
   if (proxima < hoje) return 'atrasada';
-  return 'proxima';
+
+  // Avisa como "Próxima" somente quando faltam até 30 dias.
+  // Datas mais distantes continuam em dia, sem antecipar o alerta.
+  const limite = new Date();
+  limite.setHours(12, 0, 0, 0);
+  limite.setDate(limite.getDate() + 30);
+  const limiteISO = [
+    limite.getFullYear(),
+    String(limite.getMonth() + 1).padStart(2, '0'),
+    String(limite.getDate()).padStart(2, '0'),
+  ].join('-');
+
+  return proxima <= limiteISO ? 'proxima' : 'em_dia';
 }
 
 
@@ -592,7 +604,7 @@ export default function Historico() {
                           ) : (
                             <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-[10px] font-extrabold text-blue-700">
                               <CheckCircle2 size={11} />
-                              Aplicada
+                              Em dia
                             </span>
                           )}
                         </td>

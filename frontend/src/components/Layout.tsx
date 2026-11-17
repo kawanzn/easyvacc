@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { createPortal } from 'react-dom';
 import {
   NavLink,
   Outlet,
@@ -22,6 +23,11 @@ import {
   X,
   Moon,
   Sun,
+  Volume2,
+  VolumeX,
+  Mic,
+  MicOff,
+  Accessibility,
 } from 'lucide-react';
 
 import { supabase } from '../services/supabase';
@@ -40,6 +46,148 @@ export default function Layout() {
   const [temaClaro, setTemaClaro] = useState(() => {
     return localStorage.getItem('easyvacc-tema') === 'claro';
   });
+
+  // Preferências do EasyVacc Acessível, compartilhadas com o Perfil.
+  // O Layout permanece montado ao navegar entre as páginas do cidadão.
+  const lerAcessibilidade = () => {
+    try {
+      const salvo = JSON.parse(localStorage.getItem('easyvacc-acessibilidade') || '{}');
+      return {
+        ativo: salvo.ativo === true,
+        fonte: (['normal', 'grande', 'extra'].includes(salvo.fonte) ? salvo.fonte : 'normal') as 'normal' | 'grande' | 'extra',
+        contraste: salvo.contraste === true,
+      };
+    } catch {
+      return { ativo: false, fonte: 'normal' as const, contraste: false };
+    }
+  };
+  const [acessibilidade, setAcessibilidade] = useState(lerAcessibilidade);
+
+  useEffect(() => {
+    const atualizar = () => setAcessibilidade(lerAcessibilidade());
+    window.addEventListener('easyvacc-acessibilidade-atualizada', atualizar);
+    window.addEventListener('storage', atualizar);
+    return () => {
+      window.removeEventListener('easyvacc-acessibilidade-atualizada', atualizar);
+      window.removeEventListener('storage', atualizar);
+    };
+  }, []);
+
+  // Leitura e comandos de voz: ativação sempre manual, sem escuta contínua.
+  const [lendoPagina, setLendoPagina] = useState(false);
+  const [ouvindoComando, setOuvindoComando] = useState(false);
+  const [mensagemVoz, setMensagemVoz] = useState('');
+  const [painelVozAberto, setPainelVozAberto] = useState(false);
+  const reconhecimentoRef = useRef<{ start: () => void; stop: () => void } | null>(null);
+  const leituraIdRef = useRef(0);
+
+  const pararLeitura = () => {
+    leituraIdRef.current += 1;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    setLendoPagina(false);
+  };
+
+  const lerPagina = () => {
+    if (!('speechSynthesis' in window)) {
+      setMensagemVoz('Este navegador não oferece leitura em voz alta.');
+      return;
+    }
+    if (lendoPagina) { pararLeitura(); return; }
+    const principal = document.querySelector<HTMLElement>('.easyvacc-app main.ev-wave-content');
+    if (!principal) return;
+    // Apenas texto visível. Ignora formulários, botões, scripts e conteúdo oculto.
+    const elementos = Array.from(principal.querySelectorAll<HTMLElement>('h1,h2,h3,h4,p,li,dt,dd'));
+    const textos = elementos.filter((el) => {
+      const estilo = window.getComputedStyle(el);
+      return estilo.display !== 'none' && estilo.visibility !== 'hidden' && !!el.getClientRects().length &&
+        !el.closest('[aria-hidden="true"], [data-no-voice], form, dialog, [role="dialog"]');
+    }).map(el => el.innerText.trim()).filter(Boolean);
+    const texto = textos.join('. ').replace(/\s+/g, ' ').slice(0, 8000);
+    if (!texto) { setMensagemVoz('Não há texto disponível para leitura nesta página.'); return; }
+    pararLeitura();
+    const id = leituraIdRef.current;
+    const partes = texto.match(/.{1,180}(?:\s|$)/g) || [texto];
+    let indice = 0;
+    setLendoPagina(true);
+    setMensagemVoz('Lendo o conteúdo visível desta página.');
+    const proximo = () => {
+      if (id !== leituraIdRef.current) return;
+      if (indice >= partes.length) { setLendoPagina(false); setMensagemVoz('Leitura concluída.'); return; }
+      const fala = new SpeechSynthesisUtterance(partes[indice++]);
+      fala.lang = 'pt-BR';
+      fala.rate = 0.92;
+      fala.onend = proximo;
+      fala.onerror = () => { setLendoPagina(false); setMensagemVoz('Não foi possível concluir a leitura.'); };
+      window.speechSynthesis.speak(fala);
+    };
+    proximo();
+  };
+
+  const iniciarComandoVoz = () => {
+    if (ouvindoComando) { reconhecimentoRef.current?.stop(); setOuvindoComando(false); return; }
+    const navegador = window as Window & {
+      SpeechRecognition?: new () => any;
+      webkitSpeechRecognition?: new () => any;
+    };
+    const Construtor = navegador.SpeechRecognition || navegador.webkitSpeechRecognition;
+    if (!Construtor) {
+      setMensagemVoz('Comandos por voz não são compatíveis com este navegador.');
+      return;
+    }
+    pararLeitura();
+    const reconhecimento = new Construtor();
+    reconhecimento.lang = 'pt-BR';
+    reconhecimento.continuous = false;
+    reconhecimento.interimResults = false;
+    reconhecimento.maxAlternatives = 1;
+    reconhecimento.onresult = (evento: any) => {
+      const dito = String(evento.results?.[0]?.[0]?.transcript || '').toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const destinos: Array<[RegExp, string]> = [
+        [/\b(inicio|dashboard|pagina inicial)\b/, '/dashboard'],
+        [/\b(vacinacao|caderneta|historico|vacinas)\b/, '/historico'],
+        [/\b(certificado|certificados)\b/, '/certificado'],
+        [/\b(dependente|dependentes|familia)\b/, '/dependentes'],
+        [/\b(campanha|campanhas)\b/, '/campanhas'],
+        [/\b(posto|postos|unidade de saude)\b/, '/postos'],
+        [/\b(notificacao|notificacoes|avisos)\b/, '/notificacoes'],
+        [/\b(perfil|minha conta)\b/, '/perfil'],
+      ];
+      if (/\b(parar|interromper|cancelar leitura)\b/.test(dito)) {
+        pararLeitura(); setMensagemVoz('Leitura interrompida.'); return;
+      }
+      const destino = destinos.find(([padrao]) => padrao.test(dito));
+      if (destino) {
+        setMensagemVoz(`Abrindo ${destino[1].slice(1)}.`);
+        fecharMenuMobile();
+        navigate(destino[1]);
+      } else {
+        setMensagemVoz('Comando não reconhecido. Experimente: abrir caderneta, certificado, postos ou perfil.');
+      }
+    };
+    reconhecimento.onerror = (evento: any) => {
+      setOuvindoComando(false);
+      setMensagemVoz(evento.error === 'not-allowed' ? 'Permita o acesso ao microfone nas configurações do navegador.' : 'Não foi possível reconhecer a fala. Tente novamente.');
+    };
+    reconhecimento.onend = () => { setOuvindoComando(false); reconhecimentoRef.current = null; };
+    reconhecimentoRef.current = reconhecimento;
+    try { reconhecimento.start(); setOuvindoComando(true); setMensagemVoz('Ouvindo um comando de navegação...'); }
+    catch { setOuvindoComando(false); setMensagemVoz('Não foi possível iniciar o microfone.'); }
+  };
+
+  useEffect(() => {
+    // Nunca continuar falando ou escutando após trocar de página.
+    leituraIdRef.current += 1;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    reconhecimentoRef.current?.stop();
+    setLendoPagina(false);
+    setOuvindoComando(false);
+  }, [pathname]);
+
+  useEffect(() => () => {
+    leituraIdRef.current += 1;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    reconhecimentoRef.current?.stop();
+  }, []);
 
   const alternarTema = () => {
     // Uma única fonte de verdade: evita alternância dupla por eventos concorrentes.
@@ -551,7 +699,7 @@ export default function Layout() {
 
   return (
     <div
-      className={`easyvacc-app flex h-[100dvh] overflow-hidden font-sans ${
+      className={`easyvacc-app flex h-[100dvh] overflow-hidden font-sans ${acessibilidade.ativo ? 'ev-accessible' : ''} ${acessibilidade.ativo && acessibilidade.contraste ? 'ev-high-contrast' : ''} ${acessibilidade.ativo && acessibilidade.fonte === 'grande' ? 'ev-font-large' : ''} ${acessibilidade.ativo && acessibilidade.fonte === 'extra' ? 'ev-font-extra' : ''} ${
         temaClaro
           ? 'easyvacc-light bg-slate-50 text-slate-900'
           : 'bg-[#020817] text-slate-100'
@@ -559,6 +707,48 @@ export default function Layout() {
     >
 
       <style>{`
+        /* Acessibilidade aplicada ao conteúdo do cidadão, sem alterar login,
+           painéis administrativos ou os tamanhos fixos dos controles. */
+        .easyvacc-app.ev-accessible .ev-wave-content {
+          --ev-accessible-scale: 1;
+        }
+        .easyvacc-app.ev-accessible.ev-font-large .ev-wave-content {
+          --ev-accessible-scale: 1.12;
+        }
+        .easyvacc-app.ev-accessible.ev-font-extra .ev-wave-content {
+          --ev-accessible-scale: 1.25;
+        }
+        .easyvacc-app.ev-accessible .ev-wave-content :is(p, li, label, td, th, input, textarea, select) {
+          font-size: calc(1em * var(--ev-accessible-scale)) !important;
+          line-height: 1.55;
+        }
+        .easyvacc-app.ev-accessible .ev-wave-content :is(h1, h2, h3, h4) {
+          letter-spacing: normal;
+          line-height: 1.35;
+        }
+        .easyvacc-app.ev-accessible .ev-wave-content :is(button, a, input, select, textarea):focus-visible {
+          outline: 3px solid #60a5fa !important;
+          outline-offset: 3px;
+        }
+        .easyvacc-app.ev-accessible.ev-high-contrast.easyvacc-light .ev-wave-content :is(.text-slate-400, .text-slate-500, .text-slate-600) {
+          color: #243b53 !important;
+          opacity: 1 !important;
+        }
+        .easyvacc-app.ev-accessible.ev-high-contrast:not(.easyvacc-light) .ev-wave-content :is(.text-slate-400, .text-slate-500, .text-slate-600) {
+          color: #e2e8f0 !important;
+          opacity: 1 !important;
+        }
+        .easyvacc-app.ev-accessible.ev-high-contrast .ev-wave-content :is(.ev-a11y-help) {
+          opacity: 1 !important;
+          font-weight: 600;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .easyvacc-app.ev-accessible *, .easyvacc-app.ev-accessible *::before, .easyvacc-app.ev-accessible *::after {
+            animation-duration: .01ms !important;
+            transition-duration: .01ms !important;
+          }
+        }
+
 
         /* Acabamento moderno do sidebar */
         #menu-principal {
@@ -1750,6 +1940,48 @@ html::-webkit-scrollbar-button {
           </button>
         </nav>
       </div>
+      {/* Controle de voz compacto, acima do chatbot. Não altera o componente do chat. */}
+      {acessibilidade.ativo && createPortal(
+        <div className="fixed bottom-[180px] right-4 z-[9998] flex flex-col items-end gap-3 sm:bottom-[92px] sm:right-6 print:hidden">
+          {painelVozAberto && (
+            <section
+              id="easyvacc-painel-voz"
+              aria-label="Acessibilidade por voz"
+              className={`w-[min(320px,calc(100vw-40px))] rounded-2xl border p-3 shadow-xl ${temaClaro ? 'border-blue-200 bg-white text-slate-900' : 'border-blue-700 bg-[#102b49] text-white'}`}
+            >
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold">Acessibilidade por voz</p>
+                <button type="button" aria-label="Fechar opções de voz" onClick={() => setPainelVozAberto(false)} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-blue-500/10"><X size={18} /></button>
+              </div>
+              <div className="flex flex-col gap-2">
+                <button type="button" onClick={lerPagina} aria-pressed={lendoPagina} className="flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[#1478b8] px-3 py-2 text-sm font-semibold text-white hover:bg-[#12669d]">
+                  {lendoPagina ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                  {lendoPagina ? 'Parar leitura' : 'Ler esta página'}
+                </button>
+                <button type="button" onClick={iniciarComandoVoz} aria-pressed={ouvindoComando} className={`flex min-h-10 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold ${temaClaro ? 'border-blue-200 bg-blue-50 text-[#14517e]' : 'border-blue-500 bg-[#163d60] text-white'}`}>
+                  {ouvindoComando ? <MicOff size={18} /> : <Mic size={18} />}
+                  {ouvindoComando ? 'Parar escuta' : 'Comando de voz'}
+                </button>
+              </div>
+              <p role="status" aria-live="polite" className={`mt-3 text-xs leading-5 ${temaClaro ? 'text-slate-600' : 'text-slate-200'}`}>
+                {mensagemVoz || 'Diga: abrir caderneta, certificados, postos ou perfil.'}
+              </p>
+            </section>
+          )}
+          <button
+            type="button"
+            aria-label={painelVozAberto ? 'Fechar acessibilidade por voz' : 'Abrir acessibilidade por voz'}
+            aria-expanded={painelVozAberto}
+            aria-controls="easyvacc-painel-voz"
+            title="Acessibilidade por voz"
+            onClick={() => setPainelVozAberto((atual) => !atual)}
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#126ca8] text-white shadow-xl ring-4 ring-white/20 transition hover:scale-105 hover:bg-[#0e5687] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          >
+            <Accessibility size={24} aria-hidden="true" />
+          </button>
+        </div>,
+        document.body
+      )}
       <ChatbotGemini />
     </div>
   );

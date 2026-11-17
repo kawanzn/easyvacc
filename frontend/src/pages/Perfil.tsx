@@ -23,6 +23,9 @@ import {
   CheckCircle,
   Fingerprint,
   Trash2,
+  Accessibility,
+  Volume2,
+  Square,
 } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { passkeysDisponiveis, mensagemErroPasskey } from '../lib/passkeys';
@@ -139,6 +142,70 @@ export default function Perfil() {
   const [erroPreferencia, setErroPreferencia] = useState('');
   const [preferenciaDisponivel, setPreferenciaDisponivel] = useState(false);
   const [sucessoPreferencia, setSucessoPreferencia] = useState('');
+  // Preferências de acessibilidade locais: não armazenam dados de saúde.
+  const [acessibilidade, setAcessibilidade] = useState(() => {
+    try {
+      const salvo = JSON.parse(localStorage.getItem('easyvacc-acessibilidade') || '{}');
+      return {
+        ativo: salvo.ativo === true,
+        fonte: ['normal', 'grande', 'extra'].includes(salvo.fonte) ? salvo.fonte as 'normal' | 'grande' | 'extra' : 'normal' as const,
+        contraste: salvo.contraste === true,
+      };
+    } catch {
+      return { ativo: false, fonte: 'normal' as const, contraste: false };
+    }
+  });
+  const [lendoAcessibilidade, setLendoAcessibilidade] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('easyvacc-acessibilidade', JSON.stringify(acessibilidade));
+    const raiz = document.documentElement;
+    raiz.classList.toggle('ev-acessivel', acessibilidade.ativo);
+    raiz.classList.toggle('ev-acessivel-contraste', acessibilidade.ativo && acessibilidade.contraste);
+    raiz.dataset.evFonte = acessibilidade.ativo ? acessibilidade.fonte : 'normal';
+    // Estilos dos controles do Perfil; o Layout aplica as preferências às demais páginas.
+    const id = 'easyvacc-estilos-acessibilidade';
+    {
+      let estilo = document.getElementById(id) as HTMLStyleElement | null;
+      if (!estilo) { estilo = document.createElement('style'); estilo.id = id; document.head.appendChild(estilo); }
+      estilo.textContent = `
+        html.ev-acessivel .ev-page :is(button,a,input,select,textarea):focus-visible { outline: 3px solid #60a5fa !important; outline-offset: 3px; }
+        /* Contraste aplicado apenas quando solicitado e respeitando o tema da aplicação. */
+        html.ev-acessivel-contraste .easyvacc-app:not(.easyvacc-light) .ev-page :is(.text-slate-400,.text-slate-500,.text-slate-600,.text-slate-300) { color: #ffffff !important; }
+        html.ev-acessivel-contraste .easyvacc-app.easyvacc-light .ev-page :is(.text-slate-400,.text-slate-500,.text-slate-600,.text-slate-300) { color: #172b4d !important; }
+        html.ev-acessivel-contraste .easyvacc-app .ev-page :is(.border-slate-800,.border-slate-700) { border-color: #7891ad !important; }
+        html.ev-acessivel-contraste .easyvacc-app .ev-page .ev-a11y-help { font-weight: 600 !important; opacity: 1 !important; }
+        html.ev-acessivel-contraste .easyvacc-app:not(.easyvacc-light) .ev-page .ev-a11y-help { color: #ffffff !important; }
+        html.ev-acessivel-contraste .easyvacc-app.easyvacc-light .ev-page .ev-a11y-help { color: #172b4d !important; }
+        /* Interruptores compactos: não herdam altura mínima nem tamanho de fonte ampliado. */
+        html .ev-page button.ev-a11y-toggle { box-sizing:border-box !important; display:inline-flex !important; align-items:center !important; justify-content:flex-start !important; width:46px !important; min-width:46px !important; max-width:46px !important; height:26px !important; min-height:26px !important; max-height:26px !important; padding:3px !important; border:0 !important; border-radius:9999px !important; background:#64748b !important; cursor:pointer; flex:none !important; overflow:hidden; appearance:none; transition:background .2s; }
+        html .ev-page button.ev-a11y-toggle[aria-checked="true"] { background:#1677bd !important; }
+        html .ev-page button.ev-a11y-toggle > span.ev-a11y-toggle-thumb { box-sizing:border-box !important; display:block !important; width:20px !important; min-width:20px !important; max-width:20px !important; height:20px !important; min-height:20px !important; max-height:20px !important; padding:0 !important; margin:0 !important; border:0 !important; border-radius:50% !important; background:#fff !important; box-shadow:0 1px 3px #0003; transform:translateX(0); transition:transform .2s; }
+        html .ev-page button.ev-a11y-toggle[aria-checked="true"] > span.ev-a11y-toggle-thumb { transform:translateX(20px); }
+        html .ev-page button.ev-a11y-toggle:focus-visible { outline:3px solid #60a5fa !important; outline-offset:3px; }
+        .easyvacc-app.easyvacc-light .ev-a11y-label { color:#152b49 !important; }
+        .easyvacc-app.easyvacc-light .ev-a11y-help { color:#475569 !important; }
+        @media (prefers-reduced-motion: reduce) { html.ev-acessivel *, html.ev-acessivel *::before, html.ev-acessivel *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+      `;
+    }
+    window.dispatchEvent(new CustomEvent('easyvacc-acessibilidade-atualizada', { detail: acessibilidade }));
+  }, [acessibilidade]);
+
+  useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
+
+  const lerOrientacoes = () => {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    if (lendoAcessibilidade) { setLendoAcessibilidade(false); return; }
+    const fala = new SpeechSynthesisUtterance('Bem-vindo ao EasyVacc Acessível. Na caderneta, você consulta as vacinas registradas e as datas de retorno. No certificado, encontra seus comprovantes. Em dependentes, acompanha os registros da sua família. Para dúvidas sobre vacinação, procure um profissional de saúde.');
+    fala.lang = 'pt-BR';
+    fala.rate = 0.9;
+    fala.onend = () => setLendoAcessibilidade(false);
+    fala.onerror = () => setLendoAcessibilidade(false);
+    setLendoAcessibilidade(true);
+    window.speechSynthesis.speak(fala);
+  };
+
   // =====================================================
   // CARREGAR PERFIL
   // =====================================================
@@ -1074,6 +1141,31 @@ export default function Perfil() {
         sm:p-8
       "
     >
+      <style>{`
+        /* Botões de tamanho de fonte integrados aos temas, sem menu branco nativo. */
+        .ev-page .ev-a11y-font-choice { background:rgba(22,119,189,.12); border:1px solid rgba(59,130,246,.42); color:#dbeafe; min-height:40px; }
+        .ev-page .ev-a11y-font-choice[aria-pressed="true"] { background:#1677bd; border-color:#1677bd; color:#fff; }
+        .easyvacc-light .ev-page .ev-a11y-font-choice { background:rgba(22,119,189,.07); border-color:#b8d2eb; color:#173c63; }
+        .easyvacc-light .ev-page .ev-a11y-font-choice[aria-pressed="true"] { background:#1677bd; border-color:#1677bd; color:#fff; }
+        .ev-profile-accordion { border: 1px solid rgba(100,116,139,.26); border-radius: 18px; background: rgba(15,35,65,.32); overflow: hidden; }
+        .ev-profile-accordion-title { display:flex; align-items:center; gap:14px; padding:19px 22px; cursor:pointer; list-style:none; color:inherit; }
+        .ev-profile-accordion-title::-webkit-details-marker { display:none; }
+        .ev-profile-accordion-title > svg { color:#3b82f6; flex-shrink:0; }
+        .ev-profile-accordion-title > span { display:flex; flex:1; flex-direction:column; gap:4px; min-width:0; }
+        .ev-profile-accordion-title strong { font-size:15px; font-weight:750; }
+        .ev-profile-accordion-title small { font-size:12px; opacity:.73; line-height:1.5; }
+        .ev-profile-accordion-title::after { content:'⌄'; font-size:23px; opacity:.7; transition:transform .2s; }
+        .ev-profile-accordion[open] > .ev-profile-accordion-title::after { transform:rotate(180deg); }
+        .ev-profile-accordion-body { padding:4px 22px 22px; border-top:1px solid rgba(100,116,139,.16); }
+        .ev-profile-accordion-body > .mt-10 { margin-top:16px; }
+        .ev-profile-accordion-body > div#exportacao-perfil, .ev-profile-accordion-body > div.mt-10 { margin-top:8px; }
+        .ev-profile-accordion-title:focus-visible { outline:3px solid #60a5fa; outline-offset:-3px; }
+        .easyvacc-light .ev-profile-accordion { background:rgba(255,255,255,.84); border-color:#d3dfec; }
+        .easyvacc-light .ev-profile-accordion-title { color:#152b49; }
+        .easyvacc-light .ev-profile-accordion-title small { color:#526780; opacity:1; }
+        .easyvacc-light .ev-profile-accordion-body { color:#243c59; }
+        @media(max-width:640px) { .ev-profile-accordion-title {padding:16px;} .ev-profile-accordion-body {padding:4px 16px 18px;} }
+      `}</style>
       {/* CABEÇALHO */}
       <div
         className="
@@ -1208,17 +1300,30 @@ export default function Perfil() {
           backdrop-blur-xl
         "
       >
+        <style>{`
+          .easyvacc-app .ev-profile-banner {
+            background: linear-gradient(115deg, #194e7a 0%, #226fa8 55%, #3386ba 100%) !important;
+            border-color: rgba(142, 204, 246, .20) !important;
+          }
+          .easyvacc-app .ev-profile-banner-title { color: #fff !important; }
+          .easyvacc-app .ev-profile-banner-subtitle { color: #e0f2fe !important; }
+          .easyvacc-app .ev-profile-banner-waves { color: #b7def8; }
+          .easyvacc-app.easyvacc-light .ev-profile-banner {
+            background: linear-gradient(115deg, #c9e2f5 0%, #b3d5ef 55%, #9bc7e8 100%) !important;
+            border-color: #9bc5e5 !important;
+          }
+          .easyvacc-app.easyvacc-light .ev-profile-banner-title { color: #16466f !important; }
+          .easyvacc-app.easyvacc-light .ev-profile-banner-subtitle { color: #365c7d !important; }
+          .easyvacc-app.easyvacc-light .ev-profile-banner-waves { color: #4687b7; }
+        `}</style>
         {/* BANNER */}
         <div
           className="
-            relative h-32
+            relative h-20
             overflow-hidden
             border-b
             border-slate-800/80
-            bg-gradient-to-r
-            from-blue-950
-            via-slate-900
-            to-slate-950
+            ev-profile-banner
           "
         >
           <div
@@ -1227,14 +1332,24 @@ export default function Perfil() {
               -bottom-10 -right-10
               h-40 w-40
               rounded-full
-              bg-[#126ca8]/20
+              bg-[#67b7eb]/15
               blur-3xl
             "
           />
+          <div className="pointer-events-none absolute inset-0 flex items-start justify-end px-5 pt-4 sm:px-8">
+            <div className="text-right">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] ev-profile-banner-title">Minha conta</p>
+              <p className="mt-1 text-xs ev-profile-banner-subtitle">Seu espaço no EasyVacc</p>
+            </div>
+          </div>
+          <svg aria-hidden="true" className="ev-profile-banner-waves pointer-events-none absolute bottom-0 right-0 h-14 w-2/3 opacity-35" viewBox="0 0 600 70" preserveAspectRatio="none">
+            <path d="M0 65 Q160 -4 310 44 T600 12" fill="none" stroke="currentColor" strokeWidth="2" />
+            <path d="M0 70 Q180 24 350 61 T600 35" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
         </div>
         <div className="relative px-5 pb-8 sm:px-8">
           {/* AVATAR */}
-          <div className="group absolute -top-12 left-5 sm:left-8">
+          <div className="group absolute -top-9 left-5 sm:left-8">
             <label
               htmlFor="input-foto"
               className="
@@ -1248,7 +1363,7 @@ export default function Perfil() {
               <div
                 className="
                   relative flex
-                  h-24 w-24
+                  h-20 w-20
                   items-center
                   justify-center
                   overflow-hidden
@@ -1326,12 +1441,12 @@ export default function Perfil() {
           {/* NOME */}
           <div
             className="
-              mb-10 flex
+              mb-7 flex
               flex-col
               items-start
               justify-between
               gap-4
-              pt-16
+              pt-12
               sm:flex-row
             "
           >
@@ -1395,8 +1510,24 @@ export default function Perfil() {
               </button>
             )}
           </div>
+          {/* AÇÕES DE EDIÇÃO SEMPRE PRÓXIMAS DO FORMULÁRIO */}
+          {editando && (
+            <div role="region" aria-label="Ações para editar perfil" className="mb-6 lg:sticky lg:top-3 lg:z-30 flex flex-col gap-3 rounded-2xl border border-blue-400/40 bg-[#081629] p-4 shadow-xl sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-white">Editando informações</p>
+                <p className="text-xs text-slate-300">Altere os campos abaixo e salve quando terminar.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={cancelarEdicao} disabled={salvando} className="rounded-xl border border-slate-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">Cancelar</button>
+                <button type="button" onClick={salvarAlteracoes} disabled={salvando} className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-50">
+                  {salvando ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                  {salvando ? 'Salvando...' : 'Salvar alterações'}
+                </button>
+              </div>
+            </div>
+          )}
           {/* INFORMAÇÕES */}
-          <div
+          <div id="dados-perfil"
             className="
               grid grid-cols-1
               gap-10
@@ -1983,10 +2114,50 @@ export default function Perfil() {
             </section>
           </div>
 
+          {/* EASYVACC ACESSÍVEL — ajustes voluntários da interface */}
+          <details id="acessibilidade-perfil" className="ev-profile-accordion mt-5" open={acessibilidade.ativo}>
+            <summary className="ev-profile-accordion-title"><Accessibility size={21} aria-hidden="true" /><span><strong>EasyVacc Acessível</strong><small>Leitura, contraste e tamanho das letras</small></span></summary>
+            <div className="ev-profile-accordion-body">
+            <div className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-slate-700 p-4">
+              <span id="ev-ativar-acessivel" className="ev-a11y-label text-sm font-bold text-white">Ativar modo acessível</span>
+              <button type="button" role="switch" aria-labelledby="ev-ativar-acessivel" aria-checked={acessibilidade.ativo} onClick={() => setAcessibilidade((a) => ({ ...a, ativo: !a.ativo }))} className="ev-a11y-toggle"><span aria-hidden="true" className="ev-a11y-toggle-thumb" /></button>
+            </div>
+            {acessibilidade.ativo && (
+              <div className="mt-4 space-y-4">
+                <div>
+                  <p id="ev-tamanho-fonte-label" className="mb-2 text-sm font-semibold text-slate-200">Tamanho dos textos</p>
+                  <div role="group" aria-labelledby="ev-tamanho-fonte-label" className="flex flex-wrap gap-2">
+                    {([['normal', 'Normal'], ['grande', 'Grande'], ['extra', 'Muito grande']] as const).map(([valor, rotulo]) => (
+                      <button
+                        key={valor}
+                        type="button"
+                        aria-pressed={acessibilidade.fonte === valor}
+                        onClick={() => setAcessibilidade((a) => ({ ...a, fonte: valor }))}
+                        className="ev-a11y-font-choice rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                      >
+                        {rotulo}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-700 p-4">
+                  <div className="min-w-0"><span id="ev-contraste-label" className="ev-a11y-label block text-sm font-semibold text-white">Aumentar contraste dos textos</span><p className="ev-a11y-help mt-1 text-xs text-slate-300">Melhora a leitura das informações.</p></div>
+                  <button type="button" role="switch" aria-labelledby="ev-contraste-label" aria-checked={acessibilidade.contraste} onClick={() => setAcessibilidade((a) => ({ ...a, contraste: !a.contraste }))} className="ev-a11y-toggle"><span aria-hidden="true" className="ev-a11y-toggle-thumb" /></button>
+                </div>
+              </div>
+            )}
+            <button type="button" onClick={lerOrientacoes} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-blue-400/50 bg-blue-600/20 px-4 py-3 text-sm font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400">
+              {lendoAcessibilidade ? <Square size={16} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}
+              {lendoAcessibilidade ? 'Parar leitura' : 'Ouvir orientações do EasyVacc'}
+            </button>
+            <p className="ev-a11y-help mt-2 text-xs leading-5 text-slate-400">A leitura usa a voz disponível no navegador. Não lê automaticamente dados pessoais ou de saúde.</p>
+            </div>
+          </details>
+
           {/* SEGURANÇA E AUTORIZAÇÕES */}
-          <div className="ev-profile-security" aria-labelledby="titulo-seguranca-perfil">
-            <h3 id="titulo-seguranca-perfil" className="ev-section-title">Segurança e autorizações</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-400">Controle o acesso de profissionais durante o atendimento e gerencie seus dispositivos de entrada.</p>
+          <details id="seguranca-perfil" className="ev-profile-accordion mt-3">
+            <summary className="ev-profile-accordion-title"><Fingerprint size={21} aria-hidden="true" /><span><strong>Segurança e autorizações</strong><small>Biometria, dispositivos e atendimento</small></span></summary>
+            <div className="ev-profile-accordion-body" aria-label="Segurança e autorizações">
           {/* AUTORIZAÇÃO DE ATENDIMENTO */}
           <section className="mt-10 rounded-2xl border border-blue-600/20 bg-blue-600/5 p-5">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -2191,8 +2362,12 @@ export default function Perfil() {
               </div>
             )}
           </section>
-          </div>
-          {/* AÇÕES */}
+            </div>
+          </details>
+          {/* EXPORTAÇÃO DE DADOS */}
+          <details id="exportacao-perfil" className="ev-profile-accordion mt-3">
+            <summary className="ev-profile-accordion-title"><Download size={21} aria-hidden="true" /><span><strong>Privacidade e meus arquivos</strong><small>Exportar informações em PDF ou JSON</small></span></summary>
+            <div className="ev-profile-accordion-body">
           <div
             className="
               mt-10 flex
@@ -2233,121 +2408,10 @@ export default function Perfil() {
               </button>
 
             </div>
-            {/* BOTÕES DE EDIÇÃO */}
-            {editando ? (
-              <div
-                className="
-                  flex w-full
-                  flex-col gap-3
-                  sm:w-auto
-                  sm:flex-row
-                "
-              >
-                <button
-                  type="button"
-                  onClick={cancelarEdicao}
-                  disabled={salvando}
-                  className="
-                    flex items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    border
-                    border-slate-700
-                    bg-[#081629]
-                    px-5 py-3
-                    text-xs
-                    font-bold
-                    text-slate-300
-                    transition
-                    hover:bg-slate-800
-                    disabled:cursor-not-allowed
-                    disabled:opacity-50
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-slate-500
-                  "
-                >
-                  <X
-                    size={15}
-                    aria-hidden="true"
-                  />
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={salvarAlteracoes}
-                  disabled={salvando}
-                  className="
-                    flex items-center
-                    justify-center
-                    gap-2
-                    rounded-xl
-                    bg-blue-600
-                    px-6 py-3
-                    text-xs
-                    font-bold
-                    text-slate-950
-                    shadow-md
-                    transition-all
-                    hover:bg-blue-600
-                    disabled:cursor-not-allowed
-                    disabled:opacity-60
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-blue-500
-                  "
-                >
-                  {salvando ? (
-                    <Loader2
-                      size={15}
-                      aria-hidden="true"
-                      className="animate-spin"
-                    />
-                  ) : (
-                    <Save
-                      size={15}
-                      aria-hidden="true"
-                    />
-                  )}
-                  {salvando
-                    ? 'Salvando...'
-                    : 'Salvar alterações'}
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={iniciarEdicao}
-                className="
-                  flex w-full
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-blue-600
-                  px-6 py-3
-                  text-xs
-                  font-bold
-                  text-slate-950
-                  shadow-md
-                  transition-all
-                  hover:bg-blue-600
-                  active:scale-[0.99]
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-blue-500
-                  sm:w-auto
-                "
-              >
-                <FileText
-                  size={15}
-                  aria-hidden="true"
-                />
-                Editar informações
-              </button>
-            )}
+
           </div>
+            </div>
+          </details>
           <section className="ev-profile-danger-zone" aria-labelledby="titulo-zona-exclusao">
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>

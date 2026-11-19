@@ -215,16 +215,16 @@ export default function Login() {
           </section>
 
           <section aria-labelledby="login-title" className={`ev-login-card mx-auto w-full max-w-[460px] rounded-[24px] border p-4 shadow-[0_24px_70px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-5 lg:p-5 ${temaClaro ? "border-white/85 bg-white/95 text-[#102b49]" : "border-[#304760] bg-[#081629]/95 text-white"}`}>
-            <div className="mb-3 text-center">
-              <div className="mb-2 flex items-center justify-center gap-2.5">
+            <div className="mb-4 text-center">
+              <div className="mb-3 flex items-center justify-center gap-2.5">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-100"><img src="/logo.png" alt="" className="h-full w-full object-contain" /></span>
                 <span className={`text-2xl font-extrabold tracking-tight ${temaClaro ? "text-[#102b49]" : "text-white"}`}>Easy<span className="text-[#1478b8]">Vacc</span></span>
               </div>
-              <h2 id="login-title" className={`text-2xl font-extrabold tracking-tight sm:text-3xl ${temaClaro ? "text-[#102b49]" : "text-white"}`}>Bem-vindo(a)!</h2>
-              <p className={`mt-1.5 text-sm leading-5 ${temaClaro ? "text-slate-600" : "text-slate-200"}`}>Entre com seu CPF e senha para acessar sua caderneta de vacinação.</p>
+              <h2 id="login-title" className={`text-[23px] font-extrabold tracking-tight sm:text-[27px] ${temaClaro ? "text-[#102b49]" : "text-white"}`}>Bem-vindo(a)!</h2>
+              <p className={`mt-1.5 text-sm leading-5 ${temaClaro ? "text-slate-600" : "text-slate-200"}`}>Acesse sua caderneta digital.</p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-3">
+            <form onSubmit={handleLogin} className="space-y-3.5">
               <div>
                 <label htmlFor="cpf" className={`mb-1.5 block text-sm font-bold ${temaClaro ? "text-[#102b49]" : "text-white"}`}>CPF</label>
                 <div className="relative">
@@ -253,10 +253,10 @@ export default function Login() {
               type="button"
               onClick={() => void entrarComBiometria()}
               disabled={carregando || entrandoComPasskey || !passkeysDisponiveis()}
-              className={`ev-btn-secondary mt-2 flex h-10 w-full items-center justify-center gap-2 rounded-lg border px-4 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${temaClaro ? 'border-[#126ca8] bg-blue-50 text-[#105b90] hover:bg-blue-100' : 'border-[#3186c0] bg-[#102b49] text-white hover:bg-[#183e65]'}`}
+              className={`mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#83caff] disabled:cursor-not-allowed disabled:opacity-60 ${temaClaro ? 'text-[#126ca8] hover:bg-blue-50' : 'text-[#a9d9ff] hover:bg-white/5'}`}
             >
               {entrandoComPasskey ? <Loader2 size={18} className="animate-spin" /> : <Fingerprint size={19} />}
-              {entrandoComPasskey ? 'Verificando biometria...' : 'Entrar com biometria / Face ID'}
+              {entrandoComPasskey ? 'Verificando biometria...' : 'Entrar com biometria'}
             </button>
             {!passkeysDisponiveis() && (
               <p className={`mt-1 text-center text-[11px] ${temaClaro ? 'text-slate-500' : 'text-slate-300'}`}>
@@ -264,9 +264,11 @@ export default function Login() {
               </p>
             )}
 
-            <div className={`my-2 flex items-center gap-3 text-[10px] font-semibold tracking-wide ${temaClaro ? "text-slate-500" : "text-slate-300"}`}><span className={`h-px flex-1 ${temaClaro ? "bg-slate-300" : "bg-white/25"}`} />AINDA NÃO TEM CONTA?<span className={`h-px flex-1 ${temaClaro ? "bg-slate-300" : "bg-white/25"}`} /></div>
-            <Link to="/cadastro" className={`ev-btn-secondary flex h-10 w-full items-center justify-center rounded-lg border border-[#126ca8] text-sm font-bold transition ${temaClaro ? "bg-white text-[#105b90] hover:bg-blue-50" : "bg-[#102b49] text-white hover:bg-[#183e65]"}`}>Criar minha conta</Link>
-            <div className={`mt-2 flex flex-wrap justify-center gap-x-5 gap-y-2 border-t pt-3 text-xs font-medium ${temaClaro ? "border-slate-200 text-[#126ca8]" : "border-white/20 text-[#83caff]"}`}><Link to="/privacidade" className="hover:underline">Política de Privacidade</Link><Link to="/termos" className="hover:underline">Termos de Uso</Link></div>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-sm">
+              <span className={temaClaro ? 'text-slate-600' : 'text-slate-300'}>Não tem conta?</span>
+              <Link to="/cadastro" className={`font-bold hover:underline focus-visible:underline ${temaClaro ? 'text-[#126ca8]' : 'text-[#83caff]'}`}>Criar conta</Link>
+            </div>
+            <div className={`mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2 border-t pt-3 text-[11px] font-medium ${temaClaro ? "border-slate-200 text-[#126ca8]" : "border-white/20 text-[#83caff]"}`}><Link to="/privacidade" className="hover:underline">Privacidade</Link><Link to="/termos" className="hover:underline">Termos de uso</Link></div>
           </section>
         </div>
         <footer className="hidden shrink-0 pb-1 text-center text-[11px] text-white/80 lg:block">EasyVacc • Caderneta Digital de Vacinação</footer>

@@ -463,6 +463,14 @@ export default function PainelAdministrador() {
         .easyvacc-light [class~="bg-[#020817]"] { background-color: #f3f8fe !important; }
         .easyvacc-light [class~="text-slate-300"] { color: #334155 !important; }
         .easyvacc-light [class~="text-blue-400"] { color: #126ca8 !important; }
+        .easyvacc-light .ev-admin-sair {
+          background-color: #ffffff !important;
+          color: #123b60 !important;
+          border-color: #bfd1e4 !important;
+        }
+        .easyvacc-light .ev-admin-sair:hover {
+          background-color: #edf5ff !important;
+        }
         .easyvacc-light input,
         .easyvacc-light select,
         .easyvacc-light textarea {
@@ -512,7 +520,7 @@ export default function PainelAdministrador() {
             <button
               type="button"
               onClick={sair}
-              className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-700 px-3 py-2 text-sm transition hover:bg-slate-800 sm:px-4"
+              className={`ev-admin-sair flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold shadow-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:px-4 ${temaClaro ? 'border-[#bfd1e4] bg-white text-[#123b60] hover:bg-[#edf5ff]' : 'border-[#365473] bg-[#102b49] text-white hover:bg-[#173b61]'}`}
             >
               <LogOut size={17} />
               <span>Sair</span>

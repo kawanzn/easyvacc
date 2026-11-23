@@ -30,6 +30,8 @@ export default function ChatbotGemini() {
   const proximoId = useRef(1);
   const mensagensRef = useRef<HTMLDivElement>(null);
   const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 639px)').matches);
+  const [campoFocado, setCampoFocado] = useState(false);
+  const alturaBaseRef = useRef(window.innerHeight);
   const [areaVisivel, setAreaVisivel] = useState(() => ({ topo: 0, esquerda: 0, largura: window.innerWidth, altura: window.innerHeight }));
 
   // O Safari no iPhone reduz o visualViewport quando o teclado é aberto.
@@ -50,6 +52,7 @@ export default function ChatbotGemini() {
       largura: viewport?.width ?? window.innerWidth,
       altura: viewport?.height ?? window.innerHeight,
     });
+    alturaBaseRef.current = Math.max(window.innerHeight, viewport?.height ?? 0);
     atualizarArea();
     viewport?.addEventListener('resize', atualizarArea);
     viewport?.addEventListener('scroll', atualizarArea);
@@ -76,17 +79,21 @@ export default function ChatbotGemini() {
     return () => { document.body.style.overflow = overflowAnterior; };
   }, [aberto, mobile]);
 
-  // Sem teclado: janela compacta acima do menu inferior.
-  // Com teclado: usa o viewport realmente visível para manter a digitação acessível.
-  const tecladoAberto = mobile && (window.innerHeight - (areaVisivel.topo + areaVisivel.altura) > 120);
+  // Mede a área realmente visível no Safari. Não aumenta a altura mínima
+  // além do espaço disponível, evitando comprimir ou cortar o formulário.
+  const tecladoAberto = mobile && campoFocado &&
+    alturaBaseRef.current - areaVisivel.altura > 120;
   const margemInferior = tecladoAberto ? 8 : 100;
-  const alturaDisponivel = Math.max(180, areaVisivel.altura - margemInferior - 12);
-  const alturaPainel = Math.min(tecladoAberto ? 520 : areaVisivel.altura * 0.62, alturaDisponivel);
+  const espacoUtil = Math.max(0, areaVisivel.altura - margemInferior - 12);
+  const alturaDesejada = tecladoAberto
+    ? Math.min(420, areaVisivel.altura * 0.86)
+    : areaVisivel.altura * 0.62;
+  const alturaPainel = Math.max(0, Math.min(alturaDesejada, espacoUtil));
   const estiloPainelMobile: CSSProperties = {
     position: 'fixed',
-    top: Math.max(areaVisivel.topo + 8, areaVisivel.topo + areaVisivel.altura - margemInferior - alturaPainel),
+    top: areaVisivel.topo + Math.max(8, areaVisivel.altura - margemInferior - alturaPainel),
     left: areaVisivel.esquerda + 12,
-    width: Math.max(240, areaVisivel.largura - 24),
+    width: Math.max(0, areaVisivel.largura - 24),
     height: alturaPainel,
     maxHeight: alturaPainel,
     margin: 0,
@@ -142,7 +149,7 @@ export default function ChatbotGemini() {
             <Bot size={23} aria-hidden="true" />
             <div className="min-w-0 flex-1"><p className="text-sm font-bold">EasyVacc Assistente</p><p className="text-xs text-blue-100">Orientações com IA</p></div>
             <button type="button" aria-label="Limpar conversa" title="Limpar conversa" onClick={() => { setMensagens([{ id: proximoId.current++, origem: 'assistente', texto: BOAS_VINDAS }]); setTexto(''); }} className="rounded-lg p-2 hover:bg-white/15"><Trash2 size={17} /></button>
-            <button type="button" aria-label="Fechar assistente" onClick={() => setAberto(false)} className="rounded-lg p-2 hover:bg-white/15"><X size={19} /></button>
+            <button type="button" aria-label="Fechar assistente" onClick={() => { setCampoFocado(false); setAberto(false); }} className="rounded-lg p-2 hover:bg-white/15"><X size={19} /></button>
           </header>
           <div ref={mensagensRef} className={`min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain p-4 ${temaClaro ? 'bg-slate-50' : 'bg-[#071323]'}`} aria-live="polite" aria-relevant="additions text">
             {mensagens.map((m) => <div key={m.id} className={`flex ${m.origem === 'usuario' ? 'justify-end' : 'justify-start'}`}>
@@ -157,6 +164,7 @@ export default function ChatbotGemini() {
           <form onSubmit={enviar} className={`flex min-w-0 shrink-0 items-end gap-2 border-t p-3 ${temaClaro ? 'border-slate-200' : 'border-slate-700'}`}>
             <label className="sr-only" htmlFor="easyvacc-pergunta">Sua pergunta</label>
             <textarea id="easyvacc-pergunta" rows={2} maxLength={1000} value={texto} disabled={enviando || totalEnviadas >= MAX_MENSAGENS_SESSAO}
+              onFocus={() => setCampoFocado(true)} onBlur={() => setCampoFocado(false)}
               onChange={(e) => setTexto(e.target.value)} placeholder={totalEnviadas >= MAX_MENSAGENS_SESSAO ? 'Limite desta sessão atingido' : 'Digite sua pergunta...'}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); e.currentTarget.form?.requestSubmit(); } }}
               className={`min-h-11 min-w-0 max-h-24 flex-1 resize-none rounded-xl border px-3 py-2 text-base sm:text-sm outline-none focus:border-[#126ca8] ${temaClaro ? 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-500' : 'border-slate-600 bg-slate-900 text-white placeholder:text-slate-400'}`} />

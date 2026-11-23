@@ -53,12 +53,12 @@ export default function Layout() {
     try {
       const salvo = JSON.parse(localStorage.getItem('easyvacc-acessibilidade') || '{}');
       return {
-        ativo: salvo.ativo === true,
+        ativo: salvo.ativo !== false,
         fonte: (['normal', 'grande', 'extra'].includes(salvo.fonte) ? salvo.fonte : 'normal') as 'normal' | 'grande' | 'extra',
         contraste: salvo.contraste === true,
       };
     } catch {
-      return { ativo: false, fonte: 'normal' as const, contraste: false };
+      return { ativo: true, fonte: 'normal' as const, contraste: false };
     }
   };
   const [acessibilidade, setAcessibilidade] = useState(lerAcessibilidade);

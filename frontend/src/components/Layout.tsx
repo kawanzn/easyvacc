@@ -1190,6 +1190,10 @@ html::-webkit-scrollbar-button {
           }
         }
 
+        @media print {
+          [data-ev-no-print] { display: none !important; visibility: hidden !important; }
+        }
+
         /* O documento do certificado mantém seu próprio desenho e impressão. */
         @media print {
           .easyvacc-app main {
@@ -1963,7 +1967,7 @@ html::-webkit-scrollbar-button {
       </div>
       {/* Controle de voz compacto, acima do chatbot. Não altera o componente do chat. */}
       {acessibilidade.ativo && createPortal(
-        <div className="fixed bottom-[180px] right-4 z-[9998] flex flex-col items-end gap-3 sm:bottom-[92px] sm:right-6 print:hidden">
+        <div className="fixed bottom-[180px] right-4 z-[9998] flex flex-col items-end gap-3 sm:bottom-[92px] sm:right-6 print:hidden" data-ev-no-print>
           {painelVozAberto && (
             <section
               id="easyvacc-painel-voz"
@@ -2003,7 +2007,9 @@ html::-webkit-scrollbar-button {
         </div>,
         document.body
       )}
-      <ChatbotGemini />
+      <div className="print:hidden" data-ev-no-print>
+        <ChatbotGemini />
+      </div>
     </div>
   );
 }

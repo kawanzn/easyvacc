@@ -774,6 +774,28 @@ export default function Certificado() {
             overflow: visible !important;
           }
 
+          /* Portais do chatbot ficam fora do Layout e do #root. */
+          body:has(.easyvacc-certificado) > :not(#root):not(style):not(script):not(link),
+          body:has(.easyvacc-certificado) [data-ev-no-print],
+          body:has(.easyvacc-certificado) [aria-label="EasyVacc Assistente"] {
+            display: none !important;
+          }
+          html:has(.easyvacc-certificado) { font-size: 16px !important; }
+          html body #root #ev-certificado-impressao,
+          html body #root #ev-certificado-impressao *:not(svg):not(svg *) {
+            color: #172334 !important;
+            -webkit-text-fill-color: #172334 !important;
+            opacity: 1 !important;
+            text-shadow: none !important;
+            filter: none !important;
+          }
+          html body #root #ev-certificado-impressao th {
+            background-color: #eef2f6 !important;
+          }
+          .easyvacc-app .easyvacc-certificado tr { break-inside: avoid; }
+          .easyvacc-app .easyvacc-certificado thead { display: table-header-group; }
+          .easyvacc-app .easyvacc-certificado footer { break-inside: avoid; }
+
           body {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
@@ -781,7 +803,7 @@ export default function Certificado() {
         }
       `}</style>
 
-      <div className={`min-h-full bg-transparent text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900 ev-page easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
+      <div id="ev-certificado-impressao" className={`min-h-full bg-transparent text-slate-100 print:min-h-0 print:overflow-visible print:bg-white print:text-slate-900 ev-page easyvacc-certificado ${temaClaro ? "easyvacc-light" : ""}`}>
       <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 md:py-10 print:max-w-none print:p-0">
 
         {/* CABEÇALHO */}

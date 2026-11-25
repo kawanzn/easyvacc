@@ -435,7 +435,8 @@ export default function Notificacoes() {
       if (
         notificacao.tipo === 'dose_atrasada' ||
         notificacao.tipo === 'proxima_dose' ||
-        notificacao.tipo === 'alerta_vacinal'
+        notificacao.tipo === 'alerta_vacinal' ||
+        notificacao.tipo === 'vacina_registrada'
       ) {
         navigate('/historico');
       }
@@ -588,7 +589,8 @@ export default function Notificacoes() {
     if (
       notificacao.tipo === 'dose_atrasada' ||
       notificacao.tipo === 'proxima_dose' ||
-        notificacao.tipo === 'alerta_vacinal'
+        notificacao.tipo === 'alerta_vacinal' ||
+        notificacao.tipo === 'vacina_registrada'
     ) {
       return 'Ver caderneta';
     }

@@ -44,81 +44,60 @@ export default function RotaProfissional({
 
   useEffect(() => {
     let ativo = true;
+    let versao = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
-    const verificarAcesso = async () => {
+    const verificarAcesso = async (atual: number) => {
       try {
-        // ==========================================
-        // 1. VERIFICAR SESSÃO
-        // ==========================================
-
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser();
+        const { data: { user }, error: authError } =
+          await supabase.auth.getUser();
 
         if (authError || !user) {
-          if (ativo) {
-            setStatus('nao-autorizado');
-          }
-
+          if (ativo && atual === versao) setStatus('nao-autorizado');
           return;
         }
 
-        // ==========================================
-        // 2. VERIFICAR PROFISSIONAL
-        // ==========================================
+        const { data: profissional, error: profissionalError } =
+          await supabase
+            .from('profissionais')
+            .select('id, ativo')
+            .eq('user_id', user.id)
+            .eq('ativo', true)
+            .maybeSingle();
 
-        const {
-          data: profissional,
-          error: profissionalError,
-        } = await supabase
-          .from('profissionais')
-          .select('id, ativo')
-          .eq('user_id', user.id)
-          .eq('ativo', true)
-          .maybeSingle();
+        if (profissionalError) throw profissionalError;
 
-        if (
-          profissionalError ||
-          !profissional
-        ) {
-          if (profissionalError) {
-            console.error(
-              'Erro ao verificar profissional:',
-              profissionalError
-            );
-          }
-
-          if (ativo) {
-            setStatus('nao-autorizado');
-          }
-
-          return;
-        }
-
-        // ==========================================
-        // 3. AUTORIZADO
-        // ==========================================
-
-        if (ativo) {
-          setStatus('autorizado');
+        if (ativo && atual === versao) {
+          setStatus(profissional ? 'autorizado' : 'nao-autorizado');
         }
       } catch (error) {
-        console.error(
-          'Erro ao validar acesso profissional:',
-          error
-        );
-
-        if (ativo) {
-          setStatus('nao-autorizado');
-        }
+        console.error('Erro ao validar acesso profissional:', error);
+        if (ativo && atual === versao) setStatus('nao-autorizado');
       }
     };
 
-    void verificarAcesso();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (evento, sessao) => {
+        if (!ativo) return;
+        const atual = ++versao;
+        clearTimeout(timer);
+
+        if (!sessao || evento === 'SIGNED_OUT') {
+          setStatus('nao-autorizado');
+          return;
+        }
+
+        setStatus('carregando');
+        // Executa consultas fora do callback de autenticação.
+        timer = setTimeout(() => void verificarAcesso(atual), 0);
+      }
+    );
 
     return () => {
       ativo = false;
+      ++versao;
+      clearTimeout(timer);
+      subscription.unsubscribe();
     };
   }, []);
 

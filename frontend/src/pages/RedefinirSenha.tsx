@@ -43,7 +43,7 @@ export default function RedefinirSenha() {
   const [sucesso, setSucesso] = useState(false);
   const [linkCopiado, setLinkCopiado] = useState(false);
   const [erroCopia, setErroCopia] = useState('');
-  const urlPortalProfissional = 'https://easyvacc.com.br/login-profissional';
+  const urlPortalProfissional = 'https://easyvacc.com.br/profissional/login';
 
   const copiarEndereco = async () => {
     try {
@@ -348,7 +348,7 @@ export default function RedefinirSenha() {
               </div>
 
               <Link
-                to="/login-profissional"
+                to="/profissional/login"
                 className="ev-btn-primary flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#126ca8] px-4 text-center font-bold text-white transition hover:bg-blue-500"
               >
                 Acessar Portal Profissional <ExternalLink size={17} />

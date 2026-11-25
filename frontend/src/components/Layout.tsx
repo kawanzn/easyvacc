@@ -80,6 +80,7 @@ export default function Layout() {
   const [painelVozAberto, setPainelVozAberto] = useState(false);
   const reconhecimentoRef = useRef<{ start: () => void; stop: () => void } | null>(null);
   const leituraIdRef = useRef(0);
+  const confirmacaoVozRef = useRef('');
 
   const pararLeitura = () => {
     leituraIdRef.current += 1;
@@ -123,6 +124,12 @@ export default function Layout() {
     proximo();
   };
 
+  const atualizarFontePorVoz = (fonte: 'normal' | 'grande' | 'extra') => {
+    const proximo = { ...lerAcessibilidade(), fonte };
+    localStorage.setItem('easyvacc-acessibilidade', JSON.stringify(proximo));
+    window.dispatchEvent(new CustomEvent('easyvacc-acessibilidade-atualizada', { detail: proximo }));
+  };
+
   const iniciarComandoVoz = () => {
     if (ouvindoComando) { reconhecimentoRef.current?.stop(); setOuvindoComando(false); return; }
     const navegador = window as Window & {
@@ -155,9 +162,30 @@ export default function Layout() {
       if (/\b(parar|interromper|cancelar leitura)\b/.test(dito)) {
         pararLeitura(); setMensagemVoz('Leitura interrompida.'); return;
       }
+      if (/\b(ler|leia|leitura)\b/.test(dito)) {
+        lerPagina(); return;
+      }
+      if (/\b(fonte|letras|texto)\b/.test(dito)) {
+        const fonte = /muito grande|extra/.test(dito) ? 'extra' : /grande|aumentar/.test(dito) ? 'grande' : /normal|diminuir/.test(dito) ? 'normal' : null;
+        if (fonte) { atualizarFontePorVoz(fonte); setMensagemVoz('Tamanho do texto atualizado.'); return; }
+      }
+      if (/\b(tema|modo) (claro|escuro)\b/.test(dito)) {
+        const claro = /\bclaro\b/.test(dito);
+        localStorage.setItem('easyvacc-tema', claro ? 'claro' : 'escuro');
+        setTemaClaro(claro);
+        window.dispatchEvent(new Event('easyvacc-tema-atualizado'));
+        window.dispatchEvent(new Event('easyvaccTemaAtualizado'));
+        setMensagemVoz('Tema atualizado.'); return;
+      }
       const destino = destinos.find(([padrao]) => padrao.test(dito));
       if (destino) {
         setMensagemVoz(`Abrindo ${destino[1].slice(1)}.`);
+        setPainelVozAberto(false);
+        const nomes: Record<string, string> = { '/dashboard': 'início', '/historico': 'caderneta', '/certificado': 'certificado', '/dependentes': 'dependentes', '/campanhas': 'campanhas', '/postos': 'postos', '/notificacoes': 'notificações', '/perfil': 'perfil' };
+        const mensagem = `Abrindo ${nomes[destino[1]]}.`;
+        if (destino[1] === pathname && 'speechSynthesis' in window) {
+          const fala = new SpeechSynthesisUtterance(mensagem); fala.lang = 'pt-BR'; window.speechSynthesis.speak(fala);
+        } else { confirmacaoVozRef.current = mensagem; }
         fecharMenuMobile();
         navigate(destino[1]);
       } else {
@@ -170,7 +198,7 @@ export default function Layout() {
     };
     reconhecimento.onend = () => { setOuvindoComando(false); reconhecimentoRef.current = null; };
     reconhecimentoRef.current = reconhecimento;
-    try { reconhecimento.start(); setOuvindoComando(true); setMensagemVoz('Ouvindo um comando de navegação...'); }
+    try { reconhecimento.start(); setOuvindoComando(true); setMensagemVoz('Ouvindo...'); }
     catch { setOuvindoComando(false); setMensagemVoz('Não foi possível iniciar o microfone.'); }
   };
 
@@ -181,6 +209,13 @@ export default function Layout() {
     reconhecimentoRef.current?.stop();
     setLendoPagina(false);
     setOuvindoComando(false);
+    const mensagem = confirmacaoVozRef.current;
+    confirmacaoVozRef.current = '';
+    if (mensagem && 'speechSynthesis' in window) {
+      const fala = new SpeechSynthesisUtterance(mensagem);
+      fala.lang = 'pt-BR';
+      window.speechSynthesis.speak(fala);
+    }
   }, [pathname]);
 
   useEffect(() => () => {
@@ -709,23 +744,9 @@ export default function Layout() {
       <style>{`
         /* Acessibilidade aplicada ao conteúdo do cidadão, sem alterar login,
            painéis administrativos ou os tamanhos fixos dos controles. */
-        .easyvacc-app.ev-accessible .ev-wave-content {
-          --ev-accessible-scale: 1;
-        }
-        .easyvacc-app.ev-accessible.ev-font-large .ev-wave-content {
-          --ev-accessible-scale: 1.12;
-        }
-        .easyvacc-app.ev-accessible.ev-font-extra .ev-wave-content {
-          --ev-accessible-scale: 1.25;
-        }
-        .easyvacc-app.ev-accessible .ev-wave-content :is(p, li, label, td, th, input, textarea, select) {
-          font-size: calc(1em * var(--ev-accessible-scale)) !important;
-          line-height: 1.55;
-        }
-        .easyvacc-app.ev-accessible .ev-wave-content :is(h1, h2, h3, h4) {
-          letter-spacing: normal;
-          line-height: 1.35;
-        }
+        /* Normal preserva a tipografia original; ampliação usa unidades rem. */
+        html:has(.easyvacc-app.ev-font-large) { font-size: 112%; }
+        html:has(.easyvacc-app.ev-font-extra) { font-size: 125%; }
         .easyvacc-app.ev-accessible .ev-wave-content :is(button, a, input, select, textarea):focus-visible {
           outline: 3px solid #60a5fa !important;
           outline-offset: 3px;
@@ -1950,21 +1971,21 @@ html::-webkit-scrollbar-button {
               className={`w-[min(320px,calc(100vw-40px))] rounded-2xl border p-3 shadow-xl ${temaClaro ? 'border-blue-200 bg-white text-slate-900' : 'border-blue-700 bg-[#102b49] text-white'}`}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
-                <p className="text-sm font-semibold">Acessibilidade por voz</p>
+                <p className="text-sm font-semibold">Como posso ajudar?</p>
                 <button type="button" aria-label="Fechar opções de voz" onClick={() => setPainelVozAberto(false)} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-blue-500/10"><X size={18} /></button>
               </div>
               <div className="flex flex-col gap-2">
+                <button type="button" onClick={iniciarComandoVoz} aria-pressed={ouvindoComando} className={`flex min-h-10 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold ${temaClaro ? 'border-blue-200 bg-blue-50 text-[#14517e]' : 'border-blue-500 bg-[#163d60] text-white'}`}>
+                  {ouvindoComando ? <MicOff size={18} /> : <Mic size={18} />}
+                  {ouvindoComando ? 'Parar escuta' : 'Toque para falar'}
+                </button>
                 <button type="button" onClick={lerPagina} aria-pressed={lendoPagina} className="flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[#1478b8] px-3 py-2 text-sm font-semibold text-white hover:bg-[#12669d]">
                   {lendoPagina ? <VolumeX size={18} /> : <Volume2 size={18} />}
                   {lendoPagina ? 'Parar leitura' : 'Ler esta página'}
                 </button>
-                <button type="button" onClick={iniciarComandoVoz} aria-pressed={ouvindoComando} className={`flex min-h-10 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold ${temaClaro ? 'border-blue-200 bg-blue-50 text-[#14517e]' : 'border-blue-500 bg-[#163d60] text-white'}`}>
-                  {ouvindoComando ? <MicOff size={18} /> : <Mic size={18} />}
-                  {ouvindoComando ? 'Parar escuta' : 'Comando de voz'}
-                </button>
               </div>
               <p role="status" aria-live="polite" className={`mt-3 text-xs leading-5 ${temaClaro ? 'text-slate-600' : 'text-slate-200'}`}>
-                {mensagemVoz || 'Diga: abrir caderneta, certificados, postos ou perfil.'}
+                {mensagemVoz || 'Diga: abrir caderneta, ler esta página ou tema claro.'}
               </p>
             </section>
           )}

@@ -158,6 +158,23 @@ export default function Perfil() {
   const [lendoAcessibilidade, setLendoAcessibilidade] = useState(false);
 
   useEffect(() => {
+    const sincronizar = () => {
+      try {
+        const salvo = JSON.parse(localStorage.getItem('easyvacc-acessibilidade') || '{}');
+        const fonte = (['normal', 'grande', 'extra'].includes(salvo.fonte) ? salvo.fonte : 'normal') as 'normal' | 'grande' | 'extra';
+        const proximo = { ativo: salvo.ativo !== false, fonte, contraste: salvo.contraste === true };
+        setAcessibilidade(a => a.ativo === proximo.ativo && a.fonte === proximo.fonte && a.contraste === proximo.contraste ? a : proximo);
+      } catch { /* Mantém a preferência atual. */ }
+    };
+    window.addEventListener('easyvacc-acessibilidade-atualizada', sincronizar);
+    window.addEventListener('storage', sincronizar);
+    return () => {
+      window.removeEventListener('easyvacc-acessibilidade-atualizada', sincronizar);
+      window.removeEventListener('storage', sincronizar);
+    };
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem('easyvacc-acessibilidade', JSON.stringify(acessibilidade));
     const raiz = document.documentElement;
     raiz.classList.toggle('ev-acessivel', acessibilidade.ativo);
@@ -2126,6 +2143,7 @@ export default function Perfil() {
               <div className="mt-4 space-y-4">
                 <div>
                   <p id="ev-tamanho-fonte-label" className="mb-2 text-sm font-semibold text-slate-200">Tamanho dos textos</p>
+                  <p className="mb-2 text-xs text-slate-400">Normal mantém o tamanho original do sistema.</p>
                   <div role="group" aria-labelledby="ev-tamanho-fonte-label" className="flex flex-wrap gap-2">
                     {([['normal', 'Normal'], ['grande', 'Grande'], ['extra', 'Muito grande']] as const).map(([valor, rotulo]) => (
                       <button

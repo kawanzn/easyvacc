@@ -111,7 +111,6 @@ function calcularStatus(
 
 export default function Campanhas() {
   const [searchParams] = useSearchParams();
-  const [temaClaro] = useState(() => localStorage.getItem('easyvacc-tema') === 'claro');
 
   const [campanhas, setCampanhas] =
     useState<Campanha[]>([]);
@@ -328,34 +327,35 @@ export default function Campanhas() {
   }
 
   return (
-    <div className={`ev-page relative min-h-screen w-full bg-transparent text-slate-100 antialiased easyvacc-campanhas ${temaClaro ? "easyvacc-light" : ""}`}>
+    <div className={`ev-page relative min-h-screen w-full bg-transparent text-slate-100 antialiased easyvacc-campanhas`}>
 
 
       <style>{`
-        .easyvacc-campanhas.easyvacc-light { background-color: transparent !important; color: #10243e !important; }
-        .easyvacc-campanhas.easyvacc-light .text-white,
-        .easyvacc-campanhas.easyvacc-light .text-slate-100 { color: #10243e !important; }
-        .easyvacc-campanhas.easyvacc-light .text-slate-200,
-        .easyvacc-campanhas.easyvacc-light .text-slate-300 { color: #29435f !important; }
-        .easyvacc-campanhas.easyvacc-light .text-slate-400,
-        .easyvacc-campanhas.easyvacc-light .text-slate-500 { color: #526780 !important; }
-        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-900/80"],
-        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-900/60"],
-        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-900"],
-        .easyvacc-campanhas.easyvacc-light [class~="bg-[#111827]"] { background-color: #fff !important; }
-        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-950"],
-        .easyvacc-campanhas.easyvacc-light [class~="bg-[#090d16]"] { background-color: #edf3f9 !important; }
-        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-800"],
-        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-800/70"],
-        .easyvacc-campanhas.easyvacc-light [class~="bg-slate-800/60"] { background-color: #e4edf7 !important; }
-        .easyvacc-campanhas.easyvacc-light [class~="border-slate-800"],
-        .easyvacc-campanhas.easyvacc-light [class~="border-slate-700"] { border-color: #c7d5e5 !important; }
-        .easyvacc-campanhas.easyvacc-light .text-blue-400 { color: #1769aa !important; }
-        .easyvacc-campanhas.easyvacc-light .text-blue-300 { color: #175b96 !important; }
-        .easyvacc-campanhas.easyvacc-light .text-blue-200 { color: #164f83 !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas { background-color: transparent !important; color: #10243e !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-white,
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-slate-100 { color: #10243e !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-slate-200,
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-slate-300 { color: #29435f !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-slate-400,
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-slate-500 { color: #526780 !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-slate-900/80"],
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-slate-900/60"],
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-slate-900"],
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-[#111827]"] { background-color: #fff !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-slate-950"],
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-[#090d16]"] { background-color: #edf3f9 !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-slate-800"],
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-slate-800/70"],
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="bg-slate-800/60"] { background-color: #e4edf7 !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="border-slate-800"],
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas [class~="border-slate-700"] { border-color: #c7d5e5 !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-blue-400 { color: #1769aa !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-blue-300 { color: #175b96 !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .text-blue-200 { color: #164f83 !important; }
+        .easyvacc-app.easyvacc-light .easyvacc-campanhas .ev-campanhas-info-titulo { color: #164f83 !important; -webkit-text-fill-color: #164f83 !important; }
         @media print {
-          .easyvacc-campanhas.easyvacc-light .print\:text-slate-900 { color: #0f172a !important; }
-          .easyvacc-campanhas.easyvacc-light .print\:bg-white { background-color: #fff !important; }
+          .easyvacc-app.easyvacc-light .easyvacc-campanhas .print\:text-slate-900 { color: #0f172a !important; }
+          .easyvacc-app.easyvacc-light .easyvacc-campanhas .print\:bg-white { background-color: #fff !important; }
         }
       `}</style>
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -390,7 +390,7 @@ export default function Campanhas() {
            aria-hidden="true" />
 
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-blue-200">
+            <p className="text-sm font-semibold text-blue-200 ev-campanhas-info-titulo">
               Informações sobre as campanhas
             </p>
 

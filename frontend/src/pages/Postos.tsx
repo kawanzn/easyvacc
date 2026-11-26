@@ -773,7 +773,7 @@ export default function Postos() {
                         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
                           <div className="min-w-0 flex-1">
                             <div className="mb-3 flex flex-wrap items-center gap-2">
-                              <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-200">
+                              <span className={`inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/10 px-3 py-1 text-xs font-semibold ${temaClaro ? 'text-blue-800' : 'text-blue-200'}` }>
                                 {info.rotulo}
                               </span>
 
